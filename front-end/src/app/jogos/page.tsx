@@ -142,6 +142,7 @@ const temporadas: Temporada[] = [
         nome: "Capybara Airways",
         equipe: "Capivarinhas",
         participantes: ["André Luiz Siqueira", "Arthur Manelli Riva Souza", "Daniela Souza Pimentel"],
+        descricao: "Uma capivara aviadora pilota seu biplano vermelho pelos céus. Voe sem parar, desvie do que vier pela frente e colete o máximo de moedas antes que o tempo acabe.",
         link: "https://apigamejam.pet.inf.ufes.br/arquivo/capybara-airways/",
         capa: "/jogos/capivarinhas.jpg",
       },
@@ -149,6 +150,7 @@ const temporadas: Temporada[] = [
         nome: "Calouro",
         equipe: "Gaga Games",
         participantes: ["Letícia Rodrigues", "Daniel Siqueira", "Arthur Maciel"],
+        descricao: "Um calouro precisa passar de ano. Corra, pule e ataque pelas plataformas, junte moedas e sobreviva com suas três vidas — no fim, resta descobrir se o veredito é aprovado ou reprovado.",
         link: "https://apigamejam.pet.inf.ufes.br/arquivo/gaga-games/",
         capa: "/jogos/gaga-games.jpg",
       },
@@ -157,6 +159,7 @@ const temporadas: Temporada[] = [
         // Nome no banner.png do repositorio petgamejam-gustavo.
         equipe: "Animal",
         participantes: ["Gustavo", "Tarcio", "Marcos"],
+        descricao: "Sob a chuva de uma floresta de outono, um guerreiro avança de espada em punho. Corra, use o dash e ataque sem parar para atravessar o caminho e derrotar a Sombra e o Guardião que o aguardam.",
         link: "https://apigamejam.pet.inf.ufes.br/arquivo/equipe-animal/",
         capa: "/jogos/animal.jpg",
       },
