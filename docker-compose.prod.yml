@@ -84,6 +84,27 @@ services:
     volumes:
       - uploads:/app/tmp
 
+  # O site do Game Jam. Next em modo standalone (server.js), agora servido pela
+  # VM como as demais stacks — antes vivia so na Vercel. A URL da API
+  # (https://apigamejam.pet.inf.ufes.br) e assada no build pelo workflow do
+  # front, entao aqui nao ha env de execucao nem rede interna: o navegador chama
+  # a API pelo dominio publico. So falta o LAR apontar gamejam.pet para a VM.
+  front-end:
+    # ghcr.io/pet-eng-comp-ufes/game-jam/front-end:latest (sha-dc385ce7)
+    image: ghcr.io/pet-eng-comp-ufes/game-jam/front-end@sha256:a5a8a1fcd3519c4aa87bdca7876eaf58cd21172f44194ae53cb9b178719ef3e7
+    container_name: game-jam_front-end
+    restart: unless-stopped
+    logging: *logging
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.game-jam_front-end.rule=Host(`gamejam.pet.inf.ufes.br`)"
+      - "traefik.http.services.game-jam_front-end.loadbalancer.server.port=3000"
+      - "traefik.http.routers.game-jam_front-end.entrypoints=websecure"
+      - "traefik.http.routers.game-jam_front-end.tls.certresolver=le"
+      - "traefik.docker.network=traefik"
+    networks:
+      - traefik
+
   database-client:
     # phpmyadmin:5.2.3 — digest do container em execucao.
     # Nao pode sair: nao existe rota GET /participante na API, entao ele e a
