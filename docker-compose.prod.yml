@@ -57,9 +57,9 @@ services:
           - game-jam-database
 
   back-end:
-    # ghcr.io/pet-eng-comp-ufes/game-jam/back-end:sha-beddafaa80a64cec0a970f298d03e7ede2d25445
+    # ghcr.io/pet-eng-comp-org/game-jam/back-end:sha-beddafaa80a64cec0a970f298d03e7ede2d25445
     # Inclui o limite de taxa no login e na inscricao (PR #46).
-    image: ghcr.io/pet-eng-comp-ufes/game-jam/back-end@sha256:6102f938e09ff261ff408e4b57784695e989825ea2bb2460ab5a67ca116c7981
+    image: ghcr.io/pet-eng-comp-org/game-jam/back-end@sha256:6102f938e09ff261ff408e4b57784695e989825ea2bb2460ab5a67ca116c7981
     container_name: game-jam_back-end
     restart: unless-stopped
     logging: *logging
@@ -90,8 +90,8 @@ services:
   # front, entao aqui nao ha env de execucao nem rede interna: o navegador chama
   # a API pelo dominio publico. So falta o LAR apontar gamejam.pet para a VM.
   front-end:
-    # ghcr.io/pet-eng-comp-ufes/game-jam/front-end:latest (sha-dc385ce7)
-    image: ghcr.io/pet-eng-comp-ufes/game-jam/front-end@sha256:a5a8a1fcd3519c4aa87bdca7876eaf58cd21172f44194ae53cb9b178719ef3e7
+    # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-dc385ce7)
+    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:a5a8a1fcd3519c4aa87bdca7876eaf58cd21172f44194ae53cb9b178719ef3e7
     container_name: game-jam_front-end
     restart: unless-stopped
     logging: *logging

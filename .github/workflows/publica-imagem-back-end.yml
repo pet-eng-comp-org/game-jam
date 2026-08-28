@@ -42,7 +42,7 @@ jobs:
       - id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/pet-eng-comp-ufes/game-jam/back-end
+          images: ghcr.io/pet-eng-comp-org/game-jam/back-end
           # Tag por commit para dar rastro, e latest para o compose continuar funcionando.
           tags: |
             type=sha,format=long
