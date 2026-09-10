@@ -6,16 +6,18 @@ import FormInscricao from "../components/FormInscricao"
 
 export default function Inscricao() {
 
-  const [seasonAtual, setSeasonAtual] = useState<Season | null>(null)
+  //const [seasonAtual, setSeasonAtual] = useState<Season | null>(null)
+  //quando terminar de editar, descomentar tudo oq está comentado e apagar a declaração abaixo
+  const seasonAtual = new Season(4, "", 3, true, false, "")
 
   useEffect(() => {
 
-  async function fetchSeasonAtual() {
+  // async function fetchSeasonAtual() {
 
-    const res = await Season.obtemAtual()
-    setSeasonAtual(res ?? null)
-  }
-  fetchSeasonAtual()
+  //   const res = await Season.obtemAtual()
+  //   setSeasonAtual(res ?? null)
+  // }
+  //fetchSeasonAtual()
 }, [])
 
   if (!seasonAtual) {
@@ -27,20 +29,21 @@ export default function Inscricao() {
     <div
       style={{
         background: "url('/background-inscricao.webp') no-repeat",
-        backgroundSize: "cover"
+        backgroundSize: "cover",
+        backgroundPosition: "center"
       }}
     >
       <div className="flex lg:flex-row flex-col lg:h-screen justify-center items-center">
 
         <div className="lg:flex-1 w-full flex flex-col gap-12 justify-center items-center h-full mt-12 mb-12">
 
-          <span className="font-titulo text-3xl text-destaque md:text-4xl lg:text-5xl">
+          {/* <span className="font-titulo text-3xl text-destaque md:text-4xl lg:text-5xl">
 
             {seasonAtual.getInscricoesAbertas
               ? "Inscrições abertas!"
               : "Inscrições fechadas!"}
-          </span>
-          <img src="/logo.png" alt="Logo do PET Game Jam" className="md:h-52 h-36" />
+          </span> */}
+          <img src="/logo-alt.png" alt="Logo do PET Game Jam" className="md:h-96 h-64" /> 
 
         </div>
 
@@ -50,8 +53,8 @@ export default function Inscricao() {
             
             <FormInscricao numParticipantesPorEquipe={seasonAtual.getNumParticipantesPorEquipe} />
           ) : (
-            <span className="text-2xl font-medium">
-              As inscrições estão fechadas... Aguarde a próxima Season do Game Jam!
+            <span className="text-3xl font-medium block text-center mx-auto max-w-2xl rounded-lg p-6 bg-[var(--color-barra)] text-[var(--color-destaque)] shadow-s">
+              <strong>As inscrições estão fechadas...</strong><br />aguarde a próxima Season do Game Jam!
             </span>
           )}
         </div>
