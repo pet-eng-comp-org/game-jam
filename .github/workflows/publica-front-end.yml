@@ -8,11 +8,11 @@ on:
     # So o front-end vira imagem. Mexer na API nao precisa reconstruir o site.
     paths:
       - 'front-end/**'
-      - '.github/workflows/publica-imagem-front-end.yml'
+      - '.github/workflows/publica-front-end.yml'
   pull_request:
     paths:
       - 'front-end/**'
-      - '.github/workflows/publica-imagem-front-end.yml'
+      - '.github/workflows/publica-front-end.yml'
   workflow_dispatch:
 
 # ATENCAO: NEXT_PUBLIC_API_URL e assada no build, nao lida em execucao. Definir
@@ -30,6 +30,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
 
     steps:
       - uses: actions/checkout@v7
@@ -51,7 +53,8 @@ jobs:
             type=sha,format=long
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - uses: docker/build-push-action@v7
+      - id: build
+        uses: docker/build-push-action@v7
         with:
           context: ./front-end
           push: ${{ github.event_name != 'pull_request' }}
@@ -63,3 +66,54 @@ jobs:
           provenance: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
+  # Publicar nao e implantar: quem implanta e o commit abaixo. O CI escreve o
+  # digest recem-publicado no docker-compose.prod.yml e commita na main; o
+  # Portainer acompanha este arquivo e aplica em ate 5 minutos.
+  #
+  # Esse commit e o registro do deploy: tem data, aponta o commit de codigo que
+  # o originou e `git revert` nele volta a versao anterior.
+  implanta:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Escreve o digest novo no compose de producao
+        env:
+          DIGEST: ${{ needs.build.outputs.digest }}
+          COMPONENTE: front-end
+        run: |
+          python3 - <<'EOF'
+          import os, re
+          arq = "docker-compose.prod.yml"
+          img = "ghcr.io/pet-eng-comp-org/game-jam/" + os.environ["COMPONENTE"]
+          digest, sha = os.environ["DIGEST"], os.environ["GITHUB_SHA"]
+          s = open(arq, encoding="utf-8").read()
+          # a linha que vale e a do digest; o comentario acima dela guarda a tag legivel
+          s = re.sub(re.escape(img) + r"@sha256:[a-f0-9]+", img + "@" + digest, s)
+          s = re.sub(r"(" + re.escape(img) + r"[^\n]*?)sha-[0-9a-f]+", r"\1sha-" + sha, s)
+          open(arq, "w", encoding="utf-8").write(s)
+          EOF
+
+          if git diff --quiet -- docker-compose.prod.yml; then
+            echo "O compose ja aponta para ${DIGEST} - nada a implantar."
+            exit 0
+          fi
+
+          CURTO="${GITHUB_SHA:0:8}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qm "deploy: ${COMPONENTE} no commit ${CURTO}
+
+          Digest: ${DIGEST}
+          Codigo: ${GITHUB_SHA}
+
+          Para reverter esta implantacao: git revert deste commit." -- docker-compose.prod.yml
+          git push -q origin HEAD:main
+          echo "digest ${DIGEST} publicado na main"
