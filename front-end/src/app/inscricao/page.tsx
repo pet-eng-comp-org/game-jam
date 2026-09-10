@@ -33,9 +33,9 @@ export default function Inscricao() {
         backgroundPosition: "center"
       }}
     >
-      <div className="flex lg:flex-row flex-col lg:h-screen justify-center items-center">
+<     div className="flex lg:flex-row flex-col lg:h-screen justify-center items-center px-4 lg:px-16 gap-4 lg:gap-8">
 
-        <div className="lg:flex-1 w-full flex flex-col gap-12 justify-center items-center h-full mt-12 mb-12">
+        <div className="lg:flex-1 w-full flex flex-col justify-center items-center h-full mt-12 mb-12">
 
           {/* <span className="font-titulo text-3xl text-destaque md:text-4xl lg:text-5xl">
 
@@ -43,7 +43,7 @@ export default function Inscricao() {
               ? "Inscrições abertas!"
               : "Inscrições fechadas!"}
           </span> */}
-          <img src="/logo-alt.png" alt="Logo do PET Game Jam" className="md:h-96 h-64" /> 
+          <img src="/logo-alt.png" alt="Logo do PET Game Jam" className="md:h-96 h-64 object-cover" /> 
 
         </div>
 
@@ -53,8 +53,12 @@ export default function Inscricao() {
             
             <FormInscricao numParticipantesPorEquipe={seasonAtual.getNumParticipantesPorEquipe} />
           ) : (
-            <span className="text-3xl font-medium block text-center mx-auto max-w-2xl rounded-lg p-6 bg-[var(--color-barra)] text-[var(--color-destaque)] shadow-s">
-              <strong>As inscrições estão fechadas...</strong><br />aguarde a próxima Season do Game Jam!
+            <span className="text-3xl font-medium block text-center w-full max-w-xl border border-[var(--color-barra)] rounded-lg p-8 bg-[var(--color-barra)] text-[var(--color-destaque)] shadow-lg">
+              <strong className="block text-2xl md:text-3xl lg:text-3xl">
+                As inscrições estão fechadas...</strong>
+              <span className="block text-xl font-normal mt-2">
+                Aguarde a próxima Season do Game Jam!
+              </span>
             </span>
           )}
         </div>
