@@ -7,7 +7,6 @@ import FormInscricao from "../components/FormInscricao"
 export default function Inscricao() {
 
   const [seasonAtual, setSeasonAtual] = useState<Season | null>(null)
-
   useEffect(() => {
 
   async function fetchSeasonAtual() {
@@ -27,20 +26,13 @@ export default function Inscricao() {
     <div
       style={{
         background: "url('/background-inscricao.webp') no-repeat",
-        backgroundSize: "cover"
+        backgroundSize: "cover",
+        backgroundPosition: "center"
       }}
     >
-      <div className="flex lg:flex-row flex-col lg:h-screen justify-center items-center">
-
-        <div className="lg:flex-1 w-full flex flex-col gap-12 justify-center items-center h-full mt-12 mb-12">
-
-          <span className="font-titulo text-3xl text-destaque md:text-4xl lg:text-5xl">
-
-            {seasonAtual.getInscricoesAbertas
-              ? "Inscrições abertas!"
-              : "Inscrições fechadas!"}
-          </span>
-          <img src="/logo.png" alt="Logo do PET Game Jam" className="md:h-52 h-36" />
+        <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen justify-center items-center px-4 lg:px-16 gap-4 lg:gap-8">
+          <div className="lg:flex-1 w-full flex flex-col justify-center items-center mt-12 mb-12">
+            <img src="/logo-alt.png" alt="Logo do PET Game Jam" className="md:h-96 h-64 object-contain" /> 
 
         </div>
 
@@ -50,8 +42,12 @@ export default function Inscricao() {
             
             <FormInscricao numParticipantesPorEquipe={seasonAtual.getNumParticipantesPorEquipe} />
           ) : (
-            <span className="text-2xl font-medium">
-              As inscrições estão fechadas... Aguarde a próxima Season do Game Jam!
+            <span className="text-3xl font-medium block text-center w-full max-w-xl border border-[var(--color-barra)] rounded-lg p-8 bg-[var(--color-barra)] text-[var(--color-destaque)] shadow-lg">
+              <strong className="block text-2xl md:text-3xl lg:text-3xl">
+                As inscrições estão fechadas...</strong>
+              <span className="block text-xl font-normal mt-2">
+                Aguarde a próxima Season do Game Jam!
+              </span>
             </span>
           )}
         </div>
