@@ -6,18 +6,15 @@ import FormInscricao from "../components/FormInscricao"
 
 export default function Inscricao() {
 
-  //const [seasonAtual, setSeasonAtual] = useState<Season | null>(null)
-  //quando terminar de editar, descomentar tudo oq está comentado e apagar a declaração abaixo
-  const seasonAtual = new Season(4, "", 3, true, false, "")
-
+  const [seasonAtual, setSeasonAtual] = useState<Season | null>(null)
   useEffect(() => {
 
-  // async function fetchSeasonAtual() {
+  async function fetchSeasonAtual() {
 
-  //   const res = await Season.obtemAtual()
-  //   setSeasonAtual(res ?? null)
-  // }
-  //fetchSeasonAtual()
+    const res = await Season.obtemAtual()
+    setSeasonAtual(res ?? null)
+  }
+  fetchSeasonAtual()
 }, [])
 
   if (!seasonAtual) {
@@ -33,17 +30,9 @@ export default function Inscricao() {
         backgroundPosition: "center"
       }}
     >
-<     div className="flex lg:flex-row flex-col lg:h-screen justify-center items-center px-4 lg:px-16 gap-4 lg:gap-8">
-
-        <div className="lg:flex-1 w-full flex flex-col justify-center items-center h-full mt-12 mb-12">
-
-          {/* <span className="font-titulo text-3xl text-destaque md:text-4xl lg:text-5xl">
-
-            {seasonAtual.getInscricoesAbertas
-              ? "Inscrições abertas!"
-              : "Inscrições fechadas!"}
-          </span> */}
-          <img src="/logo-alt.png" alt="Logo do PET Game Jam" className="md:h-96 h-64 object-cover" /> 
+        <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen justify-center items-center px-4 lg:px-16 gap-4 lg:gap-8">
+          <div className="lg:flex-1 w-full flex flex-col justify-center items-center mt-12 mb-12">
+            <img src="/logo-alt.png" alt="Logo do PET Game Jam" className="md:h-96 h-64 object-contain" /> 
 
         </div>
 
