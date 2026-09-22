@@ -40,6 +40,14 @@ updates:
       # major, subir este junto e a mao.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # Prisma 7 muda o gerador do client e quebra o build; CLI (prisma) e client
+      # (@prisma/client) tem que subir JUNTOS, na mesma versao, senao o prisma
+      # generate falha — e o Dependabot abre um PR para cada. Recusado em 20/08 e
+      # de novo em 22/09/2026. Migrar de proposito, os dois num PR, com os testes.
+      - dependency-name: prisma
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
     directory: /front-end
@@ -54,6 +62,11 @@ updates:
       front-end-desenvolvimento:
         dependency-type: development
         update-types: ["minor", "patch"]
+    ignore:
+      # Mesmo criterio do back-end: @types/node acompanha o major do Node que roda
+      # o site (24). O 26 foi oferecido aqui em 31/08/2026 e recusado.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   # O Dockerfile do back-end fixa a imagem base por digest. E o Dependabot que
   # traz o digest novo quando a node:24 recebe correcao — sem isso, o pino vira
