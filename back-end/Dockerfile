@@ -6,7 +6,7 @@
 # node:24 e o LTS ativo (Krypton). O 22 esta em manutencao e o 26, que o
 # Dependabot ofereceu, ainda nao e LTS — API em producao nao anda na linha
 # Current.
-FROM node:24@sha256:934240a162082fd8b8a2f90cd5114446443f1eba1c5378f6687167ca405e6584
+FROM node:24@sha256:64af3819f9275802414d7cdc38c27e9d82bd564dec4d4da87d008255d36c63b4
 
 WORKDIR /app
 
