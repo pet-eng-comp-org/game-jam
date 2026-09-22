@@ -25,7 +25,7 @@ sairiam em conteúdo misto numa página servida em `https`.
 
 ## Rodando local
 
-Requer Node 22 e um MySQL acessível.
+Requer Node 24 e um MySQL acessível.
 
 ```bash
 cp .env.example .env     # preencha os valores
@@ -98,11 +98,26 @@ POST   /participante               inscrição de participante
 GET    /files/:arquivo             imagens enviadas
 ```
 
+## Testes
+
+`test/api.test.js` sobe a API compilada contra um MySQL de verdade, com o schema
+aplicado pelas migrations, e confere por HTTP o que não pode quebrar em
+silêncio: toda rota do painel exige login válido, as rotas públicas não trazem
+equipe nem participante, CORS só libera o site, erro do banco não vaza detalhe,
+a inscrição respeita abertura e limite por equipe, e o login bloqueia força
+bruta.
+
+```bash
+DATABASE_URL_TESTE=mysql://root:senha@127.0.0.1:3306/game_jam_teste npm test
+```
+
+**O banco indicado é apagado e recriado** a cada execução (o nome precisa conter
+`teste`). Rota nova do painel entra na lista `PROTEGIDAS` do teste.
+
 ## Publicação
 
-Todo push no `main` dispara o workflow `publica-imagem.yml`, que constrói a
-imagem e publica no GHCR com duas tags: `sha-<commit>` e `latest`.
-
-O deploy **não** é automático. A stack no Portainer aponta para a tag do commit,
-de propósito — trocar de versão é um ato deliberado, e a tag diz exatamente qual
-commit está no ar.
+Todo push no `main` que toca `back-end/` dispara `publica-back-end.yml`: roda
+os testes, constrói a imagem, publica no GHCR (`sha-<commit>` e `latest`) e
+grava o digest novo no `docker-compose.prod.yml` da raiz. O Portainer acompanha
+esse arquivo e aplica em até 5 minutos. **Teste falhou, nada é publicado nem
+implantado.** Para voltar uma versão, `git revert` no commit `deploy:`.
