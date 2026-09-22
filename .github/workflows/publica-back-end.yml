@@ -19,7 +19,46 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Testes de cenario (back-end/test/): sobem a API compilada contra um MySQL, com
+  # o schema aplicado pelas migrations, e conferem login do painel, o que as rotas
+  # publicas expoem e o caminho da inscricao. Falhou aqui, a imagem nao e
+  # publicada e nada e implantado — e em pull request (inclusive os do Dependabot)
+  # o problema aparece antes do merge.
+  testa:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      mysql:
+        # O mesmo MySQL da stack de producao (docker-compose.prod.yml), pelo digest.
+        image: mysql@sha256:57c892ddeb17e6c7dddf219914db017b2cf3e2797806a75424444b83622cc8ef
+        env:
+          MYSQL_ROOT_PASSWORD: teste
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -pteste"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    defaults:
+      run:
+        working-directory: back-end
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # A versao da imagem (Dockerfile: node:24).
+          node-version: 24
+          cache: npm
+          cache-dependency-path: back-end/package-lock.json
+
+      - run: npm ci
+
+      - run: npm test
+        env:
+          DATABASE_URL_TESTE: mysql://root:teste@127.0.0.1:3306/game_jam_teste
+
   build:
+    needs: testa
     runs-on: ubuntu-latest
     permissions:
       contents: read

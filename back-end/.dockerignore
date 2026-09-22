@@ -19,3 +19,6 @@ tmp
 README.md
 docker-compose.yml
 Insomnia*.json
+
+# Testes rodam no CI, antes do build; nao vao para a imagem.
+test
