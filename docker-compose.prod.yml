@@ -90,8 +90,8 @@ services:
   # front, entao aqui nao ha env de execucao nem rede interna: o navegador chama
   # a API pelo dominio publico. So falta o LAR apontar gamejam.pet para a VM.
   front-end:
-    # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-879922150324460ca1d0302f0a4c5290ea7ac57b)
-    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:299ba62067bc968d828d0ae030a39202d0be1193a8b9916d9486b00968aaec6b
+    # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-76da24efd31c36093c992925ecb5f81297454cce)
+    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:a6d38b07ba15bcc3be30c123e6001b75c3cc41c192a5511cd2ac8ca87aaee0be
     container_name: game-jam_front-end
     restart: unless-stopped
     logging: *logging
