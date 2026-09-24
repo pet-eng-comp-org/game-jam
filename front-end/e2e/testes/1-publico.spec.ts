@@ -36,3 +36,15 @@ test("a barra do site nao tem botao de login", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Inscreva-se" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Login" })).toHaveCount(0);
 });
+
+test("o site manda os cabecalhos de seguranca", async ({ page }) => {
+  // O painel mostra CPF: nao pode ser carregado dentro de pagina de terceiros.
+  for (const caminho of ["/", "/login", "/admin/equipes"]) {
+    const r = await page.request.get(caminho, { maxRedirects: 0 });
+    const h = r.headers();
+    expect(h["x-frame-options"], caminho).toBe("DENY");
+    expect(h["content-security-policy"], caminho).toContain("frame-ancestors 'none'");
+    expect(h["strict-transport-security"], caminho).toContain("max-age=");
+    expect(h["x-powered-by"], caminho).toBeUndefined();
+  }
+});

@@ -145,6 +145,8 @@ describe("login do painel", () => {
     "token que nao e JWT": "lixo",
     "assinado com outro segredo": jwt.sign({ username: "x" }, "outro-segredo", { subject: "x" }),
     vencido: jwt.sign({ username: "x", exp: Math.floor(Date.now() / 1000) - 60 }, JWT_SECRET, { subject: "x" }),
+    // Assinatura e validade certas, mas o usuario nao existe (foi apagado).
+    "de usuario apagado": jwt.sign({ username: "apagado" }, JWT_SECRET, { subject: "id-que-nao-existe", expiresIn: "1d" }),
   };
 
   for (const [metodo, caminho] of PROTEGIDAS) {
