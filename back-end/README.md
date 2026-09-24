@@ -11,7 +11,8 @@ inscrição de equipes, jogos publicados, patrocinadores e materiais de apoio.
 
 ## Como é feito
 
-Express 4 com TypeScript, Prisma sobre MySQL. O código de `src/` compila para
+Express 5 com TypeScript, Prisma 7 sobre MySQL 9.7 (pelo adapter do mariadb, em
+`src/prisma/adapter.ts`). O código de `src/` compila para
 `dist/` e o container executa `node dist/server.js`.
 
 O upload de imagens (capa de temporada, capa de jogo, logo de patrocinador) usa

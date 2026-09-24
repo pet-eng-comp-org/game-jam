@@ -84,11 +84,11 @@ services:
     volumes:
       - uploads:/app/tmp
 
-  # O site do Game Jam. Next em modo standalone (server.js), agora servido pela
-  # VM como as demais stacks — antes vivia so na Vercel. A URL da API
+  # O site do Game Jam. Next em modo standalone (server.js), servido pela VM
+  # como as demais stacks desde 01/09/2026 (antes vivia na Vercel). A URL da API
   # (https://apigamejam.pet.inf.ufes.br) e assada no build pelo workflow do
   # front, entao aqui nao ha env de execucao nem rede interna: o navegador chama
-  # a API pelo dominio publico. So falta o LAR apontar gamejam.pet para a VM.
+  # a API pelo dominio publico.
   front-end:
     # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-5891c23778c748b674bfb0ad242a7b9277af2d96)
     image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:48dcbc88341bedb07eb5d5e660942a9337d3ebab8b3d953c77859971f865e81e

@@ -8,7 +8,7 @@ painel da organização.
 |---|---|
 | Produção | <https://gamejam.pet.inf.ufes.br> |
 | API | <https://apigamejam.pet.inf.ufes.br> (o `backend/` deste repositório) |
-| Hospedagem | Vercel |
+| Hospedagem | container na VM do PET (stack `game-jam` no Portainer) |
 
 ## Como é feito
 
@@ -48,14 +48,10 @@ verdade — para mexer, suba a API local.
 
 ## Publicação
 
-O deploy é automático: o que entra no `main` vai para produção.
+O deploy é automático: o que entra no `main` vai para produção. O workflow
+`publica-front-end.yml` roda os testes (`npm test` e o e2e de `e2e/`), constrói a
+imagem, grava o digest no `docker-compose.prod.yml` e o Portainer aplica em até 5
+minutos. Reverter é `git revert` no commit `deploy:`.
 
-Com uma pegadinha que já custou seis semanas de site desatualizado — **o plano
-atual da Vercel só publica commit autorado pela conta do PET**. Commit de
-qualquer outra pessoa entra no `main` normalmente, a Vercel recusa com
-`Deployment was blocked`, e ninguém é avisado: o site simplesmente continua na
-versão anterior.
-
-Por isso o caminho é branch, pull request e **merge pela interface do GitHub**,
-que gera um commit de merge autorado pela conta do PET. Squash e rebase estão
-desligados no repositório justamente para não reescrever essa autoria.
+Antes de abrir o pull request, nesta pasta: `npm run lint`, `npm test` e
+`npm run e2e` (precisa de um MySQL; ver `e2e/ambiente.mjs`).

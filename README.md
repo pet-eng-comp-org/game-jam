@@ -5,12 +5,12 @@ programação de jogos organizado pelo grupo.
 
 | | endereço | onde roda |
 |---|---|---|
-| Site | <https://gamejam.pet.inf.ufes.br> | Vercel, a partir de `front-end/` — **em migração para a VM** |
+| Site | <https://gamejam.pet.inf.ufes.br> | container na VM do PET, atrás do Traefik |
 | API | <https://apigamejam.pet.inf.ufes.br> | container na VM do PET, atrás do Traefik |
 
 ```
 front-end/   Next.js 16, React 19, Tailwind 4 — site público e painel da organização
-back-end/    Express 4, Prisma, MySQL — API REST e os uploads de imagem
+back-end/    Express 5, Prisma 7, MySQL 9.7 — API REST e os uploads de imagem
 ```
 
 Cada diretório tem o próprio README com como rodar, variáveis de ambiente e
