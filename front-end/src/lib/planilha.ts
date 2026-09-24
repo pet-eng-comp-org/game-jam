@@ -27,10 +27,11 @@ export function cpfFormatado(cpf: string | null) {
 }
 
 // Aspas em todo campo, com as internas dobradas: nome de equipe com ";" ou
-// aspas nao quebra a coluna. Campo que comeca com =, +, - ou @ ganha um
-// apostrofo, senao o Excel o executaria como formula.
+// aspas nao quebra a coluna. Campo que comeca com =, +, -, @, tabulacao ou
+// quebra de linha ganha um apostrofo, senao o Excel o executaria como formula
+// (as inscricoes antigas nao tinham os espacos das pontas aparados).
 function campo(valor: string) {
-  const seguro = /^[=+\-@]/.test(valor) ? `'${valor}` : valor;
+  const seguro = /^[=+\-@\t\r]/.test(valor) ? `'${valor}` : valor;
   return `"${seguro.replace(/"/g, '""')}"`;
 }
 

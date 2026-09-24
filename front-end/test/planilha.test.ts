@@ -31,3 +31,10 @@ test("CPF formatado mantem o zero a esquerda", () => {
   assert.equal(cpfFormatado("05299822472"), "052.998.224-72");
   assert.equal(cpfFormatado(null), "");
 });
+
+test("tabulacao e quebra de linha no inicio tambem viram texto", () => {
+  const csv = planilhaDeInscritos([{ id: "e", nome: "\t=1+1", createdAt: null, participantes: [
+    { id: "p", nome: "\r=2", email: "x@exemplo.com", cpf: null, curso: null, genero: "outros", ufes: true, instituicao: null },
+  ] }]);
+  assert.ok(csv.includes(`"'\t=1+1";"'\r=2"`), csv);
+});
