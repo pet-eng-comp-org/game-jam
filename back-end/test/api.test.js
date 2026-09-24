@@ -203,70 +203,86 @@ describe("rotas publicas", () => {
 });
 
 describe("inscricao", () => {
-  const participante = (equipeId, extra = {}) => ({
+  // A equipe e todos os participantes chegam juntos em POST /inscricao e sao
+  // gravados numa transacao: ou entra tudo, ou nada.
+  const participante = (extra = {}) => ({
     nome: "Participante Novo",
     email: "novo@exemplo.com",
     genero: "feminino",
     ufes: true,
     cpf: "98765432100",
     curso: "Engenharia de Computacao",
-    equipeId,
     ...extra,
   });
-  let equipeId;
+  const inscreve = (equipe, participantes) => api("POST", "/inscricao", { corpo: { equipe, participantes } });
+  const equipesChamadas = (nome) => prisma.equipe.count({ where: { nome } });
 
-  it("fechada, recusa equipe", async () => {
-    const r = await api("POST", "/equipe", { corpo: { nome: "Cedo Demais" } });
+  it("fechada, recusa", async () => {
+    const r = await inscreve("Cedo Demais", [participante()]);
     assert.equal(r.status, 403);
+    assert.equal(await equipesChamadas("Cedo Demais"), 0);
   });
 
-  it("aberta pelo painel, aceita equipe na temporada atual", async () => {
+  it("aberta pelo painel, grava a equipe com os participantes na temporada atual", async () => {
     const abre = await api("PUT", `/seasons/abreInscricao?id=${season.id}`, { token: await entra() });
     assert.equal(abre.status, 200);
 
-    const r = await api("POST", "/equipe", { corpo: { nome: "Equipe Nova" } });
+    const r = await inscreve("Equipe Nova", [
+      participante({ email: "a@exemplo.com" }),
+      participante({ email: "b@exemplo.com", ufes: false, instituicao: "IFES" }),
+    ]);
     assert.equal(r.status, 201);
-    const equipe = await r.json();
+    const corpo = await r.json();
+    assert.deepEqual(Object.keys(corpo).sort(), ["id", "nome", "participantes"], "resposta sem dado pessoal");
+
+    const equipe = await prisma.equipe.findUnique({ where: { id: corpo.id }, include: { participantes: true } });
     assert.equal(equipe.seasonId, season.id);
     assert.equal(equipe.aprovada, false, "equipe nasce aprovada");
-    equipeId = equipe.id;
+    const porEmail = Object.fromEntries(equipe.participantes.map((p) => [p.email, p]));
+    assert.deepEqual(Object.keys(porEmail).sort(), ["a@exemplo.com", "b@exemplo.com"]);
+    assert.ok(equipe.participantes.every((p) => p.cpf === "98765432100"), "CPF gravado");
+    assert.equal(porEmail["a@exemplo.com"].instituicao, null);
+    assert.equal(porEmail["b@exemplo.com"].instituicao, "IFES");
   });
 
-  it("aceita participantes ate o limite da temporada", async () => {
-    for (const email of ["a@exemplo.com", "b@exemplo.com"]) {
-      const r = await api("POST", "/participante", { corpo: participante(equipeId, { email }) });
-      assert.equal(r.status, 201, email);
+  it("recusa equipe acima do limite da temporada, sem gravar nada", async () => {
+    const r = await inscreve("Grande Demais", ["a", "b", "c"].map((x) => participante({ email: `${x}@exemplo.com` })));
+    assert.equal(r.status, 409);
+    assert.equal(await equipesChamadas("Grande Demais"), 0);
+  });
+
+  it("participante invalido recusa a inscricao inteira", async () => {
+    // O primeiro e valido: antes, ele e a equipe ficavam gravados sozinhos.
+    for (const [nome, invalido] of [
+      ["Sem Nome", participante({ nome: "" })],
+      ["Externo", participante({ ufes: false })],
+      ["Ufes Texto", participante({ ufes: "sim" })],
+    ]) {
+      const r = await inscreve(nome, [participante(), invalido]);
+      assert.equal(r.status, 400, nome);
+      assert.equal(await equipesChamadas(nome), 0, nome);
     }
-    const alem = await api("POST", "/participante", { corpo: participante(equipeId, { email: "c@exemplo.com" }) });
-    assert.equal(alem.status, 409);
-
-    const gravados = await prisma.participante.findMany({ where: { equipeId } });
-    assert.deepEqual(gravados.map((p) => p.email).sort(), ["a@exemplo.com", "b@exemplo.com"]);
-    assert.ok(gravados.every((p) => p.cpf === "98765432100"), "CPF gravado");
+    assert.equal((await inscreve("", [participante()])).status, 400);
+    assert.equal((await inscreve("Vazia", [])).status, 400);
   });
 
-  it("recusa participante sem os dados obrigatorios", async () => {
-    const semNome = await api("POST", "/participante", { corpo: participante(equipeId, { nome: "" }) });
-    assert.equal(semNome.status, 400);
-    const externoSemInstituicao = await api("POST", "/participante", { corpo: participante(equipeId, { ufes: false }) });
-    assert.equal(externoSemInstituicao.status, 400);
+  it("ignora campos que o cliente nao deveria mandar", async () => {
+    const outra = await prisma.equipe.findFirst({ where: { nome: "Equipe Semeada" } });
+    const r = await inscreve("Campos Extras", [participante({ id: "id-forjado", equipeId: outra.id, email: "x@exemplo.com" })]);
+    assert.equal(r.status, 201);
+    const gravado = await prisma.participante.findFirst({ where: { email: "x@exemplo.com" } });
+    assert.notEqual(gravado.id, "id-forjado");
+    assert.notEqual(gravado.equipeId, outra.id);
   });
 
-  it("recusa participante de equipe inexistente", async () => {
-    const r = await api("POST", "/participante", { corpo: participante("nao-existe") });
-    assert.equal(r.status, 400);
-  });
-
-  it("fechada de novo, recusa participante", async () => {
+  it("fechada de novo, recusa", async () => {
     const fecha = await api("PUT", `/seasons/fechaInscricao?id=${season.id}`, { token: await entra() });
     assert.equal(fecha.status, 200);
-    const outra = await prisma.equipe.create({ data: { nome: "Outra", seasonId: season.id } });
-    const r = await api("POST", "/participante", { corpo: participante(outra.id) });
+    const r = await inscreve("Tarde Demais", [participante()]);
     assert.equal(r.status, 403);
   });
 });
 
-// Por ultimo: consome o limite de login deste IP.
 describe("forca bruta no login", () => {
   it("bloqueia depois de 5 tentativas erradas", async () => {
     let ultimo;

@@ -29,14 +29,11 @@ import { DeletaMaterialController } from "./controllers/material/DeletaMaterialC
 import { ObtemMateriaisController } from "./controllers/material/ObtemMateriaisController";
 import { ObtemPatrocinadoresController } from "./controllers/patrocinador/ObtemPatrocinadorController";
 
-import { CriaEquipeController } from "./controllers/equipe/CriaEquipeController"; 
-import { CriaParticipanteController } from "./controllers/participante/CriaParticipanteController";
+import { CriaInscricaoController } from "./controllers/inscricao/CriaInscricaoController";
 
 const router = Router()
 const upload = multer(uploadConfig.upload("./tmp"))
 
-const criaEquipeController = new CriaEquipeController();
-const criaParticipanteController = new CriaParticipanteController();
 
 // -- ROUTES USER --
 router.post('/users', estaAutenticado, new CriaUserController().handle)
@@ -72,12 +69,10 @@ router.post('/material', estaAutenticado, new CriaMaterialController().handle)
 router.delete('/material', estaAutenticado, new DeletaMaterialController().handle)
 router.get('/material', new ObtemMateriaisController().handle)
 
-// -- ROUTES EQUIPES --
-// Publica de proposito: o participante se inscreve antes de existir login.
+// -- INSCRICAO --
+// Publica de proposito: o participante se inscreve antes de existir login. A
+// equipe e todos os participantes chegam juntos e sao gravados numa transacao.
 // A guarda esta no controller, que exige temporada atual com inscricoes abertas.
-router.post('/equipe', limiteDeInscricao, criaEquipeController.handle.bind(criaEquipeController));
-
-// -- ROUTES PARTICIPANTES --
-router.post('/participante', limiteDeInscricao, criaParticipanteController.handle.bind(criaParticipanteController));
+router.post('/inscricao', limiteDeInscricao, new CriaInscricaoController().handle)
 
 export { router }

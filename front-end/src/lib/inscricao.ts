@@ -47,6 +47,7 @@ export function montaInscricao(
     const curso = texto(estado, "curso" + i);
     const instituicao = texto(estado, "instituicao" + i);
     const genero = (estado["genero" + i] as string) || "feminino";
+    // Sem valor, conta como da Ufes, o mesmo padrão que o formulário mostra.
     const ufes = ufesPorParticipante[i] ?? true;
 
     // Participante opcional totalmente em branco não entra. Preenchido pela

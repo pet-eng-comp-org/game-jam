@@ -68,3 +68,14 @@ test("participante preenchido pela metade avisa em vez de sumir", async ({ page 
   await expect(page.getByText("Participante 3: Nome, CPF e Email são obrigatórios!")).toBeVisible();
   expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(0);
 });
+
+test("toque duplo no botao grava a equipe uma vez so", async ({ page }, info) => {
+  const equipe = unico("Duplo", info.project.name);
+  await page.locator("input[type=text]").first().fill(equipe);
+  await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "11122233344" });
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Solicitar inscrição" }).dblclick();
+
+  await expect(page.getByText("Inscrição solicitada com sucesso!")).toBeVisible();
+  expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(1);
+});

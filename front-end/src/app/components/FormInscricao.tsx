@@ -2,8 +2,8 @@
 
 import { toast } from "sonner";
 import { useState } from "react";
-import { Equipe } from "@/models/Equipes";
-import { Participante } from "@/models/Participantes";
+import { isAxiosError } from "axios";
+import { api } from "@/services/api";
 import { montaInscricao } from "@/lib/inscricao";
 
 interface FormInscricaoProps {
@@ -16,12 +16,17 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
     Object.fromEntries(Array.from({ length: numParticipantesPorEquipe }, (_, i) => [i + 1, true]))
   );
 
+  // Trava o botão enquanto a inscrição vai: um toque duplo no celular criava
+  // a equipe duas vezes.
+  const [enviando, setEnviando] = useState(false);
+
   const handleInputChange = (name: string, value: string | boolean) => {
     setFormDataState(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (enviando) return;
 
     const inscricao = montaInscricao(formDataState, ufesStatus, numParticipantesPorEquipe);
 
@@ -30,31 +35,21 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
       return;
     }
 
+    setEnviando(true);
     try {
-      const equipe = await Equipe.cadastrar(inscricao.equipe);
-
-      if (!equipe?.getId) {
-        toast.error("Não foi possível criar a equipe.");
-        return;
-      }
-
-      for (const p of inscricao.participantes) {
-        // cadastrar() engole o erro e devolve undefined; sem esta checagem o
-        // site dizia "sucesso" com participante faltando.
-        const participante = await Participante.cadastrar({ ...p, equipeId: equipe.getId });
-
-        if (!participante) {
-          toast.error(`Não foi possível inscrever ${p.nome}. Fale com a organização antes de tentar de novo.`);
-          return;
-        }
-      }
+      // Uma requisição só: a API grava a equipe e os participantes juntos, ou nada.
+      await api.post("/inscricao", { equipe: inscricao.equipe, participantes: inscricao.participantes });
 
       toast.success("Inscrição solicitada com sucesso!");
       setFormDataState({});
       setUfesStatus(Object.fromEntries(Array.from({ length: numParticipantesPorEquipe }, (_, i) => [i + 1, true])));
-    } catch (err: any) {
-      console.error("Erro na submissão:", err.response?.data || err);
-      toast.error("Erro ao solicitar inscrição. Veja o console para detalhes.");
+    } catch (err) {
+      // A API explica o motivo (inscrições fechadas, equipe grande demais, limite
+      // de tentativas). Nada foi gravado, então dá para corrigir e enviar de novo.
+      const motivo = isAxiosError(err) ? err.response?.data?.error ?? err.response?.data?.message : undefined;
+      toast.error(motivo ?? "Não foi possível enviar a inscrição. Tente de novo.");
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -111,7 +106,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
           <div className="flex items-center gap-2">
             <label>É estudante da Ufes?</label>
             <select
-              value={ufesStatus[index] ? "sim" : "nao"}
+              value={(ufesStatus[index] ?? true) ? "sim" : "nao"}
               onChange={e => setUfesStatus(prev => ({ ...prev, [index]: e.target.value === "sim" }))}
               className="bg-gray-200 text-black rounded pl-3 pr-3 py-1 appearance-none"
             >
@@ -121,7 +116,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
           </div>
         </div>
 
-        {!ufesStatus[index] && (
+        {!(ufesStatus[index] ?? true) && (
           <input
             type="text"
             placeholder="Instituição de Ensino"
@@ -169,9 +164,10 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
 
         <button
           type="submit"
-          className="mt-11 bg-gray-200 text-black p-3 rounded-lg w-max mx-auto font-bold hover:scale-105 duration-300"
+          disabled={enviando}
+          className="mt-11 bg-gray-200 text-black p-3 rounded-lg w-max mx-auto font-bold hover:scale-105 duration-300 disabled:opacity-60 disabled:hover:scale-100"
         >
-          Solicitar inscrição
+          {enviando ? "Enviando..." : "Solicitar inscrição"}
         </button>
       </form>
     </div>
