@@ -1,0 +1,13 @@
+{
+  "name": "gamejam-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Testes de ponta a ponta do site: sobem banco, API e front e usam o navegador.",
+  "scripts": {
+    "test": "playwright test",
+    "relatorio": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

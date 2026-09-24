@@ -17,6 +17,9 @@ import type { NextConfig } from "next";
 // nos dois lugares, isto mantem os dois funcionando. Quando sair da Vercel,
 // vira so `output: "standalone"`.
 const nextConfig: NextConfig = {
+  // Os testes de ponta a ponta compilam em outra pasta (e2e/sobe-front.sh), para
+  // nao sobrescrever o .next de quem roda o site na maquina.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
 };
 

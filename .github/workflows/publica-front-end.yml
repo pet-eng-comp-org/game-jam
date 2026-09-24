@@ -9,10 +9,12 @@ on:
     paths:
       - 'front-end/**'
       - '.github/workflows/publica-front-end.yml'
+      - '.github/workflows/testa-site.yml'
   pull_request:
     paths:
       - 'front-end/**'
       - '.github/workflows/publica-front-end.yml'
+      - '.github/workflows/testa-site.yml'
   workflow_dispatch:
 
 # ATENCAO: NEXT_PUBLIC_API_URL e assada no build, nao lida em execucao. Definir
@@ -45,8 +47,12 @@ jobs:
 
       - run: npm test
 
+  # Percorre o site no navegador, com a API e o front deste commit.
+  e2e:
+    uses: ./.github/workflows/testa-site.yml
+
   build:
-    needs: testa
+    needs: [testa, e2e]
     runs-on: ubuntu-latest
     permissions:
       contents: read

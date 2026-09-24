@@ -1,0 +1,76 @@
+name: Testa o site de ponta a ponta
+
+# Reutilizado pelos dois workflows de publicacao (front e back): sobe um MySQL,
+# a API compilada e o front, e percorre o site no navegador (front-end/e2e).
+# Mudanca em qualquer um dos lados pode quebrar o site, entao os dois so
+# publicam imagem se isto passar.
+on:
+  workflow_call:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      mysql:
+        # O mesmo MySQL da stack de producao (docker-compose.prod.yml), pelo digest.
+        image: mysql@sha256:57c892ddeb17e6c7dddf219914db017b2cf3e2797806a75424444b83622cc8ef
+        env:
+          MYSQL_ROOT_PASSWORD: teste
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -pteste"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # A versao das imagens (Dockerfile: node:24).
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            back-end/package-lock.json
+            front-end/package-lock.json
+            front-end/e2e/package-lock.json
+
+      - name: API compilada
+        working-directory: back-end
+        run: |
+          npm ci
+          npm run build
+
+      - name: Front
+        working-directory: front-end
+        run: npm ci
+
+      # O Chromium do Playwright (~150 MB) muda so com a versao do pacote, que o
+      # lock do e2e fixa. Com cache, cada execucao baixa so as dependencias do
+      # sistema.
+      - uses: actions/cache@v6
+        id: navegador
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('front-end/e2e/package-lock.json') }}
+
+      - name: Navegador dos testes
+        working-directory: front-end
+        run: |
+          npm ci --prefix e2e
+          if [ "${{ steps.navegador.outputs.cache-hit }}" = "true" ]; then
+            npm --prefix e2e exec playwright install-deps chromium
+          else
+            npm --prefix e2e exec playwright install --with-deps chromium
+          fi
+
+      - name: Testes de ponta a ponta
+        working-directory: front-end
+        run: npm run e2e
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: relatorio-e2e
+          path: front-end/e2e/playwright-report/
+          retention-days: 7

@@ -10,12 +10,14 @@ on:
     paths:
       - 'back-end/**'
       - '.github/workflows/publica-back-end.yml'
+      - '.github/workflows/testa-site.yml'
   # Em pull request a imagem e construida mas nao publicada. Serve para o
   # Dockerfile ser testado antes do merge.
   pull_request:
     paths:
       - 'back-end/**'
       - '.github/workflows/publica-back-end.yml'
+      - '.github/workflows/testa-site.yml'
   workflow_dispatch:
 
 jobs:
@@ -57,8 +59,12 @@ jobs:
         env:
           DATABASE_URL_TESTE: mysql://root:teste@127.0.0.1:3306/game_jam_teste
 
+  # Percorre o site no navegador, com a API e o front deste commit.
+  e2e:
+    uses: ./.github/workflows/testa-site.yml
+
   build:
-    needs: testa
+    needs: [testa, e2e]
     runs-on: ubuntu-latest
     permissions:
       contents: read
