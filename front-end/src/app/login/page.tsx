@@ -34,7 +34,7 @@ export default function Login() {
 
       // So o status: o erro do axios carrega a requisicao inteira, com a senha
       // digitada, e ia parar no log do servidor a cada login errado.
-      console.log("login recusado:", isAxiosError(err) ? err.response?.status : err)
+      console.log("login recusado:", isAxiosError(err) ? err.response?.status ?? err.code : err)
       return
     }
 

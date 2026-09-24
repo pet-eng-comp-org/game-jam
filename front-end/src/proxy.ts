@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getCookieServer } from "./lib/cookieServer";
 import { api } from "./services/api";
+import { isAxiosError } from "axios";
 
 export async function proxy(req: NextRequest) {
 
@@ -44,7 +45,9 @@ async function validateToken(token: string) {
     }
     catch(err) {
 
-        console.log(err)
+        // So o status: o erro do axios carrega o cabecalho Authorization, com o
+        // token da sessao, e ia inteiro para o log do servidor.
+        console.log("sessao recusada:", isAxiosError(err) ? err.response?.status ?? err.code : err)
         return false
     }
 }
