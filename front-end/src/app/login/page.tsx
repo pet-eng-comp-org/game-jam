@@ -1,4 +1,5 @@
 import { api } from "@/services/api";
+import { isAxiosError } from "axios";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -28,12 +29,12 @@ export default function Login() {
         httpOnly: false,
         secure: process.env.NODE_ENV === "production"
       })
-
-      console.log(response.data)
     } 
     catch(err) {
 
-      console.log(err)
+      // So o status: o erro do axios carrega a requisicao inteira, com a senha
+      // digitada, e ia parar no log do servidor a cada login errado.
+      console.log("login recusado:", isAxiosError(err) ? err.response?.status : err)
       return
     }
 
