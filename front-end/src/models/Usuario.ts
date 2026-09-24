@@ -1,4 +1,5 @@
 import { getCookieClient } from "@/lib/cookieClient"
+import type { UsuarioJson } from "./api"
 import { api } from "@/services/api"
 import { toast } from "sonner"
 
@@ -23,7 +24,7 @@ class Usuario {
         return this.username
     }
 
-    static fromJson(json: any): Usuario {
+    static fromJson(json: UsuarioJson): Usuario {
         return new Usuario(json.username, json.id)
     }
 

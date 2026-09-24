@@ -1,6 +1,7 @@
 import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
 import { toast } from "sonner"
+import type { MaterialJson } from "./api"
 
 class Material {
 
@@ -59,7 +60,7 @@ class Material {
         try {
             const response = await api.get("/material")
 
-            return response.data.map((m: any) =>
+            return response.data.map((m: MaterialJson) =>
                 new Material(m.nome, m.descricao, m.link, m.id)
             )
         }

@@ -3,19 +3,11 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { Patrocinador } from "@/models/Patrocinadores";
-import { Season } from "@/models/Season";
 import Titulo from "../components/Titulo";
 
 export default function Patrocinadores() {
 
-  const [seasonAtual, setSeasonAtual] = useState<Season>();
   const [patrocinadores, setPatrocinadores] = useState<Patrocinador[]>([]);
-
-  async function obtemSeasonAtual() {
-
-    const res = await Season.obtemAtual();
-    setSeasonAtual(res);
-  }
 
   async function obtemPatrocinadores() {
 
@@ -24,14 +16,12 @@ export default function Patrocinadores() {
   }
 
   useEffect(() => {
-
-    obtemSeasonAtual();
     obtemPatrocinadores();
   }, []);
 
   return (
 
-    <Layout season={seasonAtual} className="flex flex-col items-center">
+    <Layout className="flex flex-col items-center">
 
       <div className="mx-auto flex w-[80%] max-w-[1154px] flex-col items-center pt-24 pb-10">
 

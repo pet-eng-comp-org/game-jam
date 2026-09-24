@@ -1,17 +1,15 @@
 "use client"
 
-import { Season } from "@/models/Season"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
 
 interface LayoutProps {
 
-    season?: Season
-    children?: any
+    children?: React.ReactNode
     className?: string
 }
 
-export default function Layout({ season, children, className }: LayoutProps) {
+export default function Layout({ children, className }: LayoutProps) {
 
     return (
 

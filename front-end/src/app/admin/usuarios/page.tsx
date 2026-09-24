@@ -6,7 +6,8 @@ import { Usuario } from "@/models/Usuario";
 import FormCadastrarUsuario from "../components/FormCadastrarUsuario";
 import { toast } from "sonner";
 import Botao from "../components/Botao";
-import Layout from "../components/Layout";
+import Layout from "../components/Layout"
+import type { UsuarioJson } from "@/models/api";
 
 export default function Usuarios() {
 
@@ -38,7 +39,7 @@ export default function Usuarios() {
     
     async function carregaUsuarios() {
 
-        await Usuario.obtemTodos().then((users: any[]) => {
+        await Usuario.obtemTodos().then((users: UsuarioJson[]) => {
             const vetor = users.map(Usuario.fromJson)
             setUsuarios(vetor)
         })

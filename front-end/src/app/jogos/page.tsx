@@ -1,9 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react";
 import Layout from "../components/Layout"
 import Titulo from "../components/Titulo"
-import { Season } from "@/models/Season"
 
 interface Jogo {
   // Opcional de proposito: so o Capybara Airways tem nome proprio conhecido —
@@ -169,7 +168,6 @@ const temporadas: Temporada[] = [
 
 export default function Jogos() {
 
-  const [seasonAtual, setSeasonAtual] = useState<Season>()
   // Um CONJUNTO, e nao uma season so: da para deixar varias abertas ao mesmo
   // tempo e comparar edicoes sem ficar fechando uma para ver a outra. Todas
   // comecam fechadas — quem chega escolhe, que e o que o titulo pede.
@@ -182,23 +180,15 @@ export default function Jogos() {
       // Copia antes de mexer: mutar o Set existente nao troca a referencia e o
       // React nao redesenha.
       const proximo = new Set(atual)
-      proximo.has(numero) ? proximo.delete(numero) : proximo.add(numero)
+      if (proximo.has(numero)) proximo.delete(numero)
+      else proximo.add(numero)
       return proximo
     })
   }
 
-  async function obtemSeasonAtual() {
-    const res = await Season.obtemAtual()
-    setSeasonAtual(res)
-  }
-
-  useEffect(() => {
-    obtemSeasonAtual()
-  }, [])
-
   return (
 
-    <Layout season={seasonAtual}>
+    <Layout>
 
       <div className="mx-auto w-[93%] max-w-[1340px] pt-24 pb-10">
 

@@ -1,30 +1,12 @@
-"use client"
-
-import { useEffect, useState } from "react";
 import Layout from "./components/Layout";
-import { Season } from "@/models/Season";
 import Titulo from "./components/Titulo";
 import { dataDaEdicao, linguagensDaEdicao } from "@/lib/edicao";
 
 export default function Home() {
 
-  const [seasonAtual, setSeasonAtual] = useState<Season>()
-
-  async function obtemSeasonAtual() {
-
-    const res = await Season.obtemAtual()
-
-    setSeasonAtual(res)
-  }
-
-  useEffect(() => {
-
-    obtemSeasonAtual()
-  }, [])
-
   return (
 
-    <Layout season={seasonAtual}>
+    <Layout>
 
       {/* 1154/1440 do mockup = 80% da largura, com o mesmo respiro no topo. */}
       <div className="mx-auto w-[80%] max-w-[1154px] pt-24 pb-10">

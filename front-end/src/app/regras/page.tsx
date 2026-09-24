@@ -1,27 +1,12 @@
-"use client"
-
-import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { Season } from "@/models/Season";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 import { dataDaEdicao, linguagensDaEdicao } from "@/lib/edicao";
 
 export default function Home() {
 
-  const [seasonAtual, setSeasonAtual] = useState<Season>()
-
-  async function obtemSeasonAtual() {
-    const res = await Season.obtemAtual()
-    setSeasonAtual(res)
-  }
-
-  useEffect(() => {
-    obtemSeasonAtual()
-  }, [])
-
   return (
-    <Layout season={seasonAtual} className="flex items-center justify-center">
+    <Layout className="flex items-center justify-center">
 
       <div className="max-w-6xl w-[80%] mt-20 relative">
 

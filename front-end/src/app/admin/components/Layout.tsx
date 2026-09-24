@@ -4,8 +4,8 @@ import Titulo from "./Título"
 interface LayoutProps {
 
     titulo: string
-    form?: any
-    children?: any
+    form?: React.ReactNode
+    children?: React.ReactNode
 }
 
 export default function Layout({ titulo, form, children }: LayoutProps) {

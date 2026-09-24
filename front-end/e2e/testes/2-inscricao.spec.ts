@@ -11,9 +11,6 @@ async function preenche(page: Page, i: number, dados: { nome?: string; email?: s
   if (dados.cpf) await page.getByPlaceholder("CPF").nth(i - 1).fill(dados.cpf);
 }
 
-// Cada participante tem dois selects: genero e "E estudante da Ufes?".
-const ufesDo = (page: Page, i: number) => page.locator("select").nth((i - 1) * 2 + 1);
-
 test.beforeEach(async ({ page }) => {
   await page.goto("/inscricao");
   await expect(page.getByText("Qual o nome da sua equipe?")).toBeVisible();
@@ -26,9 +23,9 @@ test("inscreve a equipe e grava cada participante", async ({ page }, info) => {
   await page.locator("input[type=text]").first().fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "111.444.777-35" });
   await preenche(page, 2, { nome: "Bruno Teste", email: "bruno@exemplo.com", cpf: "16899535009" });
-  await ufesDo(page, 2).selectOption("nao");
+  await page.getByLabel("É estudante da Ufes?").nth(1).selectOption("nao");
   await page.getByPlaceholder("Instituição de Ensino").fill("IFES");
-  await page.getByRole("checkbox").check();
+  await page.getByLabel(/Declaro que há pelo menos alguém/).check();
   await page.getByRole("button", { name: "Solicitar inscrição" }).click();
 
   await expect(page.getByText("Inscrição solicitada com sucesso!")).toBeVisible();
@@ -41,7 +38,7 @@ test("inscreve a equipe e grava cada participante", async ({ page }, info) => {
   expect(gravada).not.toBeNull();
   expect(gravada.aprovada).toBe(false);
   expect(gravada.season.atual).toBe(true);
-  expect(gravada.participantes.map((p: any) => [p.nome, p.email, p.cpf, p.ufes, p.instituicao])).toEqual([
+  expect(gravada.participantes.map((p: { nome: string; email: string; cpf: string | null; ufes: boolean; instituicao: string | null }) => [p.nome, p.email, p.cpf, p.ufes, p.instituicao])).toEqual([
     ["Ana Teste", "ana@exemplo.com", "11144477735", true, null],
     ["Bruno Teste", "bruno@exemplo.com", "16899535009", false, "IFES"],
   ]);
@@ -62,7 +59,7 @@ test("participante preenchido pela metade avisa em vez de sumir", async ({ page 
   await page.locator("input[type=text]").first().fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "52998224725" });
   await preenche(page, 3, { nome: "Caio Sem Email" });
-  await page.getByRole("checkbox").check();
+  await page.getByLabel(/Declaro que há pelo menos alguém/).check();
   await page.getByRole("button", { name: "Solicitar inscrição" }).click();
 
   await expect(page.getByText("Participante 3: Nome, CPF e Email são obrigatórios!")).toBeVisible();
@@ -73,7 +70,7 @@ test("toque duplo no botao grava a equipe uma vez so", async ({ page }, info) =>
   const equipe = unico("Duplo", info.project.name);
   await page.locator("input[type=text]").first().fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "52998224725" });
-  await page.getByRole("checkbox").check();
+  await page.getByLabel(/Declaro que há pelo menos alguém/).check();
   await page.getByRole("button", { name: "Solicitar inscrição" }).dblclick();
 
   await expect(page.getByText("Inscrição solicitada com sucesso!")).toBeVisible();
@@ -84,7 +81,7 @@ test("CPF com digito errado avisa e nao grava nada", async ({ page }, info) => {
   const equipe = unico("CPF errado", info.project.name);
   await page.locator("input[type=text]").first().fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "52998224724" });
-  await page.getByRole("checkbox").check();
+  await page.getByLabel(/Declaro que há pelo menos alguém/).check();
   await page.getByRole("button", { name: "Solicitar inscrição" }).click();
 
   await expect(page.getByText("Participante 1: CPF inválido. Confira os números.")).toBeVisible();

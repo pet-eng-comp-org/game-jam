@@ -63,6 +63,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         <input
           type="text"
           placeholder="Nome"
+          aria-label={`Nome do participante ${index}`}
           value={(formDataState["nome" + index] as string) || ""}
           onChange={e => handleInputChange("nome" + index, e.target.value)}
           className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
@@ -70,6 +71,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         <input
           type="email"
           placeholder="Email"
+          aria-label={`E-mail do participante ${index}`}
           value={(formDataState["email" + index] as string) || ""}
           onChange={e => handleInputChange("email" + index, e.target.value)}
           className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
@@ -77,6 +79,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         <input
           type="text"
           placeholder="CPF (para o certificado)"
+          aria-label={`CPF do participante ${index}`}
           value={(formDataState["cpf" + index] as string) || ""}
           onChange={e => handleInputChange("cpf" + index, e.target.value)}
           className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
@@ -84,6 +87,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         <input
           type="text"
           placeholder="Curso (se for universitário)"
+          aria-label={`Curso do participante ${index}`}
           value={(formDataState["curso" + index] as string) || ""}
           onChange={e => handleInputChange("curso" + index, e.target.value)}
           className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
@@ -91,8 +95,9 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
 
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <label>Gênero:</label>
+            <label htmlFor={`genero${index}`}>Gênero:</label>
             <select
+              id={`genero${index}`}
               value={(formDataState["genero" + index] as string) || "feminino"}
               onChange={e => handleInputChange("genero" + index, e.target.value)}
               className="bg-gray-200 text-black rounded pl-3 pr-3 py-1 appearance-none"
@@ -104,8 +109,9 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
           </div>
 
           <div className="flex items-center gap-2">
-            <label>É estudante da Ufes?</label>
+            <label htmlFor={`ufes${index}`}>É estudante da Ufes?</label>
             <select
+              id={`ufes${index}`}
               value={(ufesStatus[index] ?? true) ? "sim" : "nao"}
               onChange={e => setUfesStatus(prev => ({ ...prev, [index]: e.target.value === "sim" }))}
               className="bg-gray-200 text-black rounded pl-3 pr-3 py-1 appearance-none"
@@ -120,6 +126,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
           <input
             type="text"
             placeholder="Instituição de Ensino"
+          aria-label={`Instituição de ensino do participante ${index}`}
             value={(formDataState["instituicao" + index] as string) || ""}
             onChange={e => handleInputChange("instituicao" + index, e.target.value)}
             className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
@@ -135,11 +142,12 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         onSubmit={handleSubmit}
         className="flex flex-col w-full lg:w-[80%] mx-auto"
       >
-        <label className="mb-3 text-xl font-bold">
+        <label htmlFor="equipe" className="mb-3 text-xl font-bold">
           Qual o nome da sua equipe?
         </label>
 
         <input
+          id="equipe"
           type="text"
           value={(formDataState["equipe"] as string) || ""}
           onChange={e => handleInputChange("equipe", e.target.value)}
@@ -157,13 +165,14 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         </p>
         <div className="flex items-start gap-2 mt-4">
           <input
+            id="termo"
             type="checkbox"
             checked={(formDataState["termo"] as boolean) || false}
             onChange={e => handleInputChange("termo", e.target.checked)}
             className="mt-1"
           />
 
-          <label className="text-sm leading-snug">
+          <label htmlFor="termo" className="text-sm leading-snug">
             Declaro que há pelo menos alguém do grupo que poderá comparecer à Ufes
             para receber a premiação, e caso contrário, estou ciente que não haverá
             premiação física.

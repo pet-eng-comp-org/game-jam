@@ -1,6 +1,7 @@
 import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
 import { toast } from "sonner"
+import type { JogoJson, SeasonComJogosJson, SeasonJson } from "./api"
 import { Jogo } from "./Jogos"
 
 class Season {
@@ -67,7 +68,7 @@ class Season {
 
             const seasonsJSON = response.data
 
-            const seasons = seasonsJSON.map((seasonJSON: any) => new Season(
+            const seasons = seasonsJSON.map((seasonJSON: SeasonJson) => new Season(
                 parseInt(seasonJSON.numero),
                 seasonJSON.capa,
                 parseInt(seasonJSON.numParticipantesPorEquipe),
@@ -92,7 +93,7 @@ class Season {
 
             const seasonsJSON = response.data
 
-            const seasons = seasonsJSON.map((seasonJSON: any) => {
+            const seasons = seasonsJSON.map((seasonJSON: SeasonComJogosJson) => {
                 const season = new Season(
                     parseInt(seasonJSON.numero),
                     seasonJSON.capa,
@@ -103,7 +104,7 @@ class Season {
                 )
 
                 const jogosJSON = seasonJSON.jogos
-                jogosJSON.map((jogoJSON: any) => {
+                jogosJSON.forEach((jogoJSON: JogoJson) => {
                     const jogo = new Jogo(
                         jogoJSON.nome,
                         jogoJSON.capa,

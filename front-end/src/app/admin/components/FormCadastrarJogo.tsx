@@ -1,6 +1,7 @@
 import { ChangeEvent, useState } from "react"
 import Titulo from "./Título"
 import Image from "next/image"
+import { toast } from "sonner"
 
 interface FormProps {
 
@@ -95,7 +96,11 @@ export default function FormCadastrarJogo({fechar, cadastrarJogo}: FormProps) {
                         </label>
                     </div>
 
-                    <button type="button" onClick={() => {capa ? cadastrarJogo(nome, capa, descricao, link): false}} className="text-white font-bold bg-blue-950 p-3 rounded-md hover:bg-blue-900 duration-300">Salvar</button>
+                    <button type="button" onClick={() => {
+                        // Sem capa o clique era ignorado em silencio.
+                        if (!capa) return toast.warning("Escolha a capa do jogo.")
+                        cadastrarJogo(nome, capa, descricao, link)
+                    }} className="text-white font-bold bg-blue-950 p-3 rounded-md hover:bg-blue-900 duration-300">Salvar</button>
                 </form>
 
             </section>

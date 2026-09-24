@@ -1,6 +1,7 @@
 import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
 import { toast } from "sonner"
+import type { PatrocinadorJson } from "./api"
 
 class Patrocinador {
 
@@ -55,7 +56,7 @@ class Patrocinador {
         try {
             const response = await api.get("/patrocinador")
 
-            return response.data.map((p: any) =>
+            return response.data.map((p: PatrocinadorJson) =>
                 new Patrocinador(p.nome, p.logo, p.id)
             )
         }

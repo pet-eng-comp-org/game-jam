@@ -2,20 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { Season } from "@/models/Season";
 import { Material } from "@/models/Materiais";
 import Titulo from "../components/Titulo";
 
 export default function Materiais() {
 
-  const [seasonAtual, setSeasonAtual] = useState<Season>();
   const [materiais, setMateriais] = useState<Material[]>([]);
-
-  async function obtemSeasonAtual() {
-
-    const res = await Season.obtemAtual();
-    setSeasonAtual(res);
-  }
 
   async function obtemMateriais() {
 
@@ -24,8 +16,6 @@ export default function Materiais() {
   }
 
   useEffect(() => {
-
-    obtemSeasonAtual();
     obtemMateriais();
   }, []);
 
@@ -37,7 +27,7 @@ export default function Materiais() {
 
   return (
 
-    <Layout season={seasonAtual} className="flex flex-col">
+    <Layout className="flex flex-col">
 
       <div className="max-w-6xl w-[80%] mt-20 relative flex flex-col mx-auto px-3.5">
 
