@@ -9,7 +9,8 @@ const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 const { hash } = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
-const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
+// Compilado: o sobe-api.mjs so chama este script depois de conferir o build.
+const { adapterDoBanco } = require("../dist/prisma/adapter");
 
 const RAIZ = path.join(__dirname, "..");
 const URL_BANCO = process.env.DATABASE_URL;
@@ -38,7 +39,7 @@ async function main() {
   } catch {}
   prismaCli(["migrate", "deploy"]);
 
-  const prisma = new PrismaClient({ adapter: new PrismaMariaDb(URL_BANCO) });
+  const prisma = new PrismaClient({ adapter: adapterDoBanco(URL_BANCO) });
   try {
     await prisma.user.create({
       data: { username: process.env.E2E_USUARIO, senha: await hash(process.env.E2E_SENHA, 8) },

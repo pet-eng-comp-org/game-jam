@@ -5,6 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev src/server.ts",
+    "postinstall": "prisma generate",
     "build": "tsc --build",
     "start": "node dist/server.js",
     "test": "tsc --build && node --test test/*.test.js"

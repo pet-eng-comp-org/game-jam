@@ -18,7 +18,7 @@ const { spawn, execFileSync } = require("node:child_process");
 const jwt = require("jsonwebtoken");
 const { hash } = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
-const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
+const { adapterDoBanco } = require("../dist/prisma/adapter");
 
 const RAIZ = path.join(__dirname, "..");
 const URL_BANCO = process.env.DATABASE_URL_TESTE || "mysql://root:teste@127.0.0.1:3306/game_jam_teste";
@@ -56,7 +56,7 @@ async function preparaBanco() {
   } catch {}
   prismaCli(["migrate", "deploy"]);
 
-  prisma = new PrismaClient({ adapter: new PrismaMariaDb(URL_BANCO) });
+  prisma = new PrismaClient({ adapter: adapterDoBanco(URL_BANCO) });
   await prisma.user.create({ data: { username: ADMIN.username, senha: await hash(ADMIN.senha, 8) } });
   season = await prisma.season.create({
     data: { numero: "4", capa: "capa.png", numParticipantesPorEquipe: "2", atual: true, inscricoesAbertas: false },

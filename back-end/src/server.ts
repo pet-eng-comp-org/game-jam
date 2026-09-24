@@ -66,10 +66,13 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): any => {
             })
         }
 
-        // Erro vindo do Prisma nao pode ser devolvido cru: a mensagem dele carrega
-        // o caminho do arquivo, o trecho da query e o nome das colunas. Fica no log
-        // do servidor e o cliente recebe uma mensagem generica.
-        if(err.constructor.name.startsWith('PrismaClient')){
+        // Erro vindo do banco nao pode ser devolvido cru: a mensagem carrega o
+        // caminho do arquivo, o trecho da query, o nome das colunas ou o endereco
+        // do servidor. Fica no log e o cliente recebe uma mensagem generica. Desde
+        // o Prisma 7 ele chega tambem como erro do adapter (DriverAdapterError) ou
+        // do proprio driver mariadb (SqlError).
+        const nome = err.constructor.name
+        if(nome.startsWith('PrismaClient') || nome === 'DriverAdapterError' || nome === 'SqlError'){
             console.error(err)
 
             return res.status(500).json({

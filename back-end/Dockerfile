@@ -19,11 +19,10 @@ COPY prisma ./prisma
 # npm ci instala exatamente as versoes do package-lock. O npm install podia
 # resolver versoes diferentes das travadas, e a imagem deixava de corresponder
 # ao que esta no repositorio.
-#
-# Desde o Prisma 7 a instalacao do @prisma/client nao gera mais o client
-# sozinha: sem o generate explicito, o build do TypeScript nao acha os tipos
-# dos modelos.
-RUN npm ci && npx prisma generate
+# O postinstall do package.json roda o prisma generate (desde o Prisma 7 o
+# @prisma/client nao gera mais o client sozinho); por isso o schema e o
+# prisma.config.ts ja precisam estar aqui.
+RUN npm ci
 
 COPY . .
 

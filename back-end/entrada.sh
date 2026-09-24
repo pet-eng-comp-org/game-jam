@@ -7,7 +7,7 @@
 # uma coluna que nao existia — em producao, sem nenhum sinal antes.
 #
 # O prisma generate NAO entra aqui: ele ja roda na construcao da imagem, pelo
-# postinstall do @prisma/client durante o npm ci.
+# postinstall do package.json durante o npm ci.
 set -e
 
 npx prisma migrate deploy
