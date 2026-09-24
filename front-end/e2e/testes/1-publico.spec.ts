@@ -29,3 +29,10 @@ test("/jogos abre a lista de uma season", async ({ page }) => {
   await expect(page.getByText("A Lenda de Gabe").first()).toBeVisible();
   confere();
 });
+
+test("a barra do site nao tem botao de login", async ({ page }) => {
+  // So a organizacao entra no painel, pelo endereco /login.
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "Inscreva-se" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Login" })).toHaveCount(0);
+});

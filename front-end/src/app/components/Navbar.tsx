@@ -54,15 +54,12 @@ export default function Navbar() {
           })}
         </div>
 
+        {/* Sem botao de login: so a organizacao entra no painel, pelo endereco
+            /login. Para o visitante, o botao so confundia com a inscricao. */}
         <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:gap-4">
           <Link href="/inscricao" className="w-full md:w-auto">
             <button className="w-full rounded-full bg-destaque px-6 py-3 text-base font-bold text-barra transition-opacity hover:opacity-90 md:w-auto">
               Inscreva-se
-            </button>
-          </Link>
-          <Link href="/admin" className="w-full md:w-auto">
-            <button className="w-full rounded-full bg-destaque px-6 py-3 text-base font-bold text-barra transition-opacity hover:opacity-90 md:w-auto">
-              Login
             </button>
           </Link>
         </div>
