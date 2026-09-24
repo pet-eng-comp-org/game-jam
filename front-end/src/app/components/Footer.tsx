@@ -47,7 +47,8 @@ export default function Footer() {
       </div>
 
       {/* A linha e o credito ficam abaixo de uma divisoria, como no mockup. */}
-      <div className="mx-auto max-w-[1454px] border-t border-white/20 px-9">
+      {/* Linha do mockup: branca, 1px ("Barra final", Line). */}
+      <div className="mx-auto max-w-[1454px] border-t border-white px-9">
         <p className="py-6 text-center text-sm text-tenue">
           Created by PET Engenharia de Computação&nbsp;&nbsp;·&nbsp;&nbsp;{ano}&nbsp;&nbsp;·&nbsp;&nbsp;All rights reserved
         </p>
