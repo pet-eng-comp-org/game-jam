@@ -5,6 +5,7 @@ import { useState } from "react";
 import { isAxiosError } from "axios";
 import { api } from "@/services/api";
 import { montaInscricao } from "@/lib/inscricao";
+import { semAcento } from "@/lib/texto";
 
 interface FormInscricaoProps {
   numParticipantesPorEquipe: number;
@@ -53,140 +54,130 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
     }
   };
 
+  const valor = (campo: string) => (formDataState[campo] as string) || "";
+  const ehUfes = (i: number) => ufesStatus[i] ?? true;
+
   const participantesForm = [];
 
   for (let index = 1; index <= numParticipantesPorEquipe; index++) {
+    const romano = ROMANOS[index - 1] ?? String(index);
+
     participantesForm.push(
-      <div key={index} className="mt-12 flex flex-col gap-5">
-        <span className="text-xl font-bold">Participante {index} {index === 1 ? "(Obrigatório)" : ''}</span>
+      <fieldset key={index} className="mt-10 min-w-0">
+        <legend className="mb-4 flex flex-wrap items-baseline gap-x-3">
+          <span aria-hidden className="font-titulo text-xl text-[#FFD935]">participante {romano}</span>
+          <span className="sr-only">Participante {index}</span>
+          <span className="text-sm text-destaque-claro">{index === 1 ? "(obrigatório)" : "(opcional)"}</span>
+        </legend>
 
-        <input
-          type="text"
-          placeholder="Nome"
-          aria-label={`Nome do participante ${index}`}
-          value={(formDataState["nome" + index] as string) || ""}
-          onChange={e => handleInputChange("nome" + index, e.target.value)}
-          className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          aria-label={`E-mail do participante ${index}`}
-          value={(formDataState["email" + index] as string) || ""}
-          onChange={e => handleInputChange("email" + index, e.target.value)}
-          className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
-        />
-        <input
-          type="text"
-          placeholder="CPF (para o certificado)"
-          aria-label={`CPF do participante ${index}`}
-          value={(formDataState["cpf" + index] as string) || ""}
-          onChange={e => handleInputChange("cpf" + index, e.target.value)}
-          className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
-        />
-        <input
-          type="text"
-          placeholder="Curso (se for universitário)"
-          aria-label={`Curso do participante ${index}`}
-          value={(formDataState["curso" + index] as string) || ""}
-          onChange={e => handleInputChange("curso" + index, e.target.value)}
-          className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
-        />
+        <div className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+          <Campo id={`nome${index}`} rotulo="Nome" leitor={`Nome do participante ${index}`}>
+            <input id={`nome${index}`} type="text" autoComplete={index === 1 ? "name" : "off"}
+              value={valor("nome" + index)} onChange={e => handleInputChange("nome" + index, e.target.value)} className={CAMPO} />
+          </Campo>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor={`genero${index}`}>Gênero:</label>
-            <select
-              id={`genero${index}`}
-              value={(formDataState["genero" + index] as string) || "feminino"}
-              onChange={e => handleInputChange("genero" + index, e.target.value)}
-              className="bg-gray-200 text-black rounded pl-3 pr-3 py-1 appearance-none"
-            >
+          <Campo id={`email${index}`} rotulo="E-mail" leitor={`E-mail do participante ${index}`}>
+            <input id={`email${index}`} type="email" autoComplete={index === 1 ? "email" : "off"}
+              value={valor("email" + index)} onChange={e => handleInputChange("email" + index, e.target.value)} className={CAMPO} />
+          </Campo>
+
+          <Campo id={`cpf${index}`} rotulo="CPF" leitor={`CPF do participante ${index}, para o certificado`}>
+            <input id={`cpf${index}`} type="text" inputMode="numeric" autoComplete="off"
+              value={valor("cpf" + index)} onChange={e => handleInputChange("cpf" + index, e.target.value)} className={CAMPO} />
+          </Campo>
+
+          <Campo id={`curso${index}`} rotulo="Curso" leitor={`Curso do participante ${index}, se for universitário`}>
+            <input id={`curso${index}`} type="text"
+              value={valor("curso" + index)} onChange={e => handleInputChange("curso" + index, e.target.value)} className={CAMPO} />
+          </Campo>
+
+          <Campo id={`genero${index}`} rotulo="Gênero" leitor={`Gênero do participante ${index}`}>
+            <select id={`genero${index}`} value={valor("genero" + index) || "feminino"}
+              onChange={e => handleInputChange("genero" + index, e.target.value)} className={CAMPO}>
               <option value="feminino">Feminino</option>
               <option value="masculino">Masculino</option>
               <option value="outros">Outros</option>
             </select>
-          </div>
+          </Campo>
 
-          <div className="flex items-center gap-2">
-            <label htmlFor={`ufes${index}`}>É estudante da Ufes?</label>
-            <select
-              id={`ufes${index}`}
-              value={(ufesStatus[index] ?? true) ? "sim" : "nao"}
-              onChange={e => setUfesStatus(prev => ({ ...prev, [index]: e.target.value === "sim" }))}
-              className="bg-gray-200 text-black rounded pl-3 pr-3 py-1 appearance-none"
-            >
+          <Campo id={`ufes${index}`} rotulo="Estuda na Ufes" leitor={`O participante ${index} estuda na Ufes?`}>
+            <select id={`ufes${index}`} value={ehUfes(index) ? "sim" : "nao"}
+              onChange={e => setUfesStatus(prev => ({ ...prev, [index]: e.target.value === "sim" }))} className={CAMPO}>
               <option value="sim">Sim</option>
               <option value="nao">Não</option>
             </select>
-          </div>
-        </div>
+          </Campo>
 
-        {!(ufesStatus[index] ?? true) && (
-          <input
-            type="text"
-            placeholder="Instituição de Ensino"
-          aria-label={`Instituição de ensino do participante ${index}`}
-            value={(formDataState["instituicao" + index] as string) || ""}
-            onChange={e => handleInputChange("instituicao" + index, e.target.value)}
-            className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
-          />
-        )}
-      </div>
+          {!ehUfes(index) && (
+            <Campo id={`instituicao${index}`} rotulo="Instituição" leitor={`Instituição de ensino do participante ${index}`}>
+              <input id={`instituicao${index}`} type="text"
+                value={valor("instituicao" + index)} onChange={e => handleInputChange("instituicao" + index, e.target.value)} className={CAMPO} />
+            </Campo>
+          )}
+        </div>
+      </fieldset>
     );
   }
 
   return (
-    <div className="p-6 max-h-none overflow-visible lg:max-h-screen lg:overflow-y-auto">
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col w-full lg:w-[80%] mx-auto"
-      >
-        <label htmlFor="equipe" className="mb-3 text-xl font-bold">
-          Qual o nome da sua equipe?
-        </label>
+    <form onSubmit={handleSubmit} className="flex w-full max-w-[555px] flex-col">
+      <Campo id="equipe" rotulo="Nome da equipe" leitor="Nome da equipe">
+        <input id="equipe" type="text" value={valor("equipe")}
+          onChange={e => handleInputChange("equipe", e.target.value)} className={`${CAMPO} sm:max-w-[261px]`} />
+      </Campo>
 
+      {participantesForm}
+
+      {/* A LGPD pede que a finalidade do dado seja dita na hora da coleta. */}
+      <p className="mt-10 text-sm leading-snug text-destaque-claro">
+        Pedimos o CPF só para emitir o certificado de participação, feito pela
+        Pró-Reitoria de Extensão (PROEX) da Ufes. Ele é visto apenas pela
+        organização do Game Jam, não aparece em nenhuma página do site e é apagado
+        depois que os certificados são emitidos.
+      </p>
+
+      <div className="mt-4 flex items-start gap-3">
         <input
-          id="equipe"
-          type="text"
-          value={(formDataState["equipe"] as string) || ""}
-          onChange={e => handleInputChange("equipe", e.target.value)}
-          className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
+          id="termo"
+          type="checkbox"
+          checked={(formDataState["termo"] as boolean) || false}
+          onChange={e => handleInputChange("termo", e.target.checked)}
+          className="mt-1 h-4 w-4 shrink-0 accent-[#FFCF00]"
         />
+        <label htmlFor="termo" className="text-sm leading-snug text-destaque-claro">
+          Declaro que há pelo menos alguém do grupo que poderá comparecer à Ufes
+          para receber a premiação, e caso contrário, estou ciente que não haverá
+          premiação física.
+        </label>
+      </div>
 
-        {participantesForm}
+      {/* Botao do mockup: 377x61, #FFCF00, cantos de 21px, texto em PacFont 20. */}
+      <button
+        type="submit"
+        disabled={enviando}
+        className="mx-auto mt-10 h-[61px] w-full max-w-[377px] rounded-[21px] bg-[#FFCF00] font-titulo text-xl text-[#001059] transition-opacity hover:opacity-90 disabled:opacity-60"
+      >
+        {enviando ? "enviando..." : "inscrever-se"}
+      </button>
+    </form>
+  );
+}
 
-        {/* A LGPD pede que a finalidade do dado seja dita na hora da coleta. */}
-        <p className="mt-8 text-sm leading-snug">
-          Pedimos o CPF só para emitir o certificado de participação, feito pela
-          Pró-Reitoria de Extensão (PROEX) da Ufes. Ele é visto apenas pela
-          organização do Game Jam, não aparece em nenhuma página do site e é apagado
-          depois que os certificados são emitidos.
-        </p>
-        <div className="flex items-start gap-2 mt-4">
-          <input
-            id="termo"
-            type="checkbox"
-            checked={(formDataState["termo"] as boolean) || false}
-            onChange={e => handleInputChange("termo", e.target.checked)}
-            className="mt-1"
-          />
+const ROMANOS = ["i", "ii", "iii", "iv", "v", "vi"];
 
-          <label htmlFor="termo" className="text-sm leading-snug">
-            Declaro que há pelo menos alguém do grupo que poderá comparecer à Ufes
-            para receber a premiação, e caso contrário, estou ciente que não haverá
-            premiação física.
-          </label>
-        </div>
+// Campo do mockup: 42px de altura, #FCECA8, sem cantos arredondados.
+const CAMPO = "h-[42px] w-full bg-[#FCECA8] px-3 text-black outline-none focus:ring-2 focus:ring-[#FFCF00]";
 
-        <button
-          type="submit"
-          disabled={enviando}
-          className="mt-11 bg-gray-200 text-black p-3 rounded-lg w-max mx-auto font-bold hover:scale-105 duration-300 disabled:opacity-60 disabled:hover:scale-100"
-        >
-          {enviando ? "Enviando..." : "Solicitar inscrição"}
-        </button>
-      </form>
+// Rotulo em PacFont 16, #FBDC70, como no mockup. Na tela vai sem acento (a
+// fonte nao tem os glifos); o leitor de tela ouve o texto completo.
+function Campo({ id, rotulo, leitor, children }: { id: string; rotulo: string; leitor: string; children: React.ReactNode }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-2">
+      <label htmlFor={id}>
+        <span aria-hidden className="font-titulo text-base lowercase text-[#FBDC70]">{semAcento(rotulo)}</span>
+        <span className="sr-only">{leitor}</span>
+      </label>
+      {children}
     </div>
   );
 }

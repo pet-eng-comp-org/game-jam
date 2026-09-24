@@ -1,57 +1,68 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { Season } from "@/models/Season"
 import FormInscricao from "../components/FormInscricao"
 
+// Tela "Inscricoes" do mockup (Figma, Season 4, pagina Site, frame 220:51):
+// logo com os fantasmas a esquerda, titulo e formulario a direita, sobre o
+// fundo de labirinto. Sem barra de navegacao, como no desenho.
+type Estado = { tipo: "carregando" } | { tipo: "erro" } | { tipo: "pronto"; season: Season | null }
+
 export default function Inscricao() {
 
-  const [seasonAtual, setSeasonAtual] = useState<Season | null>(null)
+  const [estado, setEstado] = useState<Estado>({ tipo: "carregando" })
+
   useEffect(() => {
+    Season.obtemAtual()
+      .then((season) => setEstado({ tipo: "pronto", season }))
+      // Antes a pagina ficava em "Carregando..." para sempre se a API falhasse.
+      .catch(() => setEstado({ tipo: "erro" }))
+  }, [])
 
-  async function fetchSeasonAtual() {
-
-    const res = await Season.obtemAtual()
-    setSeasonAtual(res ?? null)
-  }
-  fetchSeasonAtual()
-}, [])
-
-  if (!seasonAtual) {
-    return <div className="mt-20 text-center">Carregando...</div>
-  }
-
+  // Fundo preso a janela, como no mockup: com cover sobre a pagina inteira, o
+  // labirinto ampliava e os pontos caiam em cima do titulo.
   return (
+    <div className="min-h-screen bg-fundo bg-[url('/background-inscricao.webp')] bg-cover bg-fixed bg-center">
+      <div className="mx-auto flex min-h-screen max-w-[1440px] flex-col items-center gap-10 px-4 py-12 lg:flex-row lg:items-start lg:justify-center lg:gap-[90px] lg:px-16">
 
-    <div
-      style={{
-        background: "url('/background-inscricao.webp') no-repeat",
-        backgroundSize: "cover",
-        backgroundPosition: "center"
-      }}
-    >
-        <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen justify-center items-center px-4 lg:px-16 gap-4 lg:gap-8">
-          <div className="lg:flex-1 w-full flex flex-col justify-center items-center mt-12 mb-12">
-            <img src="/logo-alt.png" alt="Logo do PET Game Jam" className="md:h-96 h-64 object-contain" /> 
-
+        {/* No desktop o logo acompanha a rolagem do formulario. */}
+        <div className="flex shrink-0 justify-center lg:sticky lg:top-[calc(50vh-215px)] lg:w-[497px]">
+          <Link href="/" aria-label="Voltar ao início do Game Jam">
+            <img src="/logo-alt.png" alt="PET Game Jam, Season IV" className="h-64 object-contain md:h-96 lg:h-[431px]" />
+          </Link>
         </div>
 
-        <div className="flex w-full items-center justify-center lg:flex-1">
+        <div className="flex w-full max-w-[555px] flex-col lg:pt-[84px]">
+          <h1 aria-label="Inscrições" className="mb-10 text-center font-titulo text-4xl text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
+            inscricoes
+          </h1>
 
-          {seasonAtual.getInscricoesAbertas ? (
-            
-            <FormInscricao numParticipantesPorEquipe={seasonAtual.getNumParticipantesPorEquipe} />
-          ) : (
-            <span className="text-3xl font-medium block text-center w-full max-w-xl border border-[var(--color-barra)] rounded-lg p-8 bg-[var(--color-barra)] text-[var(--color-destaque)] shadow-lg">
-              <strong className="block text-2xl md:text-3xl lg:text-3xl">
-                As inscrições estão fechadas...</strong>
-              <span className="block text-xl font-normal mt-2">
-                Aguarde a próxima Season do Game Jam!
-              </span>
-            </span>
+          {estado.tipo === "carregando" && <Aviso titulo="Carregando..." />}
+
+          {estado.tipo === "erro" && (
+            <Aviso titulo="Não foi possível carregar a inscrição." texto="Tente de novo em alguns minutos." />
+          )}
+
+          {estado.tipo === "pronto" && (
+            estado.season?.getInscricoesAbertas ? (
+              <FormInscricao numParticipantesPorEquipe={estado.season.getNumParticipantesPorEquipe} />
+            ) : (
+              <Aviso titulo="As inscrições estão fechadas." texto="Acompanhe o Instagram @petengcomp para saber quando abrem." />
+            )
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+function Aviso({ titulo, texto }: { titulo: string; texto?: string }) {
+  return (
+    <div role="status" className="rounded-[21px] bg-barra/90 p-8 text-center">
+      <p className="text-2xl font-bold text-destaque">{titulo}</p>
+      {texto && <p className="mt-2 text-lg text-destaque-claro">{texto}</p>}
     </div>
   )
 }

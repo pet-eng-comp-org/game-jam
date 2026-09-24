@@ -148,27 +148,23 @@ class Season {
         }
     }
 
-    static async obtemAtual() {
+    // null quando nao ha season atual; erro de rede sobe para quem chamou, que
+    // assim distingue "sem season" de "API fora do ar".
+    static async obtemAtual(): Promise<Season | null> {
 
-        try {
-            const response = await api.get("/seasons/atual")
+        const response = await api.get<SeasonJson | null>("/seasons/atual")
+        const seasonJSON = response.data
 
-            const seasonJSON = response.data
+        if (!seasonJSON) return null
 
-            const seasonAtual = new Season(
-                parseInt(seasonJSON.numero),
-                seasonJSON.capa,
-                parseInt(seasonJSON.numParticipantesPorEquipe),
-                seasonJSON.atual,
-                seasonJSON.inscricoesAbertas,
-                seasonJSON.id
-            )
-
-            return seasonAtual
-        }
-        catch(err) {
-            console.log(err)
-        }
+        return new Season(
+            parseInt(seasonJSON.numero),
+            seasonJSON.capa,
+            parseInt(seasonJSON.numParticipantesPorEquipe),
+            seasonJSON.atual,
+            seasonJSON.inscricoesAbertas,
+            seasonJSON.id
+        )
     }
 
     async tornaAtual() {

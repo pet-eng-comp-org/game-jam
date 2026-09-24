@@ -9,7 +9,7 @@ const paginas: { caminho: string; mostra: (p: import("@playwright/test").Page) =
   { caminho: "/regras", mostra: (p) => p.getByText("REGRAS").first() },
   { caminho: "/materiais", mostra: (p) => p.getByText("Material E2E").first() },
   { caminho: "/apoio", mostra: (p) => p.getByAltText("Patrocinador E2E").first() },
-  { caminho: "/inscricao", mostra: (p) => p.getByText("Qual o nome da sua equipe?") },
+  { caminho: "/inscricao", mostra: (p) => p.getByRole("textbox", { name: "Nome da equipe" }) },
 ];
 
 for (const { caminho, mostra } of paginas) {

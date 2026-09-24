@@ -6,27 +6,27 @@ import { banco, semErroDePagina, unico } from "./ajuda";
 // a validacao continuou exigindo um por participante.
 
 async function preenche(page: Page, i: number, dados: { nome?: string; email?: string; cpf?: string }) {
-  if (dados.nome) await page.getByPlaceholder("Nome").nth(i - 1).fill(dados.nome);
-  if (dados.email) await page.getByPlaceholder("Email").nth(i - 1).fill(dados.email);
-  if (dados.cpf) await page.getByPlaceholder("CPF").nth(i - 1).fill(dados.cpf);
+  if (dados.nome) await page.getByRole("textbox", { name: `Nome do participante ${i}`, exact: true }).fill(dados.nome);
+  if (dados.email) await page.getByRole("textbox", { name: `E-mail do participante ${i}`, exact: true }).fill(dados.email);
+  if (dados.cpf) await page.getByRole("textbox", { name: `CPF do participante ${i}, para o certificado` }).fill(dados.cpf);
 }
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/inscricao");
-  await expect(page.getByText("Qual o nome da sua equipe?")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Nome da equipe" })).toBeVisible();
 });
 
 test("inscreve a equipe e grava cada participante", async ({ page }, info) => {
   const confere = semErroDePagina(page);
   const equipe = unico("Equipe", info.project.name);
 
-  await page.locator("input[type=text]").first().fill(equipe);
+  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "111.444.777-35" });
   await preenche(page, 2, { nome: "Bruno Teste", email: "bruno@exemplo.com", cpf: "16899535009" });
-  await page.getByLabel("É estudante da Ufes?").nth(1).selectOption("nao");
-  await page.getByPlaceholder("Instituição de Ensino").fill("IFES");
+  await page.getByRole("combobox", { name: "O participante 2 estuda na Ufes?" }).selectOption("nao");
+  await page.getByRole("textbox", { name: "Instituição de ensino do participante 2" }).fill("IFES");
   await page.getByLabel(/Declaro que há pelo menos alguém/).check();
-  await page.getByRole("button", { name: "Solicitar inscrição" }).click();
+  await page.getByRole("button", { name: "inscrever-se" }).click();
 
   await expect(page.getByText("Inscrição solicitada com sucesso!")).toBeVisible();
   confere();
@@ -46,9 +46,9 @@ test("inscreve a equipe e grava cada participante", async ({ page }, info) => {
 
 test("sem a declaracao, avisa e nao grava nada", async ({ page }, info) => {
   const equipe = unico("Sem termo", info.project.name);
-  await page.locator("input[type=text]").first().fill(equipe);
+  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "52998224725" });
-  await page.getByRole("button", { name: "Solicitar inscrição" }).click();
+  await page.getByRole("button", { name: "inscrever-se" }).click();
 
   await expect(page.getByText("Você deve aceitar o termo para realizar a inscrição!")).toBeVisible();
   expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(0);
@@ -56,11 +56,11 @@ test("sem a declaracao, avisa e nao grava nada", async ({ page }, info) => {
 
 test("participante preenchido pela metade avisa em vez de sumir", async ({ page }, info) => {
   const equipe = unico("Metade", info.project.name);
-  await page.locator("input[type=text]").first().fill(equipe);
+  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "52998224725" });
   await preenche(page, 3, { nome: "Caio Sem Email" });
   await page.getByLabel(/Declaro que há pelo menos alguém/).check();
-  await page.getByRole("button", { name: "Solicitar inscrição" }).click();
+  await page.getByRole("button", { name: "inscrever-se" }).click();
 
   await expect(page.getByText("Participante 3: Nome, CPF e Email são obrigatórios!")).toBeVisible();
   expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(0);
@@ -68,10 +68,10 @@ test("participante preenchido pela metade avisa em vez de sumir", async ({ page 
 
 test("toque duplo no botao grava a equipe uma vez so", async ({ page }, info) => {
   const equipe = unico("Duplo", info.project.name);
-  await page.locator("input[type=text]").first().fill(equipe);
+  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "52998224725" });
   await page.getByLabel(/Declaro que há pelo menos alguém/).check();
-  await page.getByRole("button", { name: "Solicitar inscrição" }).dblclick();
+  await page.getByRole("button", { name: "inscrever-se" }).dblclick();
 
   await expect(page.getByText("Inscrição solicitada com sucesso!")).toBeVisible();
   expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(1);
@@ -79,10 +79,10 @@ test("toque duplo no botao grava a equipe uma vez so", async ({ page }, info) =>
 
 test("CPF com digito errado avisa e nao grava nada", async ({ page }, info) => {
   const equipe = unico("CPF errado", info.project.name);
-  await page.locator("input[type=text]").first().fill(equipe);
+  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: "52998224724" });
   await page.getByLabel(/Declaro que há pelo menos alguém/).check();
-  await page.getByRole("button", { name: "Solicitar inscrição" }).click();
+  await page.getByRole("button", { name: "inscrever-se" }).click();
 
   await expect(page.getByText("Participante 1: CPF inválido. Confira os números.")).toBeVisible();
   expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(0);
