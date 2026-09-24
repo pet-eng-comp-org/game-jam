@@ -239,6 +239,29 @@ class Season {
         }
     }
 
+    // Apaga o CPF de todos os participantes desta season. O CPF so serve para o
+    // certificado da PROEX; emitidos os certificados, ele nao deve ficar guardado.
+    async apagaCpfs() {
+
+        const token = getCookieClient()
+
+        if(!token) return
+
+        try {
+            const response = await api.put("/seasons/apagaCpfs", {}, {
+                params: { id: this.id },
+                headers: { Authorization: `Bearer ${token}` }
+            })
+
+            const apagados: number = response.data.apagados
+            toast.success(apagados ? `${apagados} CPF(s) apagado(s).` : "Não havia CPF guardado nesta season.")
+        }
+        catch(err) {
+            console.log(err)
+            toast.error("Não foi possível apagar os CPFs.")
+        }
+    }
+
     async deletar() {
 
         const token = getCookieClient()

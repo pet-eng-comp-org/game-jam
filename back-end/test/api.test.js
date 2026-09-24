@@ -129,6 +129,9 @@ describe("login do painel", () => {
     ["PUT", "/seasons/atual"],
     ["PUT", "/seasons/abreInscricao"],
     ["PUT", "/seasons/fechaInscricao"],
+    ["PUT", "/seasons/apagaCpfs"],
+    ["GET", "/equipes"],
+    ["DELETE", "/equipe"],
     ["POST", "/jogos"],
     ["DELETE", "/jogos"],
     ["POST", "/patrocinador"],
@@ -291,6 +294,40 @@ describe("inscricao", () => {
     const gravado = await prisma.participante.findFirst({ where: { email: "x@exemplo.com" } });
     assert.notEqual(gravado.id, "id-forjado");
     assert.notEqual(gravado.equipeId, outra.id);
+  });
+
+  it("o painel lista as equipes da season com os participantes", async () => {
+    const r = await api("GET", `/equipes?seasonId=${season.id}`, { token: await entra() });
+    assert.equal(r.status, 200);
+    const equipes = await r.json();
+    const nova = equipes.find((e) => e.nome === "Equipe Nova");
+    assert.ok(nova, "equipe inscrita aparece");
+    assert.deepEqual(nova.participantes.map((p) => p.email).sort(), ["a@exemplo.com", "b@exemplo.com"]);
+    assert.equal(nova.participantes[0].cpf, "98765432100", "o painel ve o CPF, para o certificado");
+    assert.ok(equipes.every((e) => e.nome !== "Equipe Semeada"), "so a season pedida");
+  });
+
+  it("o painel apaga a equipe inteira", async () => {
+    const alvo = await prisma.equipe.findFirst({ where: { nome: "CPF Pontuado" } });
+    const r = await api("DELETE", `/equipe?id=${alvo.id}`, { token: await entra() });
+    assert.equal(r.status, 200);
+    assert.equal((await r.json()).participantesApagados, 1);
+    assert.equal(await prisma.equipe.count({ where: { id: alvo.id } }), 0);
+    assert.equal(await prisma.participante.count({ where: { equipeId: alvo.id } }), 0);
+  });
+
+  it("apagar os CPFs de uma season nao mexe nas outras", async () => {
+    const semeado = await prisma.participante.findFirst({ where: { email: PESSOAL.email } });
+    assert.equal(semeado.cpf, PESSOAL.cpf, "CPF da season antiga antes");
+
+    const r = await api("PUT", `/seasons/apagaCpfs?id=${season.id}`, { token: await entra() });
+    assert.equal(r.status, 200);
+    assert.ok((await r.json()).apagados > 0);
+
+    const daAtual = await prisma.participante.count({ where: { equipe: { seasonId: season.id }, cpf: { not: null } } });
+    assert.equal(daAtual, 0);
+    const outro = await prisma.participante.findFirst({ where: { email: PESSOAL.email } });
+    assert.equal(outro.cpf, PESSOAL.cpf, "CPF de outra season intacto");
   });
 
   it("fechada de novo, recusa", async () => {

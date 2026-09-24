@@ -3,7 +3,7 @@
 import MenuItem from "./MenuItem"
 import Image from "next/image"
 import logoPET from "../../../../public/logo-pet.png"
-import { IconeUsuarios, IconeSair, IconePerfil, IconeDinheiro, IconeDocumento, IconeComputador, IconeEquipe, IconeMaterial } from "./Icones"
+import { IconeUsuarios, IconeSair, IconePerfil, IconeDinheiro, IconeComputador, IconeEquipe, IconeMaterial } from "./Icones"
 import { deleteCookieClient } from "@/lib/cookieClient"
 import { useRouter } from "next/navigation"
 
@@ -32,10 +32,9 @@ export default function Menu() {
                 <MenuItem url="/admin/usuarios" texto="Usuários" icone={IconeUsuarios}/>
                 <MenuItem url="/admin/seasons" texto="Season" icone={IconeComputador}/>
                 <MenuItem url="/admin/jogos" texto="Jogos" icone={IconeComputador}/>
-                <MenuItem url="/admin" texto="Equipes" icone={IconeEquipe}/>
+                <MenuItem url="/admin/equipes" texto="Equipes" icone={IconeEquipe}/>
                 <MenuItem url="/admin/materiais" texto="Materiais" icone={IconeMaterial}/>
-                <MenuItem url="/admin" texto="Regras" icone={IconeDocumento}/>
-                <MenuItem url="/admin/patrocinadores" texto="Patrocício" icone={IconeDinheiro}/>
+                <MenuItem url="/admin/patrocinadores" texto="Patrocínio" icone={IconeDinheiro}/>
             </ul>
             <ul>
                 <MenuItem

@@ -20,6 +20,7 @@ import { ObtemSeasonsController } from "./controllers/season/ObtemSeasonsControl
 import { ObtemSeasonsComJogosController } from "./controllers/season/ObtemSeasonsComJogosController";
 import { AbreInscricaoSeasonController } from "./controllers/season/AbreInscricaoSeasonController";
 import { FechaInscricaoSeasonController } from "./controllers/season/FechaInscricaoSeasonController";
+import { ApagaCpfsSeasonController } from "./controllers/season/ApagaCpfsSeasonController";
 
 import { CriaJogoController } from "./controllers/jogo/CriaJogoController";
 import { DeletaJogoController } from "./controllers/jogo/DeletaJogoController";
@@ -31,6 +32,7 @@ import { ObtemMateriaisController } from "./controllers/material/ObtemMateriaisC
 import { ObtemPatrocinadoresController } from "./controllers/patrocinador/ObtemPatrocinadorController";
 
 import { CriaInscricaoController } from "./controllers/inscricao/CriaInscricaoController";
+import { ObtemEquipesController, DeletaEquipeController } from "./controllers/equipe/EquipeController";
 
 const router = Router()
 const upload = multer(uploadConfig.upload("./tmp"))
@@ -53,6 +55,7 @@ router.put('/seasons/atual', estaAutenticado, new AtualSeasonController().handle
 router.get('/seasons/atual', new ObtemAtualSeasonController().handle)
 router.put('/seasons/abreInscricao', estaAutenticado, new AbreInscricaoSeasonController().handle)
 router.put('/seasons/fechaInscricao', estaAutenticado, new FechaInscricaoSeasonController().handle)
+router.put('/seasons/apagaCpfs', estaAutenticado, new ApagaCpfsSeasonController().handle)
 
 // -- ROUTES JOGO --
 router.post('/jogos', estaAutenticado, upload.single('file'), new CriaJogoController().handle)
@@ -75,5 +78,10 @@ router.get('/material', new ObtemMateriaisController().handle)
 // equipe e todos os participantes chegam juntos e sao gravados numa transacao.
 // A guarda esta no controller, que exige temporada atual com inscricoes abertas.
 router.post('/inscricao', limiteDeInscricao, new CriaInscricaoController().handle)
+
+// -- EQUIPES (painel) --
+// Os inscritos, com CPF: so com login.
+router.get('/equipes', estaAutenticado, new ObtemEquipesController().handle)
+router.delete('/equipe', estaAutenticado, new DeletaEquipeController().handle)
 
 export { router }

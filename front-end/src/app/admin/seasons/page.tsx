@@ -44,6 +44,16 @@ export default function Seasons() {
         carregaSeasons()
     }
 
+    async function apagaCpfs(season: Season) {
+
+        const confirma = window.confirm(
+            `Apagar o CPF de todos os participantes da Season ${season.getNumero}?\n\n` +
+            "Faça isso só depois de os certificados da PROEX terem sido emitidos. Não dá para desfazer."
+        )
+
+        if(confirma) await season.apagaCpfs()
+    }
+
     async function deletaSeason(season: Season) {
 
         await season.deletar()
@@ -80,6 +90,9 @@ export default function Seasons() {
 
                 <td className={`flex items-center justify-center gap-3 p-2 text-lg ${((i+1) % 2) ? 'bg-gray-300' : 'bg-gray-200'} `}>
 
+                        <Botao nome="Apagar CPFs" onClick={() => apagaCpfs(season)}
+                        className="text-sm bg-gray-600 hover:bg-gray-500"/>
+
                         {
                             !season.getAtual ? (
                                 <>
@@ -115,6 +128,8 @@ export default function Seasons() {
 
             <p className="mb-10">
                 Nesta seção, você pode gerenciar as Seasons (temporadas) do Game Jam.
+                O CPF dos participantes serve só para o certificado da PROEX: emitidos
+                os certificados de uma season, use &quot;Apagar CPFs&quot; nela.
             </p>
 
             <Botao nome="Nova Season" onClick={() => setExibeFormCadastro(true)} className="mb-5"/>

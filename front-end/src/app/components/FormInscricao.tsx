@@ -152,7 +152,8 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         <p className="mt-8 text-sm leading-snug">
           Pedimos o CPF só para emitir o certificado de participação, feito pela
           Pró-Reitoria de Extensão (PROEX) da Ufes. Ele é visto apenas pela
-          organização do Game Jam e não aparece em nenhuma página do site.
+          organização do Game Jam, não aparece em nenhuma página do site e é apagado
+          depois que os certificados são emitidos.
         </p>
         <div className="flex items-start gap-2 mt-4">
           <input
