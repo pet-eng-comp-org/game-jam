@@ -22,7 +22,7 @@ services:
     # Ate aqui rodava a 9.5.0, trilha Innovation, que deixou de receber correcao
     # quando saiu a 9.6. Subir de versao e automatico: o mysqld atualiza o
     # diretorio de dados ao iniciar. Descer NAO e: voltar exige restaurar o backup.
-    image: mysql@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
+    image: mysql:9.7.2@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
     container_name: game-jam_database
     restart: unless-stopped
     logging: *logging
@@ -116,7 +116,10 @@ services:
   # evita pedir nome novo ao LAR: um dominio serve quantos jogos existirem,
   # porque o que separa cada um e caminho, nao DNS.
   arquivo:
-    image: nginx:1.29-alpine
+    # 1.30 e a serie estavel do nginx; a 1.29 parou de receber correcao em
+    # abril de 2026. Tag e digest: a tag diz a versao (e e o que o Dependabot
+    # compara), o digest fixa a imagem.
+    image: nginx:1.30.5-alpine@sha256:bf3201ab56f23e5954646379c775d511fc466e9f11376d9725361064ad07ed35
     container_name: game-jam_arquivo
     restart: unless-stopped
     logging: *logging

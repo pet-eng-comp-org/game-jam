@@ -84,6 +84,35 @@ updates:
       - dependency-name: node
         update-types: ["version-update:semver-major"]
 
+  # O Dockerfile do front tambem fixa a node:24 por digest, e tem que andar junto
+  # com o do back (uma versao de Node so na stack). Ficou de fora ate 24/09/2026
+  # e o front estava num digest mais velho que o do back.
+  - package-ecosystem: docker
+    directory: /front-end
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+
+  # As imagens de terceiros da stack de producao (MySQL e o nginx do acervo).
+  # As do proprio projeto (ghcr.io/...) sao escritas pelo CI no deploy e ficam
+  # de fora. Mesclar um PR daqui IMPLANTA, porque o Portainer segue este arquivo.
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: "ghcr.io/pet-eng-comp-org/*"
+      # So correcoes: 9.8 e da trilha Innovation, e subir de serie e sem volta
+      # (o diretorio de dados nao abre em versao anterior). Trocar de serie e de
+      # proposito, com backup.
+      - dependency-name: mysql
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # So a serie estavel (numero par); a impar e a mainline.
+      - dependency-name: nginx
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:

@@ -1,7 +1,7 @@
 # Mesma base e mesmo digest do backend, de proposito: uma versao de Node so na
 # stack inteira, e uma atualizacao so quando o Dependabot trouxer digest novo.
 # node:24 e o LTS ativo.
-ARG NODE_IMAGE=node:24@sha256:934240a162082fd8b8a2f90cd5114446443f1eba1c5378f6687167ca405e6584
+ARG NODE_IMAGE=node:24@sha256:64af3819f9275802414d7cdc38c27e9d82bd564dec4d4da87d008255d36c63b4
 
 # ---------- dependencias ----------
 # Estagio separado para o Docker reaproveitar a camada: enquanto package.json e
