@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Layout from "./components/Layout";
 import { Season } from "@/models/Season";
 import Titulo from "./components/Titulo";
+import { dataDaEdicao, linguagensDaEdicao } from "@/lib/edicao";
 
 export default function Home() {
 
@@ -31,32 +32,39 @@ export default function Home() {
         <section>
           <Titulo valor="O QUE É GAMEJAM" />
           <p className="mt-6 text-lg leading-9">
-            É uma competição de desenvolvimento de jogos de navegador criada pelo PET Engenharia
-            de Computação da UFES. Os participantes devem se organizar em equipes de até três
-            pessoas e programar um jogo de navegador seguindo uma temática fornecida no início
-            da competição.
+            É uma competição de programação em equipes do PET Engenharia de Computação da
+            UFES, nos mesmos moldes do TOPCOM, o maior torneio de programação do Espírito
+            Santo. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
+            evento e usa programação para implementar parte da lógica dele.
           </p>
         </section>
 
         {/* O segundo bloco entra recuado no mockup: x=214 contra x=143 dos
             outros dois, e um pouco mais estreito. */}
         <section className="mt-[150px] md:ml-[6%] md:max-w-[1083px]">
-          <Titulo valor="como participar" />
+          <Titulo valor="como funciona" />
           <p className="mt-6 text-lg leading-9">
-            Os interessados devem se organizar em equipes de no máximo 3 pessoas e realizar o
-            cadastro no próprio site do evento, durante o período de inscrição. Caso queira ser
-            um lobo solitário, tudo bem também, a inscrição é feita da mesma forma. Mas atenção!
-            Cada equipe deve ter um nome, então escolham o mais criativo antes de se registrarem!
+            Nem tudo é revelado antes da competição: no início do dia são apresentadas as
+            regras completas, o ambiente e o que é preciso para começar. A partir daí, cada
+            equipe interpreta o problema, discute a estratégia e transforma ideias em código,
+            contra o tempo. Mais do que escrever código, o desafio põe à prova interpretação de
+            problemas, raciocínio lógico, trabalho em equipe e adaptação ao inesperado.
           </p>
         </section>
 
         <section className="mt-[150px]">
-          <Titulo valor="AVALIAÇÃO" />
+          <Titulo valor="como participar" />
           <p className="mt-6 text-lg leading-9">
-            Os jogos deverão ser submetidos até a data proposta nas regras. Eles serão avaliados
-            pela nossa banca composta por especialistas e todos os participantes da melhor equipe
-            ganharão o prêmio, que deverá ser retirado presencialmente na UFES Campus Goiabeiras.
+            Monte uma equipe de até três pessoas e faça a inscrição aqui no site quando as
+            inscrições abrirem. Cada equipe precisa de um nome, então escolham um bom!
           </p>
+          <ul className="mt-6 space-y-1 text-lg leading-9">
+            <li><strong>Data:</strong> {dataDaEdicao()}</li>
+            <li><strong>Duração:</strong> 1 dia</li>
+            <li><strong>Formato:</strong> competição em equipes de até 3 pessoas</li>
+            <li><strong>Linguagens permitidas:</strong> {linguagensDaEdicao()}</li>
+            <li><strong>Desafio:</strong> implementar a lógica de um jogo</li>
+          </ul>
         </section>
       </div>
     </Layout>
