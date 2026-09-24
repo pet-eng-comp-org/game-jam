@@ -77,12 +77,13 @@ def encolhe(pts, d):
 
 
 def glifo_acento(forma, vazado):
-    """forma: contorno pelo meio do traco, como o Figma guarda o retangulo."""
+    """forma: o retangulo como o Figma guarda. O traco dos retangulos do Figma
+    fica DO LADO DE DENTRO (stroke align inside): a borda externa e a propria
+    forma e o furo e ela encolhida 1,5 px. Medido contra o mockup em pixels."""
     pen = TTGlyphPen(None)
-    externo = encolhe(forma, -TRACO / 2)
-    desenha(pen, horario(externo))
+    desenha(pen, horario(forma))
     if vazado:
-        desenha(pen, horario(encolhe(forma, TRACO / 2))[::-1])
+        desenha(pen, horario(encolhe(forma, TRACO))[::-1])
     return pen.glyph()
 
 
@@ -91,12 +92,14 @@ def formas():
     # altura do agudo girado (-80 graus): ~14,76 px
     alt = 14.76 * PX
     return {
-        # (forma centrada em x=0, referencia vertical: "acima" = base do acento sobre o topo da letra)
-        "agudo": (retangulo(0, 0, agudo_w, agudo_h, -80), "acima", 84),
-        "grave": ([(-x, y) for x, y in retangulo(0, 0, agudo_w, agudo_h, -80)], "acima", 84),
-        "til": (retangulo(0, 0, 22 * PX, 8 * PX, 0), "acima", 50),
-        "circunflexo": (triangulo(0, -5.5 * PX, 22 * PX, 11 * PX), "acima", 50),
-        "cedilha": (retangulo(0, 0, agudo_w, agudo_h, -80), "abaixo", 32),
+        # (forma centrada em x=0, lado, folga ate a letra em unidades, desvio
+        # horizontal em unidades). No mockup a cedilha fica 5,5 px a esquerda
+        # do centro do C; os outros acentos, centrados.
+        "agudo": (retangulo(0, 0, agudo_w, agudo_h, -80), "acima", 65, 0),
+        "grave": ([(-x, y) for x, y in retangulo(0, 0, agudo_w, agudo_h, -80)], "acima", 65, 0),
+        "til": (retangulo(0, 0, 22 * PX, 8 * PX, 0), "acima", 69, 0),
+        "circunflexo": (triangulo(0, -5.5 * PX, 22 * PX, 11 * PX), "acima", 69, 0),
+        "cedilha": (retangulo(0, 0, agudo_w, agudo_h, -80), "abaixo", 13, round(-5.5 * PX)),
     }
 
 
@@ -117,18 +120,19 @@ def main():
         p = BoundsPen(conjunto); conjunto[nome].draw(p); return p.bounds
 
     novos = {}
+    variantes = {}  # letra base -> letras acentuadas feitas dela
     for letra, (base_min, acento) in LETRAS.items():
         for car, base_car in ((letra, base_min), (letra.upper(), base_min.upper())):
             vazado = car.isupper()
             base = cmap[ord(base_car)]
-            forma, lado, folga = formas()[acento]
+            forma, lado, folga, desvio = formas()[acento]
             nome_acento = f"{acento}.{'vazado' if vazado else 'solido'}"
             if nome_acento not in glyf:
                 glyf[nome_acento] = glifo_acento(forma, vazado)
                 hmtx[nome_acento] = (0, 0)
             x0, y0, x1, y1 = caixa(base)
             ac = glyf[nome_acento]; ac.recalcBounds(glyf)
-            dx = round((x0 + x1) / 2)
+            dx = round((x0 + x1) / 2) + desvio
             dy = round(y1 + folga - ac.yMin) if lado == "acima" else round(y0 - folga - ac.yMax)
             pen = TTGlyphPen(glyf)
             pen.addComponent(base, (1, 0, 0, 1, 0, 0))
@@ -137,6 +141,21 @@ def main():
             glyf[nome] = pen.glyph()
             hmtx[nome] = hmtx[base]
             novos[ord(car)] = nome
+            variantes.setdefault(base, []).append(nome)
+
+    # Kerning: a PacFont tem ~1550 pares ("CA" -172, "AO" -157...). Letra
+    # acentuada sem os pares da base fica larga demais: "OPCAO" saia 18 px mais
+    # largo que no mockup. Cada acentuada herda os pares da sua base.
+    kern = fonte["kern"].kernTables[0].kernTable
+    for (esq, dir_), valor in list(kern.items()):
+        for e in [esq] + variantes.get(esq, []):
+            for d in [dir_] + variantes.get(dir_, []):
+                kern.setdefault((e, d), valor)
+
+    # hdmx guarda larguras pre-calculadas por tamanho de pixel e nao conhece os
+    # glifos novos; navegador nao usa, entao sai.
+    if "hdmx" in fonte:
+        del fonte["hdmx"]
 
     # glyf[nome] = ... ja registra o nome na ordem da tabela; a fonte segue ela.
     fonte.setGlyphOrder(glyf.glyphOrder)

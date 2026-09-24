@@ -190,7 +190,7 @@ export default function Jogos() {
 
     <Layout>
 
-      <div className="mx-auto w-[93%] max-w-[1340px] pt-24 pb-10">
+      <div className="mx-auto w-[93%] max-w-[1340px] pt-[98px] pb-10">
 
         <div className="pl-[93px]">
           <Titulo valor="SELECIONE UMA OPÇÃO:" />

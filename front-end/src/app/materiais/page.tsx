@@ -36,7 +36,7 @@ export default function Materiais() {
 
     <Layout>
 
-      <div className="mx-auto w-[80%] max-w-[1154px] pt-24 pb-24">
+      <div className="mx-auto w-[80%] max-w-[1154px] pt-[98px] pb-24">
 
         <Titulo valor="materiais" />
 

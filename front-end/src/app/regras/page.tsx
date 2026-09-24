@@ -6,9 +6,10 @@ import { dataDaEdicao, linguagensDaEdicao } from "@/lib/edicao";
 export default function Home() {
 
   return (
-    <Layout className="flex items-center justify-center">
+    <Layout>
 
-      <div className="max-w-6xl w-[80%] mt-20 relative">
+      {/* Mesma margem das outras paginas: titulo em y=177 do mockup (98px abaixo da barra). */}
+      <div className="mx-auto w-[80%] max-w-[1154px] pt-[98px] pb-24">
 
         {/* Título principal */}
         <Titulo valor="REGRAS" />

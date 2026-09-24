@@ -9,7 +9,7 @@ export default function Home() {
     <Layout>
 
       {/* 1154/1440 do mockup = 80% da largura, com o mesmo respiro no topo. */}
-      <div className="mx-auto w-[80%] max-w-[1154px] pt-24 pb-10">
+      <div className="mx-auto w-[80%] max-w-[1154px] pt-[98px] pb-10">
 
         <section>
           <Titulo valor="O QUE É GAMEJAM" />
