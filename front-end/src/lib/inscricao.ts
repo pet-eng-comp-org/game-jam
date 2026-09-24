@@ -21,6 +21,20 @@ export type ResultadoInscricao =
   | { ok: true; equipe: string; participantes: ParticipanteInscricao[] }
   | { ok: false; erro: string };
 
+// So os digitos, se for um CPF valido; senao, null. A API confere de novo
+// (back-end/src/utils/cpf.ts): o CPF vai para o certificado emitido pela PROEX.
+export function cpfNormalizado(valor: string): string | null {
+  const cpf = valor.replace(/\D/g, "");
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return null;
+
+  for (const tamanho of [9, 10]) {
+    let soma = 0;
+    for (let i = 0; i < tamanho; i++) soma += Number(cpf[i]) * (tamanho + 1 - i);
+    if (((soma * 10) % 11) % 10 !== Number(cpf[tamanho])) return null;
+  }
+  return cpf;
+}
+
 const texto = (estado: EstadoFormulario, campo: string) =>
   ((estado[campo] as string) ?? "").trim();
 
@@ -60,6 +74,11 @@ export function montaInscricao(
       return { ok: false, erro: `Participante ${i}: Nome, CPF e Email são obrigatórios!` };
     }
 
+    const cpfValido = cpfNormalizado(cpf);
+    if (!cpfValido) {
+      return { ok: false, erro: `Participante ${i}: CPF inválido. Confira os números.` };
+    }
+
     if (!ufes && !instituicao) {
       return { ok: false, erro: `Participante ${i}: informe a instituição de ensino.` };
     }
@@ -67,7 +86,7 @@ export function montaInscricao(
     participantes.push({
       nome,
       email,
-      cpf,
+      cpf: cpfValido,
       curso: curso || undefined,
       genero,
       ufes,

@@ -1,7 +1,7 @@
 // Roda com `npm test` (node:test; o Node 24 executa TypeScript direto).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { montaInscricao, type EstadoFormulario } from "../src/lib/inscricao.ts";
+import { cpfNormalizado, montaInscricao, type EstadoFormulario } from "../src/lib/inscricao.ts";
 
 const todosUfes = { 1: true, 2: true, 3: true };
 
@@ -10,7 +10,7 @@ const valido: EstadoFormulario = {
   termo: true,
   nome1: "Ana",
   email1: "ana@exemplo.com",
-  cpf1: "00000000000",
+  cpf1: "529.982.247-25",
 };
 
 test("aceita a inscrição com a declaração única marcada", () => {
@@ -51,7 +51,7 @@ test("recusa participante opcional preenchido pela metade", () => {
 
 test("inclui os participantes opcionais completos", () => {
   const r = montaInscricao(
-    { ...valido, nome3: "Caio", email3: "caio@exemplo.com", cpf3: "11111111111", curso3: "Eng. Comp." },
+    { ...valido, nome3: "Caio", email3: "caio@exemplo.com", cpf3: "16899535009", curso3: "Eng. Comp." },
     todosUfes,
     3,
   );
@@ -72,4 +72,20 @@ test("exige instituição de quem não é da Ufes, como o back-end", () => {
 test("descarta instituição digitada por quem é da Ufes", () => {
   const r = montaInscricao({ ...valido, instituicao1: "IFES" }, todosUfes, 3);
   assert.equal(r.ok && r.participantes[0].instituicao, undefined);
+});
+
+test("CPF vai so com os digitos, e so se for valido", () => {
+  const r = montaInscricao(valido, todosUfes, 3);
+  assert.equal(r.ok && r.participantes[0].cpf, "52998224725");
+
+  for (const errado of ["52998224724", "111.111.111-11", "123", "abc"]) {
+    const recusa = montaInscricao({ ...valido, cpf1: errado }, todosUfes, 3);
+    assert.deepEqual(recusa, { ok: false, erro: "Participante 1: CPF inválido. Confira os números." }, errado);
+  }
+});
+
+test("cpfNormalizado confere os dois digitos verificadores", () => {
+  assert.equal(cpfNormalizado("168.995.350-09"), "16899535009");
+  assert.equal(cpfNormalizado("16899535019"), null);
+  assert.equal(cpfNormalizado("16899535000"), null);
 });

@@ -265,6 +265,9 @@ describe("inscricao", () => {
       ["Sem Nome", participante({ nome: "" })],
       ["Externo", participante({ ufes: false })],
       ["Ufes Texto", participante({ ufes: "sim" })],
+      ["Sem CPF", participante({ cpf: undefined })],
+      ["CPF Errado", participante({ cpf: "98765432101" })],
+      ["CPF Repetido", participante({ cpf: "111.111.111-11" })],
     ]) {
       const r = await inscreve(nome, [participante(), invalido]);
       assert.equal(r.status, 400, nome);
@@ -272,6 +275,13 @@ describe("inscricao", () => {
     }
     assert.equal((await inscreve("", [participante()])).status, 400);
     assert.equal((await inscreve("Vazia", [])).status, 400);
+  });
+
+  it("grava o CPF so com os digitos", async () => {
+    const r = await inscreve("CPF Pontuado", [participante({ email: "pontuado@exemplo.com", cpf: "529.982.247-25" })]);
+    assert.equal(r.status, 201);
+    const gravado = await prisma.participante.findFirst({ where: { email: "pontuado@exemplo.com" } });
+    assert.equal(gravado.cpf, "52998224725");
   });
 
   it("ignora campos que o cliente nao deveria mandar", async () => {

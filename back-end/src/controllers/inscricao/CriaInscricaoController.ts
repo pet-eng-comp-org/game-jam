@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prismaClient from "../../prisma";
 import { CriaInscricaoService, ParticipanteInscricao } from "../../services/inscricao/CriaInscricaoService";
+import { cpfNormalizado } from "../../utils/cpf";
 
 const texto = (valor: unknown) => (typeof valor === "string" ? valor.trim() : "");
 
@@ -14,6 +15,10 @@ function participanteDe(bruto: any): ParticipanteInscricao | string {
   const instituicao = texto(bruto?.instituicao);
 
   if (!nome || !email || !genero || typeof ufes !== "boolean") return "Campos obrigatórios faltando.";
+
+  // Obrigatorio: sem CPF nao ha certificado (emitido pela PROEX).
+  const cpf = cpfNormalizado(bruto?.cpf);
+  if (!cpf) return "CPF inválido.";
   if (!ufes && !instituicao) return "Informe a instituição para participantes externos.";
 
   return {
@@ -21,7 +26,7 @@ function participanteDe(bruto: any): ParticipanteInscricao | string {
     email,
     genero,
     ufes,
-    cpf: texto(bruto?.cpf) || undefined,
+    cpf,
     curso: texto(bruto?.curso) || undefined,
     instituicao: ufes ? undefined : instituicao,
   };

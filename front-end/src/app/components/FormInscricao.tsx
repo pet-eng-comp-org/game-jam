@@ -76,7 +76,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         />
         <input
           type="text"
-          placeholder="CPF"
+          placeholder="CPF (para o certificado)"
           value={(formDataState["cpf" + index] as string) || ""}
           onChange={e => handleInputChange("cpf" + index, e.target.value)}
           className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
@@ -147,7 +147,14 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         />
 
         {participantesForm}
-        <div className="flex items-start gap-2 mt-8">
+
+        {/* A LGPD pede que a finalidade do dado seja dita na hora da coleta. */}
+        <p className="mt-8 text-sm leading-snug">
+          Pedimos o CPF só para emitir o certificado de participação, feito pela
+          Pró-Reitoria de Extensão (PROEX) da Ufes. Ele é visto apenas pela
+          organização do Game Jam e não aparece em nenhuma página do site.
+        </p>
+        <div className="flex items-start gap-2 mt-4">
           <input
             type="checkbox"
             checked={(formDataState["termo"] as boolean) || false}

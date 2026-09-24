@@ -5,7 +5,7 @@ export interface ParticipanteInscricao {
   email: string;
   genero: string;
   ufes: boolean;
-  cpf?: string;
+  cpf: string;
   curso?: string;
   instituicao?: string;
 }
