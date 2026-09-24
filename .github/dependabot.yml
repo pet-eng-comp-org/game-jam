@@ -58,11 +58,6 @@ updates:
         dependency-type: development
         update-types: ["minor", "patch"]
     ignore:
-      # ESLint 10 quebra o eslint-plugin-react que vem no eslint-config-next
-      # ("contextOrFilename.getFilename is not a function", medido em 24/09/2026).
-      # Sobe quando o eslint-config-next suportar.
-      - dependency-name: eslint
-        update-types: ["version-update:semver-major"]
       # Mesmo criterio do back-end: @types/node acompanha o major do Node que roda
       # o site (24). O 26 foi oferecido aqui em 31/08/2026 e recusado.
       - dependency-name: "@types/node"
