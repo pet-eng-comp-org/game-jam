@@ -41,9 +41,11 @@ jobs:
           npm ci
           npm run build
 
-      - name: Front
+      - name: Front (lint)
         working-directory: front-end
-        run: npm ci
+        run: |
+          npm ci
+          npm run lint
 
       # O Chromium do Playwright (~150 MB) muda so com a versao do pacote, que o
       # lock do e2e fixa. Com cache, cada execucao baixa so as dependencias do

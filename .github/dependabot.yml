@@ -25,14 +25,6 @@ updates:
         dependency-type: development
         update-types: ["minor", "patch"]
     ignore:
-      # O express 5 exige tirar o express-async-errors, que so suporta o 4 e nao
-      # recebe versao nova desde 2019. Com os dois juntos o npm ci morre em
-      # ERESOLVE e a imagem nao constroi — foi o que derrubou o primeiro PR
-      # agrupado do backend. Voltar a considerar quando o pacote sair do projeto:
-      # o express 5 trata rejeicao de promessa sozinho e o express-async-errors
-      # deixa de ser necessario.
-      - dependency-name: express
-        update-types: ["version-update:semver-major"]
       # @types/node tem que acompanhar o major do Node da imagem base, hoje 24.
       # Tipo mais novo que o runtime descreve API que nao existe em execucao, e
       # o compilador aceita — a falha aparece so rodando. O Dependabot ofereceu
@@ -63,6 +55,11 @@ updates:
         dependency-type: development
         update-types: ["minor", "patch"]
     ignore:
+      # ESLint 10 quebra o eslint-plugin-react que vem no eslint-config-next
+      # ("contextOrFilename.getFilename is not a function", medido em 24/09/2026).
+      # Sobe quando o eslint-config-next suportar.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
       # Mesmo criterio do back-end: @types/node acompanha o major do Node que roda
       # o site (24). O 26 foi oferecido aqui em 31/08/2026 e recusado.
       - dependency-name: "@types/node"
