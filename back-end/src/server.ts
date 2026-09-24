@@ -18,6 +18,14 @@ const app = express()
 app.set('trust proxy', 1)
 app.use(express.json())
 
+// O Express 5 deixa req.body undefined quando nao ha corpo JSON (o 4 dava {}).
+// Os controllers desestruturam req.body, e sem isto uma requisicao sem corpo
+// virava TypeError com mensagem interna na resposta.
+app.use((req, _res, next) => {
+    req.body ??= {}
+    next()
+})
+
 // Cabecalhos de seguranca. crossOriginResourcePolicy fica em cross-origin
 // porque /files serve as imagens dos patrocinadores para o site, que esta em
 // outro dominio — o padrao same-origin bloquearia.
@@ -95,4 +103,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): any => {
 
 const PORT = process.env.PORT || 3333;
 
-app.listen(PORT, () => console.log('Server Online!'))
+// No Express 5 o callback tambem recebe o erro do listen (porta ocupada, sem
+// permissao). Sem o throw, o erro sumia e o log ainda dizia "Server Online!".
+app.listen(PORT, (err) => {
+    if (err) throw err
+    console.log('Server Online!')
+})

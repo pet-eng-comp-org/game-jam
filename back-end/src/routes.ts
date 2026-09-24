@@ -7,6 +7,7 @@ import { LogaUserController } from "./controllers/user/LogaUserController";
 import { DetalhesUserController } from "./controllers/user/DetalhesUserController";
 import { ObtemUsersController } from "./controllers/user/ObtemUsersController";
 import { limiteDeLogin, limiteDeInscricao } from './middlewares/limiteDeTaxa'
+import { exigeCredenciais } from './middlewares/exigeCredenciais'
 import { estaAutenticado } from "./middlewares/estaAutenticado";
 import { DeleteUserController } from "./controllers/user/DeleteUserController";
 import { AlteraSenhaUserController } from "./controllers/user/AlteraSenhaUserController";
@@ -37,7 +38,7 @@ const upload = multer(uploadConfig.upload("./tmp"))
 
 // -- ROUTES USER --
 router.post('/users', estaAutenticado, new CriaUserController().handle)
-router.post('/sessao', limiteDeLogin, new LogaUserController().handle)
+router.post('/sessao', exigeCredenciais, limiteDeLogin, new LogaUserController().handle)
 router.get('/eu', estaAutenticado,  new DetalhesUserController().handle)
 router.get('/users', estaAutenticado,  new ObtemUsersController().handle)
 router.delete('/users', estaAutenticado, new DeleteUserController().handle)

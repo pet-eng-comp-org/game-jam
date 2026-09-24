@@ -162,6 +162,13 @@ describe("login do painel", () => {
     }
   });
 
+  it("login sem usuario ou senha e recusado, sem erro interno", async () => {
+    for (const corpo of [undefined, {}, { username: ADMIN.username }, { username: ["x"], senha: "y" }]) {
+      const r = await api("POST", "/sessao", { corpo });
+      assert.equal(r.status, 400, JSON.stringify(corpo));
+    }
+  });
+
   it("senha errada e usuario inexistente dao a mesma resposta", async () => {
     const errada = await api("POST", "/sessao", { corpo: { ...ADMIN, senha: "errada" } });
     const inexistente = await api("POST", "/sessao", { corpo: { username: "ninguem", senha: "qualquer" } });
