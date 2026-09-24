@@ -1,24 +1,13 @@
 "use client"
 
-import { api } from "@/services/api";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Equipe } from "@/models/Equipes";
 import { Participante } from "@/models/Participantes";
+import { montaInscricao } from "@/lib/inscricao";
 
 interface FormInscricaoProps {
   numParticipantesPorEquipe: number;
-}
-
-interface ParticipanteForm {
-  nome: string;
-  email: string;
-  cpf: string;
-  curso?: string;
-  genero: string;
-  ufes: boolean;
-  instituicao?: string;
-  termo: boolean;
 }
 
 export default function FormInscricao({ numParticipantesPorEquipe }: FormInscricaoProps) {
@@ -34,75 +23,30 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const listaParticipantes: ParticipanteForm[] = [];
+    const inscricao = montaInscricao(formDataState, ufesStatus, numParticipantesPorEquipe);
 
-    const nomeEquipe = (formDataState["equipe"] as string)?.trim() || "";
-
-    if (!nomeEquipe) {
-      toast.warning("Preencha o nome da equipe!");
+    if (!inscricao.ok) {
+      toast.warning(inscricao.erro);
       return;
-    }
-
-    const termo = (formDataState["termo"] as boolean) || false;
-
-    if (!termo) {
-      toast.warning("Você deve aceitar o termo para realizar a inscrição!");
-      return;
-    }
-
-    for (let index = 1; index <= numParticipantesPorEquipe; index++) {
-      const nome = (formDataState["nome" + index] as string)?.trim() || "";
-      const email = (formDataState["email" + index] as string)?.trim() || "";
-      const cpf = (formDataState["cpf" + index] as string)?.trim() || "";
-      const curso = (formDataState["curso" + index] as string)?.trim() || "";
-      const genero = (formDataState["genero" + index] as string) || "feminino";
-      const ufes = ufesStatus[index];
-      const instituicao = (formDataState["instituicao" + index] as string)?.trim() || "";
-      const termo = (formDataState["termo" + index] as boolean) || false;
-
-      if ((!nome || !email || !cpf) && (index == 1)) {
-        toast.warning(`Participante ${index}: Nome, CPF e Email são obrigatórios!`);
-        return;
-      }
-
-      if (!termo && (index == 1)) {
-        toast.warning(`Participante ${index} deve aceitar o termo!`);
-        return;
-      }
-
-      if(nome && email && cpf && termo) {
-        listaParticipantes.push({
-          nome,
-          email,
-          cpf,
-          curso: curso || undefined,
-          genero,
-          ufes,
-          instituicao: ufes ? undefined : instituicao || undefined,
-          termo,
-        });
-      }
     }
 
     try {
-      const equipe = await Equipe.cadastrar(nomeEquipe);
+      const equipe = await Equipe.cadastrar(inscricao.equipe);
 
       if (!equipe?.getId) {
         toast.error("Não foi possível criar a equipe.");
         return;
       }
 
-      for (const p of listaParticipantes) {
-        await Participante.cadastrar({
-          nome: p.nome,
-          email: p.email,
-          genero: p.genero,
-          ufes: p.ufes,
-          cpf: p.cpf,
-          curso: p.curso,
-          instituicao: p.instituicao,
-          equipeId: equipe.getId,
-        });
+      for (const p of inscricao.participantes) {
+        // cadastrar() engole o erro e devolve undefined; sem esta checagem o
+        // site dizia "sucesso" com participante faltando.
+        const participante = await Participante.cadastrar({ ...p, equipeId: equipe.getId });
+
+        if (!participante) {
+          toast.error(`Não foi possível inscrever ${p.nome}. Fale com a organização antes de tentar de novo.`);
+          return;
+        }
       }
 
       toast.success("Inscrição solicitada com sucesso!");
