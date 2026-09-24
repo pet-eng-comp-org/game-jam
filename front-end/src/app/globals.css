@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 /* PacFont e a fonte de titulo do mockup da Season 4. Nao esta no Google Fonts,
-   entao o arquivo mora no repositorio. Se ele faltar, o navegador cai sozinho
-   para a proxima da pilha e a pagina continua legivel — nao quebra o build. */
+   entao o arquivo mora no repositorio. A original nao tem acento; pacfont-br e
+   ela com as letras acentuadas do portugues, no desenho dos acentos que a
+   designer fez no mockup (gerada por scripts/pacfont-acentos.py a partir de
+   pacfont.ttf). Se o arquivo faltar, o navegador cai para a proxima da pilha. */
 @font-face {
   font-family: "PacFont";
-  src: url("/fontes/pacfont.woff2") format("woff2"),
-       url("/fontes/pacfont.ttf") format("truetype");
+  src: url("/fontes/pacfont-br.woff2") format("woff2"),
+       url("/fontes/pacfont-br.ttf") format("truetype");
   font-weight: 400;
   font-display: swap;
 }

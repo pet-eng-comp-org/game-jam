@@ -5,7 +5,6 @@ import { useState } from "react";
 import { isAxiosError } from "axios";
 import { api } from "@/services/api";
 import { montaInscricao } from "@/lib/inscricao";
-import { semAcento } from "@/lib/texto";
 
 interface FormInscricaoProps {
   numParticipantesPorEquipe: number;
@@ -168,13 +167,13 @@ const ROMANOS = ["i", "ii", "iii", "iv", "v", "vi"];
 // Campo do mockup: 42px de altura, #FCECA8, sem cantos arredondados.
 const CAMPO = "h-[42px] w-full bg-[#FCECA8] px-3 text-black outline-none focus:ring-2 focus:ring-[#FFCF00]";
 
-// Rotulo em PacFont 16, #FBDC70, como no mockup. Na tela vai sem acento (a
-// fonte nao tem os glifos); o leitor de tela ouve o texto completo.
+// Rotulo em PacFont 16, #FBDC70, como no mockup. O leitor de tela ouve o texto
+// completo, com o numero do participante.
 function Campo({ id, rotulo, leitor, children }: { id: string; rotulo: string; leitor: string; children: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <label htmlFor={id}>
-        <span aria-hidden className="font-titulo text-base lowercase text-[#FBDC70]">{semAcento(rotulo)}</span>
+        <span aria-hidden className="font-titulo text-base lowercase text-[#FBDC70]">{rotulo}</span>
         <span className="sr-only">{leitor}</span>
       </label>
       {children}
