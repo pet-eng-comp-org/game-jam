@@ -85,16 +85,10 @@ class Season {
 
     static async obtemTodosComJogos() {
 
-        const token = getCookieClient()
-                
-        if(!token) return
-
+        // Rota publica: nao depende do cookie do painel (o mesmo defeito escondia
+        // materiais e patrocinadores de quem nao estava logado).
         try {
-            const response = await api.get("/seasonsComJogos", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+            const response = await api.get("/seasonsComJogos")
 
             const seasonsJSON = response.data
 

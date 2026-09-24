@@ -50,14 +50,10 @@ class Patrocinador {
 
     static async obtemTodosPatrocinadores(): Promise<Patrocinador[]> {
 
-        const token = getCookieClient()
-
-        if (!token) return []
-
+        // Leitura publica: o site mostra isto a qualquer visitante. Exigir o
+        // cookie do painel escondia a lista de quem nao estava logado.
         try {
-            const response = await api.get("/patrocinador", {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const response = await api.get("/patrocinador")
 
             return response.data.map((p: any) =>
                 new Patrocinador(p.nome, p.logo, p.id)

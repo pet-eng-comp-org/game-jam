@@ -54,14 +54,10 @@ class Material {
 
     static async obtemTodosMateriais(): Promise<Material[]> {
 
-        const token = getCookieClient()
-
-        if (!token) return []
-
+        // Leitura publica: o site mostra isto a qualquer visitante. Exigir o
+        // cookie do painel escondia a lista de quem nao estava logado.
         try {
-            const response = await api.get("/material", {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const response = await api.get("/material")
 
             return response.data.map((m: any) =>
                 new Material(m.nome, m.descricao, m.link, m.id)
