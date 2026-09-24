@@ -8,9 +8,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// A URL do banco fica em prisma.config.ts (Prisma 7).
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 model User {

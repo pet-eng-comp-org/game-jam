@@ -32,13 +32,16 @@ updates:
       # major, subir este junto e a mao.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
-      # Prisma 7 muda o gerador do client e quebra o build; CLI (prisma) e client
-      # (@prisma/client) tem que subir JUNTOS, na mesma versao, senao o prisma
-      # generate falha — e o Dependabot abre um PR para cada. Recusado em 20/08 e
-      # de novo em 22/09/2026. Migrar de proposito, os dois num PR, com os testes.
+      # Major do Prisma e migracao, nao atualizacao: o 7 (24/09/2026) tirou a URL
+      # do schema, passou a exigir driver adapter e parou de gerar o client no
+      # npm ci. CLI (prisma), client (@prisma/client) e adapter
+      # (@prisma/adapter-mariadb) tem que subir JUNTOS, na mesma versao, e o
+      # Dependabot abre um PR para cada. Migrar de proposito, num PR, com os testes.
       - dependency-name: prisma
         update-types: ["version-update:semver-major"]
       - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/adapter-mariadb"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm

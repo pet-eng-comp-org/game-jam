@@ -9,6 +9,7 @@ const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 const { hash } = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
+const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
 
 const RAIZ = path.join(__dirname, "..");
 const URL_BANCO = process.env.DATABASE_URL;
@@ -32,12 +33,12 @@ async function main() {
   // Mesmo caminho do test/api.test.js: na primeira execucao o banco nao existe,
   // a conexao falha e o migrate deploy cria.
   try {
-    prismaCli(["db", "execute", "--url", URL_BANCO, "--stdin"],
+    prismaCli(["db", "execute", "--stdin"],
       `DROP DATABASE \`${NOME_BANCO}\`; CREATE DATABASE \`${NOME_BANCO}\`;`, "ignore");
   } catch {}
   prismaCli(["migrate", "deploy"]);
 
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient({ adapter: new PrismaMariaDb(URL_BANCO) });
   try {
     await prisma.user.create({
       data: { username: process.env.E2E_USUARIO, senha: await hash(process.env.E2E_SENHA, 8) },

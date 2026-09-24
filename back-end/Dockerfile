@@ -12,15 +12,18 @@ WORKDIR /app
 
 # Os manifestos e o schema vem antes do resto do codigo para o Docker poder
 # reaproveitar a camada de dependencias: enquanto eles nao mudam, editar src/
-# nao refaz a instalacao. O prisma/ precisa estar aqui porque a instalacao do
-# @prisma/client executa o prisma generate, que le o schema.
-COPY package.json package-lock.json ./
+# nao refaz a instalacao nem a geracao do client.
+COPY package.json package-lock.json prisma.config.ts ./
 COPY prisma ./prisma
 
 # npm ci instala exatamente as versoes do package-lock. O npm install podia
 # resolver versoes diferentes das travadas, e a imagem deixava de corresponder
 # ao que esta no repositorio.
-RUN npm ci
+#
+# Desde o Prisma 7 a instalacao do @prisma/client nao gera mais o client
+# sozinha: sem o generate explicito, o build do TypeScript nao acha os tipos
+# dos modelos.
+RUN npm ci && npx prisma generate
 
 COPY . .
 

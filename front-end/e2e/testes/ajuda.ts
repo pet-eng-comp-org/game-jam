@@ -8,8 +8,9 @@ import { DATABASE_URL } from "../ambiente.mjs";
 // e gerado no npm ci do back-end, que o sobe-api.mjs ja exige.
 const doBack = createRequire(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "back-end", "package.json"));
 const { PrismaClient } = doBack("@prisma/client");
+const { PrismaMariaDb } = doBack("@prisma/adapter-mariadb");
 
-export const banco = new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
+export const banco = new PrismaClient({ adapter: new PrismaMariaDb(DATABASE_URL) });
 
 // Falha o teste se a pagina lancar erro de JavaScript (tela branca, componente
 // quebrado). Imagem que nao carrega nao conta: o banco de teste nao tem arquivos.
