@@ -15,7 +15,7 @@ jobs:
     services:
       mysql:
         # O mesmo MySQL da stack de producao (docker-compose.prod.yml), pelo digest.
-        image: mysql@sha256:57c892ddeb17e6c7dddf219914db017b2cf3e2797806a75424444b83622cc8ef
+        image: mysql@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
         env:
           MYSQL_ROOT_PASSWORD: teste
         ports: ['3306:3306']

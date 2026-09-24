@@ -18,11 +18,11 @@ x-logging: &logging
 
 services:
   database:
-    # mysql:9.5.0 — digest tirado do container que estava em execucao, nao do
-    # registry: a tag 9.5.0 disponivel na VM NAO e a mesma imagem que rodava.
-    # Trilha Innovation, suporte curto. A LTS e a 8.4, mas o diretorio de dados
-    # da 9.5 nao abre em versao anterior: migrar exige dump e restore.
-    image: mysql@sha256:57c892ddeb17e6c7dddf219914db017b2cf3e2797806a75424444b83622cc8ef
+    # mysql:9.7.2, a LTS da serie 9 (tag "lts" no Docker Hub em 24/09/2026).
+    # Ate aqui rodava a 9.5.0, trilha Innovation, que deixou de receber correcao
+    # quando saiu a 9.6. Subir de versao e automatico: o mysqld atualiza o
+    # diretorio de dados ao iniciar. Descer NAO e: voltar exige restaurar o backup.
+    image: mysql@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
     container_name: game-jam_database
     restart: unless-stopped
     logging: *logging
