@@ -10,6 +10,7 @@ const paginas: { caminho: string; mostra: (p: import("@playwright/test").Page) =
   { caminho: "/materiais", mostra: (p) => p.getByText("Material E2E").first() },
   { caminho: "/apoio", mostra: (p) => p.getByAltText("Patrocinador E2E").first() },
   { caminho: "/inscricao", mostra: (p) => p.getByRole("textbox", { name: "Nome da equipe" }) },
+  { caminho: "/privacidade", mostra: (p) => p.getByText("O CPF é apagado", { exact: false }).first() },
 ];
 
 for (const { caminho, mostra } of paginas) {

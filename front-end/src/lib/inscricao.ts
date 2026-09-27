@@ -67,7 +67,9 @@ export function montaInscricao(
     const cpf = texto(estado, "cpf" + i).replace(/\D/g, "");
     const curso = texto(estado, "curso" + i);
     const instituicao = texto(estado, "instituicao" + i);
-    const genero = (estado["genero" + i] as string) || "feminino";
+    // Sem escolha, "nao-informado": antes o padrao era "feminino", e quem nao
+    // mexia no campo ficava registrado assim sem ter escolhido.
+    const genero = (estado["genero" + i] as string) || "nao-informado";
     // Sem valor, conta como da Ufes, o mesmo padrão que o formulário mostra.
     const ufes = ufesPorParticipante[i] ?? true;
 

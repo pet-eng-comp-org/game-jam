@@ -19,7 +19,7 @@ test("uma linha por participante, com cabecalho, BOM e separador ;", () => {
   const linhas = csv.slice(1).trimEnd().split("\r\n");
   assert.equal(linhas.length, 3);
   assert.equal(linhas[0], '"Equipe";"Aprovada";"Nome";"E-mail";"CPF";"Curso";"Instituição";"Gênero"');
-  assert.equal(linhas[1], '"Equipe ""Aspas""; e ponto e virgula";"Sim";"Ana";"ana@exemplo.com";"052.998.224-72";"";"Ufes";"feminino"');
+  assert.equal(linhas[1], '"Equipe ""Aspas""; e ponto e virgula";"Sim";"Ana";"ana@exemplo.com";"052.998.224-72";"";"Ufes";"Feminino"');
 });
 
 test("texto que o Excel executaria como formula vira texto", () => {

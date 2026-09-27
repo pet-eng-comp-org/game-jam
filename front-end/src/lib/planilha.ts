@@ -20,6 +20,17 @@ export interface EquipeInscrita {
   participantes: ParticipanteInscrito[];
 }
 
+const GENEROS: { [valor: string]: string } = {
+  feminino: "Feminino",
+  masculino: "Masculino",
+  outros: "Outros",
+  "nao-informado": "Não informado",
+};
+
+// Valor gravado -> texto da planilha. Valor desconhecido (inscricoes antigas)
+// sai como esta.
+export const generoLegivel = (genero: string) => GENEROS[genero] ?? genero;
+
 // Formatado de proposito: so com digitos, o Excel le o CPF como numero e come o
 // zero a esquerda.
 export function cpfFormatado(cpf: string | null) {
@@ -50,7 +61,7 @@ export function planilhaDeInscritos(equipes: EquipeInscrita[]) {
         cpfFormatado(p.cpf),
         p.curso ?? "",
         p.ufes ? "Ufes" : p.instituicao ?? "",
-        p.genero,
+        generoLegivel(p.genero),
       ]);
     }
   }

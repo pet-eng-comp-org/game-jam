@@ -24,6 +24,7 @@ test("aceita a inscrição com a declaração única marcada", () => {
   assert.equal(r.equipe, "Equipe Teste");
   assert.equal(r.participantes.length, 1);
   assert.equal(r.participantes[0].cpf, "52998224725", "o CPF vai só com os dígitos");
+  assert.equal(r.participantes[0].genero, "nao-informado", "sem escolha, o gênero não é presumido");
 });
 
 test("recusa sem a declaração", () => {

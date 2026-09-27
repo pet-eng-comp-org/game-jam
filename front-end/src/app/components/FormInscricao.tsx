@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import { toast } from "sonner";
 import { useState } from "react";
 import { isAxiosError } from "axios";
@@ -124,8 +125,9 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
           </Campo>
 
           <Campo id={`genero${index}`} rotulo={`gênero ${romano}`} leitor={`Gênero do participante ${index}`}>
-            <select id={`genero${index}`} value={valor("genero" + index) || "feminino"}
+            <select id={`genero${index}`} value={valor("genero" + index) || "nao-informado"}
               onChange={e => handleInputChange("genero" + index, e.target.value)} className={CAMPO}>
+              <option value="nao-informado">Prefiro não informar</option>
               <option value="feminino">Feminino</option>
               <option value="masculino">Masculino</option>
               <option value="outros">Outros</option>
@@ -180,7 +182,8 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         Pedimos o CPF só para emitir o certificado de participação, feito pela
         Pró-Reitoria de Extensão (PROEX) da Ufes. Ele é visto apenas pela
         organização do Game Jam, não aparece em nenhuma página do site e é apagado
-        depois que os certificados são emitidos.
+        depois que os certificados são emitidos.{" "}
+        <Link href="/privacidade" className="text-destaque underline">Como tratamos seus dados</Link>.
       </p>
 
       <div className="mt-4 flex items-start gap-3">
