@@ -59,7 +59,7 @@ async function preparaBanco() {
   prisma = new PrismaClient({ adapter: adapterDoBanco(URL_BANCO) });
   await prisma.user.create({ data: { username: ADMIN.username, senha: await hash(ADMIN.senha, 8) } });
   season = await prisma.season.create({
-    data: { numero: "4", capa: "capa.png", numParticipantesPorEquipe: "2", atual: true, inscricoesAbertas: false },
+    data: { numero: "4", capa: "capa.png", numParticipantesPorEquipe: "2", atual: true },
   });
   const antiga = await prisma.season.create({ data: { numero: "3", capa: "capa3.png", numParticipantesPorEquipe: "4" } });
   await prisma.jogo.create({ data: { nome: "Jogo", capa: "j.png", descricao: "d", link: "https://exemplo.com", seasonId: antiga.id } });
@@ -127,8 +127,7 @@ describe("login do painel", () => {
     ["DELETE", "/seasons"],
     ["GET", "/seasons"],
     ["PUT", "/seasons/atual"],
-    ["PUT", "/seasons/abreInscricao"],
-    ["PUT", "/seasons/fechaInscricao"],
+    ["PUT", "/seasons"],
     ["PUT", "/seasons/apagaCpfs"],
     ["GET", "/equipes"],
     ["DELETE", "/equipe"],
@@ -230,15 +229,50 @@ describe("inscricao", () => {
   const inscreve = (equipe, participantes) => api("POST", "/inscricao", { corpo: { equipe, participantes } });
   const equipesChamadas = (nome) => prisma.equipe.count({ where: { nome } });
 
-  it("fechada, recusa", async () => {
+  const dia = 24 * 60 * 60 * 1000;
+  const periodo = async (abrem, fecham) => {
+    const r = await api("PUT", `/seasons?id=${season.id}`, {
+      token: await entra(),
+      corpo: { inscricoesAbrem: new Date(Date.now() + abrem).toISOString(), inscricoesFecham: new Date(Date.now() + fecham).toISOString() },
+    });
+    assert.equal(r.status, 200);
+    return r.json();
+  };
+
+  it("sem periodo definido, recusa", async () => {
     const r = await inscreve("Cedo Demais", [participante()]);
     assert.equal(r.status, 403);
     assert.equal(await equipesChamadas("Cedo Demais"), 0);
   });
 
-  it("aberta pelo painel, grava a equipe com os participantes na temporada atual", async () => {
-    const abre = await api("PUT", `/seasons/abreInscricao?id=${season.id}`, { token: await entra() });
-    assert.equal(abre.status, 200);
+  it("antes da abertura, recusa", async () => {
+    const s = await periodo(dia, 2 * dia);
+    assert.equal(s.inscricoesAbertas, false);
+    assert.equal((await inscreve("Antes Da Hora", [participante()])).status, 403);
+  });
+
+  it("a edicao da season valida as datas", async () => {
+    const token = await entra();
+    const ruim = (corpo) => api("PUT", `/seasons?id=${season.id}`, { token, corpo });
+    assert.equal((await ruim({ inscricoesAbrem: "ontem" })).status, 400);
+    assert.equal((await ruim({ inscricoesAbrem: new Date(Date.now() + 2 * dia).toISOString(), inscricoesFecham: new Date(Date.now() + dia).toISOString() })).status, 400);
+    assert.equal((await ruim({ numParticipantesPorEquipe: 0 })).status, 400);
+    assert.equal((await api("PUT", "/seasons?id=nao-existe", { token, corpo: {} })).status, 404);
+  });
+
+  it("a season atual publica os dados da edicao", async () => {
+    const token = await entra();
+    const r = await api("PUT", `/seasons?id=${season.id}`, { token, corpo: { linguagens: "C\nPython", regulamento: "## Formato\n\nUm dia.", dataEvento: "2026-11-15T12:00:00Z" } });
+    assert.equal(r.status, 200);
+    const atual = await (await api("GET", "/seasons/atual")).json();
+    assert.equal(atual.linguagens, "C\nPython");
+    assert.equal(atual.regulamento, "## Formato\n\nUm dia.");
+    assert.equal(new Date(atual.dataEvento).toISOString(), "2026-11-15T12:00:00.000Z");
+  });
+
+  it("dentro do periodo, grava a equipe com os participantes na temporada atual", async () => {
+    const s = await periodo(-dia, dia);
+    assert.equal(s.inscricoesAbertas, true);
 
     const r = await inscreve("Equipe Nova", [
       participante({ email: "a@exemplo.com" }),
@@ -332,9 +366,9 @@ describe("inscricao", () => {
     assert.equal(outro.cpf, PESSOAL.cpf, "CPF de outra season intacto");
   });
 
-  it("fechada de novo, recusa", async () => {
-    const fecha = await api("PUT", `/seasons/fechaInscricao?id=${season.id}`, { token: await entra() });
-    assert.equal(fecha.status, 200);
+  it("depois do fechamento, recusa", async () => {
+    const s = await periodo(-2 * dia, -dia);
+    assert.equal(s.inscricoesAbertas, false);
     const r = await inscreve("Tarde Demais", [participante()]);
     assert.equal(r.status, 403);
   });

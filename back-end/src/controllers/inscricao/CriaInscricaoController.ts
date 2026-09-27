@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prismaClient from "../../prisma";
 import { CriaInscricaoService, ParticipanteInscricao } from "../../services/inscricao/CriaInscricaoService";
 import { cpfNormalizado } from "../../utils/cpf";
+import { inscricoesAbertas } from "../../utils/season";
 
 const texto = (valor: unknown) => (typeof valor === "string" ? valor.trim() : "");
 
@@ -46,7 +47,7 @@ class CriaInscricaoController {
     // guarda contra escrita fora do periodo e a flag da propria temporada.
     const season = await prismaClient.season.findFirst({ where: { atual: true } });
     if (!season) return res.status(400).json({ error: "Nenhuma temporada atual encontrada." });
-    if (!season.inscricoesAbertas) return res.status(403).json({ error: "As inscrições não estão abertas." });
+    if (!inscricoesAbertas(season)) return res.status(403).json({ error: "As inscrições não estão abertas." });
 
     const limite = Number(season.numParticipantesPorEquipe);
     if (Number.isFinite(limite) && limite > 0 && brutos.length > limite) {

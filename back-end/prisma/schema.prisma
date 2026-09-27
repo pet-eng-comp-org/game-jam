@@ -34,8 +34,17 @@ model Season {
   numero String
   capa String
   numParticipantesPorEquipe String
-  inscricoesAbertas Boolean @default(false)
   atual Boolean @default(false)
+
+  // Dados da edicao, editados pelo painel (antes ficavam no codigo do site).
+  dataEvento  DateTime? // dia da competicao
+  linguagens  String?   // uma por linha
+  regulamento String?   @db.Text // markdown
+
+  // As inscricoes ficam abertas entre as duas datas. Antes era um liga/desliga
+  // manual, que ficou ligado por esquecimento de uma edicao para a outra.
+  inscricoesAbrem  DateTime?
+  inscricoesFecham DateTime?
   createdAt DateTime? @default(now())
   updatedAt DateTime? @default(now())
 

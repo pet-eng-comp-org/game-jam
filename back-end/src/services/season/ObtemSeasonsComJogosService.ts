@@ -1,4 +1,5 @@
 import prismaClient from "../../prisma";
+import { comSituacao } from "../../utils/season";
 
 class ObtemSeasonsComJogosService {
 
@@ -13,7 +14,7 @@ class ObtemSeasonsComJogosService {
             }
         })
 
-        return seasons
+        return seasons.map(comSituacao)
     }
 }
 

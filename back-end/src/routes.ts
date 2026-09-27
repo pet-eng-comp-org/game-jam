@@ -18,9 +18,8 @@ import { DeletaSeasonController } from "./controllers/season/DeletaSeasonControl
 import { ObtemAtualSeasonController } from "./controllers/season/ObtemAtualSeasonController";
 import { ObtemSeasonsController } from "./controllers/season/ObtemSeasonsController";
 import { ObtemSeasonsComJogosController } from "./controllers/season/ObtemSeasonsComJogosController";
-import { AbreInscricaoSeasonController } from "./controllers/season/AbreInscricaoSeasonController";
-import { FechaInscricaoSeasonController } from "./controllers/season/FechaInscricaoSeasonController";
 import { ApagaCpfsSeasonController } from "./controllers/season/ApagaCpfsSeasonController";
+import { EditaSeasonController } from "./controllers/season/EditaSeasonController";
 
 import { CriaJogoController } from "./controllers/jogo/CriaJogoController";
 import { DeletaJogoController } from "./controllers/jogo/DeletaJogoController";
@@ -53,8 +52,7 @@ router.get('/seasons', estaAutenticado, new ObtemSeasonsController().handle)
 router.get('/seasonsComJogos', new ObtemSeasonsComJogosController().handle)
 router.put('/seasons/atual', estaAutenticado, new AtualSeasonController().handle)
 router.get('/seasons/atual', new ObtemAtualSeasonController().handle)
-router.put('/seasons/abreInscricao', estaAutenticado, new AbreInscricaoSeasonController().handle)
-router.put('/seasons/fechaInscricao', estaAutenticado, new FechaInscricaoSeasonController().handle)
+router.put('/seasons', estaAutenticado, new EditaSeasonController().handle)
 router.put('/seasons/apagaCpfs', estaAutenticado, new ApagaCpfsSeasonController().handle)
 
 // -- ROUTES JOGO --

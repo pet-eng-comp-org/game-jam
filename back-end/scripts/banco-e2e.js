@@ -45,7 +45,13 @@ async function main() {
       data: { username: process.env.E2E_USUARIO, senha: await hash(process.env.E2E_SENHA, 8) },
     });
     await prisma.season.create({
-      data: { numero: "4", capa: "capa.png", numParticipantesPorEquipe: "3", atual: true, inscricoesAbertas: true },
+      data: {
+        numero: "4", capa: "capa.png", numParticipantesPorEquipe: "3", atual: true,
+        // Inscricoes abertas: de ontem a daqui a 30 dias.
+        inscricoesAbrem: new Date(Date.now() - 86400000), inscricoesFecham: new Date(Date.now() + 30 * 86400000),
+        dataEvento: new Date("2026-11-15T12:00:00Z"), linguagens: "C\nC++\nPython",
+        regulamento: "## O formato\n\n1. A competição acontece em um único dia.\n2. Cada equipe recebe um jogo preparado para o evento.",
+      },
     });
     const antiga = await prisma.season.create({ data: { numero: "3", capa: "capa3.png", numParticipantesPorEquipe: "3" } });
     await prisma.jogo.create({
