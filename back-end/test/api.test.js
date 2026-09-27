@@ -18,6 +18,7 @@ const { spawn, execFileSync } = require("node:child_process");
 const jwt = require("jsonwebtoken");
 const { hash } = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
+const { SMTPServer } = require("smtp-server");
 const { adapterDoBanco } = require("../dist/prisma/adapter");
 
 const RAIZ = path.join(__dirname, "..");
@@ -26,6 +27,7 @@ const NOME_BANCO = new URL(URL_BANCO).pathname.slice(1);
 const JWT_SECRET = "segredo-de-teste";
 const ADMIN = { username: "admin.teste", senha: "senha-do-admin" };
 const PORTA = 34_568;
+const PORTA_SMTP = 34_569;
 const BASE = `http://127.0.0.1:${PORTA}`;
 
 // Dado pessoal semeado direto no banco. Nenhuma resposta publica pode conter isto.
@@ -33,6 +35,9 @@ const PESSOAL = { nome: "Participante Semeado", email: "semeado@exemplo.com", cp
 
 let prisma;
 let servidor;
+let smtp;
+// E-mails que a API mandou, como chegaram ao SMTP de teste.
+const emails = [];
 let season; // a temporada atual
 
 function prismaCli(args, entrada, erros = "inherit") {
@@ -74,7 +79,10 @@ function sobeServidor() {
   return new Promise((resolve, reject) => {
     const s = spawn(process.execPath, ["dist/server.js"], {
       cwd: RAIZ,
-      env: { PATH: process.env.PATH, NODE_ENV: "production", PORT: String(PORTA), DATABASE_URL: URL_BANCO, JWT_SECRET },
+      env: {
+        PATH: process.env.PATH, NODE_ENV: "production", PORT: String(PORTA), DATABASE_URL: URL_BANCO, JWT_SECRET,
+        SMTP_HOST: "127.0.0.1", SMTP_PORTA: String(PORTA_SMTP), SMTP_SEM_TLS: "1", EMAIL_REMETENTE: "gamejam@exemplo.com",
+      },
       stdio: ["ignore", "pipe", "pipe"],
     });
     let saida = "";
@@ -105,13 +113,32 @@ async function entra() {
   return (await r.json()).token;
 }
 
+// Servidor SMTP de mentira: guarda cada mensagem em `emails`.
+function sobeSmtp() {
+  smtp = new SMTPServer({
+    authOptional: true,
+    disabledCommands: ["STARTTLS", "AUTH"],
+    onData(fluxo, sessao, pronto) {
+      let bruto = "";
+      fluxo.on("data", (p) => (bruto += p));
+      fluxo.on("end", () => {
+        emails.push({ para: sessao.envelope.rcptTo.map((r) => r.address).sort(), bruto });
+        pronto();
+      });
+    },
+  });
+  return new Promise((resolve) => smtp.listen(PORTA_SMTP, "127.0.0.1", resolve));
+}
+
 before(async () => {
+  await sobeSmtp();
   await preparaBanco();
   servidor = await sobeServidor();
 });
 
 after(async () => {
   servidor?.kill();
+  smtp?.close();
   await prisma?.$disconnect();
 });
 
@@ -301,6 +328,17 @@ describe("inscricao", () => {
     assert.equal(porEmail["a@exemplo.com"].cpf, a.cpf, "CPF gravado");
     assert.equal(porEmail["a@exemplo.com"].instituicao, null);
     assert.equal(porEmail["b@exemplo.com"].instituicao, "IFES");
+  });
+
+  it("manda um e-mail de confirmacao para a equipe, sem o CPF", async () => {
+    // A inscricao do teste anterior. O envio nao segura a resposta: espera chegar.
+    for (let i = 0; i < 50 && !emails.some((e) => e.bruto.includes("Equipe Nova")); i++) await new Promise((r) => setTimeout(r, 100));
+    const email = emails.find((e) => e.bruto.includes("Equipe Nova"));
+    assert.ok(email, "e-mail chegou");
+    assert.deepEqual(email.para, ["a@exemplo.com", "b@exemplo.com"]);
+    assert.match(email.bruto, /^From: Game Jam <gamejam@exemplo\.com>/m);
+    assert.match(email.bruto, /Season 4/);
+    assert.ok(!/\d{3}\.?\d{3}\.?\d{3}-?\d{2}/.test(email.bruto.replace(/^(Message-ID|Date|X-|Content-).*$/gim, "")), "sem CPF no e-mail");
   });
 
   it("recusa o mesmo CPF duas vezes na equipe", async () => {

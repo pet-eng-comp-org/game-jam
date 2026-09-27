@@ -71,6 +71,12 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
+      # E-mail de confirmacao da inscricao. Sem SMTP_HOST, desligado.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORTA: ${SMTP_PORTA:-465}
+      SMTP_USUARIO: ${SMTP_USUARIO:-}
+      SMTP_SENHA: ${SMTP_SENHA:-}
+      EMAIL_REMETENTE: ${EMAIL_REMETENTE:-}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.game-jam_back-end.rule=Host(`apigamejam.pet.inf.ufes.br`)"

@@ -3,6 +3,7 @@ import prismaClient from "../../prisma";
 import { CriaInscricaoService, ParticipanteInscricao } from "../../services/inscricao/CriaInscricaoService";
 import { cpfNormalizado } from "../../utils/cpf";
 import { inscricoesAbertas } from "../../utils/season";
+import { enviaConfirmacao } from "../../utils/email";
 
 const texto = (valor: unknown) => (typeof valor === "string" ? valor.trim() : "");
 
@@ -70,6 +71,8 @@ class CriaInscricaoController {
       const i = inscricao.cpfRepetido + 1;
       return res.status(409).json({ error: `Participante ${i}: este CPF já está inscrito nesta season.`, campo: `cpf${i}` });
     }
+    // Sem esperar: o e-mail nao segura a resposta nem desfaz a inscricao.
+    void enviaConfirmacao({ equipe: nome, season, participantes });
     return res.status(201).json(inscricao);
   }
 }
