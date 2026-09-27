@@ -32,12 +32,12 @@ export default function Navbar() {
     <nav className="w-full bg-barra">
       <div className="relative mx-auto flex h-auto max-w-[1440px] flex-col items-center gap-4 px-9 py-4 md:block md:h-[79px] md:p-0">
 
-        {/* A logo da Season IV (Figma, "Slide 16:9 - 1") em uma linha so: as
-            tres palavras lado a lado, sem a faixa do numero da edicao,
-            ilegivel nesse tamanho, e com o JAM em branco, como na pagina de
-            inscricao. Da mesma altura do texto dos links, centrada na barra. */}
+        {/* A logo da Season IV em versao horizontal, para a barra: o PET vira
+            uma etiqueta (como a faixa "Season IV" da original) e o GAME JAM fica
+            numa linha, da altura do texto dos links. A vertical, a original,
+            fica em marca/logo-pet-game-jam-vertical.svg. */}
         <Link href="/" aria-label="PET Game Jam — início" className="md:absolute md:left-9 md:top-[25px]">
-          <img src="/marca/logo-pet-game-jam.svg" alt="PET Game Jam" className="h-7 w-auto" />
+          <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-7 w-auto" />
         </Link>
 
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 md:absolute md:left-1/2 md:top-[25px] md:-translate-x-1/2 md:flex-nowrap md:gap-x-[53px]">
