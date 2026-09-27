@@ -35,7 +35,7 @@ export default function Footer() {
         <div>
           {/* A logo e do PET: leva ao site do PET, e nao ao inicio do Game Jam. */}
           <a href="https://pet.inf.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site do PET Engenharia de Computação" className="inline-block transition-opacity hover:opacity-80">
-            <img src="/marca/logo-pet.svg" alt="PET Engenharia de Computação — UFES" className="w-[150px]" />
+            <img src="/marca/logo-pet.svg" alt="PET Engenharia de Computação — Ufes" className="w-[150px]" />
           </a>
           <p className="mt-4 max-w-[320px] text-sm leading-6 text-destaque-claro/80">
             O Game Jam é organizado pelo PET Engenharia de Computação da Ufes.

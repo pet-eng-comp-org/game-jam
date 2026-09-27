@@ -48,7 +48,7 @@ const versao =
   process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.COMMIT ?? "desconhecida";
 
 const descricao =
-  "O Game Jam é uma competição de programação em equipes, em um dia, organizada pelo PET Engenharia de Computação da UFES.";
+  "O Game Jam é uma competição de programação em equipes, em um dia, organizada pelo PET Engenharia de Computação da Ufes.";
 
 export const metadata: Metadata = {
   other: { versao },

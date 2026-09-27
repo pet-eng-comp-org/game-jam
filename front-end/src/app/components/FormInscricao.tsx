@@ -180,7 +180,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
       {/* A LGPD pede que a finalidade do dado seja dita na hora da coleta. */}
       <p className="mt-10 text-sm leading-snug text-destaque-claro">
         Pedimos o CPF só para emitir o certificado de participação, feito pela
-        Pró-Reitoria de Extensão (PROEX) da Ufes. Ele é visto apenas pela
+        Pró-Reitoria de Extensão (Proex) da Ufes. Ele é visto apenas pela
         organização do Game Jam, não aparece em nenhuma página do site e é apagado
         depois que os certificados são emitidos.{" "}
         <Link href="/privacidade" className="text-destaque underline">Como tratamos seus dados</Link>.

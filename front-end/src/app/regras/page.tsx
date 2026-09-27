@@ -72,7 +72,7 @@ export default async function Regras() {
               : "durante o período de inscrições,"}{" "}
             e cada equipe precisa de um nome.
           </li>
-          <li>Todos os participantes recebem certificado de participação, emitido pela Pró-Reitoria de Extensão (PROEX) da UFES. Por isso o CPF é pedido na inscrição.</li>
+          <li>Todos os participantes recebem certificado de participação, emitido pela Pró-Reitoria de Extensão (Proex) da Ufes. Por isso o CPF é pedido na inscrição.</li>
         </ol>
 
         <TituloSecao valor="Data e linguagens" className="mt-[35px] mb-[13px]" />

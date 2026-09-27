@@ -23,7 +23,7 @@ export default async function Home() {
           <Titulo valor="O QUE É GAMEJAM" />
           <p className="mt-[30px] text-lg leading-9">
             É uma competição de programação em equipes do PET Engenharia de Computação da
-            UFES. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
+            Ufes. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
             evento e usa programação para implementar parte da lógica dele.
           </p>
           {/* A Season 4 e a primeira neste formato: sem este aviso, os jogos das

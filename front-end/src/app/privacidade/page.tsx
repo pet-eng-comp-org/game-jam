@@ -27,7 +27,7 @@ export default function Privacidade() {
         <TituloSecao valor="O que pedimos" className="mt-[35px] mb-[13px]" />
         <ul className={LISTA}>
           <li><strong>Nome da equipe</strong> e, de cada participante, <strong>nome</strong> e <strong>e-mail</strong>: para organizar o evento e falar com a equipe.</li>
-          <li><strong>CPF</strong>: só para emitir o certificado de participação, feito pela Pró-Reitoria de Extensão (PROEX) da Ufes.</li>
+          <li><strong>CPF</strong>: só para emitir o certificado de participação, feito pela Pró-Reitoria de Extensão (Proex) da Ufes.</li>
           <li><strong>Curso, se estuda na Ufes e a instituição de ensino</strong>: para saber quem participa e de onde.</li>
           <li><strong>Gênero</strong>: para acompanhar a diversidade de quem participa. Dá para responder &quot;Prefiro não informar&quot;.</li>
         </ul>
@@ -36,7 +36,7 @@ export default function Privacidade() {
         <p className={PARAGRAFO}>
           Só a organização do Game Jam, pelo painel do site, que exige login. Nenhum dado de
           participante aparece nas páginas públicas. Para o certificado, nome e CPF são
-          repassados à PROEX. Os dados não são vendidos nem entregues a mais ninguém.
+          repassados à Proex. Os dados não são vendidos nem entregues a mais ninguém.
         </p>
 
         <TituloSecao valor="Onde e por quanto tempo" className="mt-[35px] mb-[13px]" />

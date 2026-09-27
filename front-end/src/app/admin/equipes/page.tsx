@@ -69,7 +69,7 @@ export default function Equipes() {
 
             <p className="mb-6">
                 As equipes inscritas em cada season. A planilha traz nome, e-mail e CPF de
-                cada participante, para o certificado da PROEX.
+                cada participante, para o certificado da Proex.
             </p>
 
             <div className="mb-6 flex flex-wrap items-center gap-4">
