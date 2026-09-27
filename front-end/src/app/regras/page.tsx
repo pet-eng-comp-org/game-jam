@@ -57,7 +57,7 @@ export default async function Regras() {
               <li>A competição acontece em um único dia e é disputada em equipes.</li>
               <li>Cada equipe recebe um jogo preparado especialmente para o evento e precisa implementar parte da lógica dele.</li>
               <li>O desafio só é revelado no dia: no início da competição são apresentadas as regras completas, o ambiente utilizado e as informações necessárias para começar.</li>
-              <li>Como no TOPCOM, as equipes têm um tempo limitado para analisar o desafio, discutir a estratégia e desenvolver a solução.</li>
+              <li>As equipes têm um tempo limitado para analisar o desafio, discutir a estratégia e desenvolver a solução.</li>
             </ol>
           </>
         )}

@@ -5,7 +5,7 @@ import { semErroDePagina } from "./ajuda";
 // patrocinadores ficavam vazios para quem nao estava logado no painel (o front
 // exigia o cookie numa rota publica); o teste abre sem login, como o visitante.
 const paginas: { caminho: string; mostra: (p: import("@playwright/test").Page) => import("@playwright/test").Locator }[] = [
-  { caminho: "/", mostra: (p) => p.getByText("nos mesmos moldes do TOPCOM", { exact: false }).first() },
+  { caminho: "/", mostra: (p) => p.getByText("cada equipe recebe um jogo preparado especialmente", { exact: false }).first() },
   { caminho: "/regras", mostra: (p) => p.getByText("REGRAS").first() },
   { caminho: "/materiais", mostra: (p) => p.getByText("Material E2E").first() },
   { caminho: "/apoio", mostra: (p) => p.getByAltText("Patrocinador E2E").first() },
