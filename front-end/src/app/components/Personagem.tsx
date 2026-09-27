@@ -24,7 +24,11 @@ export default function Personagem({ qual, className }: { qual: Personagem; clas
       <path fill={COR_FANTASMA[qual]} d="M20 142.5H29V134H38V125H46.5V133.5H55.5V142.5H73V125H90.5V142.5H108V134H117V125H125.5V134H134.5V143H143.5V72.5H135.5H134.5V55V47H126V45V38H117V29H99.5V20H64.5V29H47V38H38V46.5H29.5V73H20.5L20 142.5Z" />
       <path fill="#fff" d="M55 53V44H72.5V45V53H81.5V80.5H72V88.5H55V79.5H46V53H55Z" />
       <path fill="#fff" d="M106 53V44H123.5V45V53H132.5V80.5H123V88.5H106V79.5H97V53H106Z" />
-      <path fill="#3223FF" d="M117 64h17v17h-17zM65 64h17v17h-17z" />
+      {/* Pupilas olhando para o lado (celular, ao lado do nome) ou, no desktop,
+          para o topo do desenho: la o fantasma fica de cabeca para baixo,
+          pendurado da borda, e o topo vira o lado do link. */}
+      <path className="md:hidden" fill="#3223FF" d="M117 64h17v17h-17zM65 64h17v17h-17z" />
+      <path className="hidden md:inline" fill="#3223FF" d="M55.5 44h17v17h-17zM106.5 44h17v17h-17z" />
     </svg>
   );
 }
