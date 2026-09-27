@@ -1,12 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Personagem from "./Personagem"
 
 // Contagem regressiva ate o inicio da competicao, na abertura do Inicio: um
-// placar de fliperama em digitos de pixel e, embaixo, o Pac-Man comendo as
-// bolinhas da abertura das inscricoes ate o dia. A conta roda no navegador:
-// a pagina vem do cache do servidor e o relogio dela ficaria parado.
+// placar de fliperama em digitos de pixel. A conta roda no navegador: a
+// pagina vem do cache do servidor e o relogio dela ficaria parado.
 
 // Digitos 5x7, como os de placar de fliperama.
 const DIGITOS: Record<string, string[]> = {
@@ -53,18 +51,14 @@ function useAgora() {
   return agora
 }
 
-const BOLINHAS = 28
-
 interface Props {
   inicio: string // ISO do inicio da competicao
-  abertura: string | null // ISO da abertura das inscricoes (comeco da trilha)
-  rotuloData: string // "28 de novembro", ja formatado no servidor
+  rotuloData: string // "sábado, 28 de novembro, às 12:00", ja formatado no servidor
 }
 
-export default function Contagem({ inicio, abertura, rotuloData }: Props) {
+export default function Contagem({ inicio, rotuloData }: Props) {
   const agora = useAgora()
   const alvo = new Date(inicio).getTime()
-  const comeco = abertura ? new Date(abertura).getTime() : null
 
   if (agora !== null && agora >= alvo) {
     return <p className="text-2xl font-bold text-destaque md:text-3xl">A competição está acontecendo!</p>
@@ -78,12 +72,6 @@ export default function Contagem({ inicio, abertura, rotuloData }: Props) {
     ["min", s === null ? "--" : dois(Math.floor(s / 60) % 60)],
     ["seg", s === null ? "--" : dois(s % 60)],
   ]
-
-  // Quantas bolinhas o Pac-Man ja comeu: a parte do caminho entre a abertura
-  // das inscricoes e o inicio que ja passou.
-  const comidas = agora === null || comeco === null || alvo <= comeco
-    ? 0
-    : Math.round(Math.min(1, Math.max(0, (agora - comeco) / (alvo - comeco))) * BOLINHAS)
 
   return (
     <div>
@@ -99,22 +87,6 @@ export default function Contagem({ inicio, abertura, rotuloData }: Props) {
         ))}
       </div>
 
-      {comeco !== null && (
-        <>
-          <div className="mx-auto mt-10 flex max-w-[760px] items-center justify-between gap-1 px-2" aria-hidden>
-            {Array.from({ length: BOLINHAS }, (_, i) =>
-              i === comidas
-                ? <Personagem key={i} qual="pacman" className="h-5 w-5 shrink-0" />
-                : <span key={i} className={`h-1.5 w-1.5 shrink-0 rounded-full ${i < comidas ? "invisible" : "bg-destaque-claro/70"}`} />,
-            )}
-            <Personagem qual="vermelho" className="h-6 w-6 shrink-0" />
-          </div>
-          <div className="mx-auto mt-2 flex max-w-[760px] justify-between px-2 text-xs uppercase tracking-wider text-destaque-claro/60" aria-hidden>
-            <span>abertura das inscrições</span>
-            <span>{rotuloData}</span>
-          </div>
-        </>
-      )}
     </div>
   )
 }

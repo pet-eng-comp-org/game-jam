@@ -12,18 +12,16 @@ export default async function Home() {
   const periodo = season?.inscricoesAbrem && season?.inscricoesFecham
     ? `de ${dataEHora(season.inscricoesAbrem)} a ${dataEHora(season.inscricoesFecham)}`
     : "em breve";
-  // "28 de novembro", sem o ano: e o da edicao.
-  const diaDoEvento = season?.dataEvento
-    ? new Date(season.dataEvento).toLocaleDateString("pt-BR", { day: "numeric", month: "long", timeZone: "America/Sao_Paulo" })
+  // "sábado, 28 de novembro, às 12:00": dia e hora do inicio, sem o ano (e o
+  // da edicao).
+  const inicioDoEvento = season?.dataEvento
+    ? (() => {
+        const d = new Date(season.dataEvento);
+        const dia = d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Sao_Paulo" });
+        const hora = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+        return `${dia}, às ${hora}`;
+      })()
     : null;
-  // Situacao das inscricoes em uma frase, para a abertura. A API diz em que
-  // pe estao (a pagina fica em cache, entao a conta com o relogio e dela).
-  const situacao = {
-    abertas: `abertas até ${dataEHora(season?.inscricoesFecham)}`,
-    antes: `abrem em ${dataEHora(season?.inscricoesAbrem)}`,
-    encerradas: "encerradas",
-    "sem-data": "em breve",
-  }[season?.situacaoInscricoes ?? "sem-data"];
 
   return (
 
@@ -32,30 +30,23 @@ export default async function Home() {
       {/* 1154/1440 do mockup = 80% da largura. */}
       <div className="mx-auto w-[80%] max-w-[1154px] pt-[60px] pb-10">
 
-        {/* Abertura: quem chega sabe na hora que e a Season 4, quanto falta para
-            a competicao e em que pe estao as inscricoes. Tudo vem do painel. */}
+        {/* Abertura: quem chega sabe na hora que e a Season 4 e quanto falta para
+            a competicao. A data e a hora vem do painel; sem elas, so o formato.
+            A inscricao fica no botao da barra, sempre visivel. */}
         <section className="text-center">
-          <h1 className="sr-only">PET Game Jam, Season {season?.numero ?? "4"}</h1>
-          <p className="text-sm font-bold uppercase tracking-[0.3em] text-destaque-claro/80">
-            Season {season?.numero ?? "4"}{diaDoEvento ? ` · ${diaDoEvento}` : ""}
-          </p>
-          {season?.dataEvento ? (
+          <h1 className="font-secao text-5xl uppercase leading-none text-destaque md:text-7xl">
+            {inicioDoEvento ? `A Season ${season?.numero ?? "4"} começa em` : `Season ${season?.numero ?? "4"}`}
+          </h1>
+          {season?.dataEvento && inicioDoEvento ? (
             <>
-              <p className="mt-3 text-2xl font-bold text-destaque md:text-3xl">A competição começa em</p>
               <div className="mt-8">
-                <Contagem inicio={season.dataEvento} abertura={season.inscricoesAbrem} rotuloData={diaDoEvento ?? ""} />
+                <Contagem inicio={season.dataEvento} rotuloData={inicioDoEvento} />
               </div>
+              <p className="mt-6 text-lg">{inicioDoEvento.charAt(0).toUpperCase() + inicioDoEvento.slice(1)}</p>
             </>
           ) : (
-            <p className="mt-3 text-2xl font-bold text-destaque md:text-3xl">Competição de programação em equipes, em um único dia.</p>
+            <p className="mt-4 text-xl text-destaque-claro">Competição de programação em equipes, em um único dia. Data em breve.</p>
           )}
-          <p className="mt-10 text-lg"><strong>Inscrições:</strong> {situacao}</p>
-          <Link
-            href={season?.inscricoesAbertas ? "/inscricao" : "/regras"}
-            className="mt-6 inline-block rounded-full bg-destaque px-8 py-3 text-lg font-bold text-barra transition-opacity hover:opacity-90"
-          >
-            {season?.inscricoesAbertas ? "Inscreva-se" : "Veja como funciona"}
-          </Link>
         </section>
 
         <section className="mt-[97px]">

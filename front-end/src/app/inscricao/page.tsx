@@ -30,11 +30,18 @@ export default function Inscricao() {
         {/* No desktop o logo acompanha a rolagem do formulario. */}
         <div className="flex shrink-0 justify-center lg:sticky lg:top-[calc(50vh-215px)] lg:w-[497px]">
           <Link href="/" aria-label="Voltar ao início do Game Jam">
-            <img src="/marca/logo-season-iv-fantasmas.svg" alt="PET Game Jam, Season IV" className="h-64 object-contain md:h-96 lg:h-[431px]" />
+            {/* Sem a faixa "Season IV" do Figma: ela prendia a logo a uma edicao.
+                O numero da season fica no titulo, ao lado. */}
+            <img src="/marca/quadro-game-jam.svg" alt="PET Game Jam" className="h-64 md:h-96 lg:h-[431px]" />
           </Link>
         </div>
 
         <div className="flex w-full max-w-[555px] flex-col lg:pt-[148px]">
+          {estado.tipo === "pronto" && estado.season && (
+            <p className="mb-2 text-center text-sm font-bold uppercase tracking-[0.3em] text-destaque-claro/80">
+              Season {estado.season.getNumero}
+            </p>
+          )}
           <h1 className="mb-10 lg:mb-[74px] text-center font-titulo text-4xl text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
             inscrições
           </h1>
