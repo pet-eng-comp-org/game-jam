@@ -58,10 +58,18 @@ class CriaInscricaoController {
     for (const [i, bruto] of brutos.entries()) {
       const p = participanteDe(bruto);
       if (typeof p === "string") return res.status(400).json({ error: `Participante ${i + 1}: ${p}` });
+      if (participantes.some((outro) => outro.cpf === p.cpf)) {
+        return res.status(400).json({ error: `Participante ${i + 1}: CPF repetido na equipe.`, campo: `cpf${i + 1}` });
+      }
       participantes.push(p);
     }
 
     const inscricao = await new CriaInscricaoService().execute(nome, season.id, participantes);
+    if ("cpfRepetido" in inscricao) {
+      // O campo deixa o formulario marcar o CPF certo.
+      const i = inscricao.cpfRepetido + 1;
+      return res.status(409).json({ error: `Participante ${i}: este CPF já está inscrito nesta season.`, campo: `cpf${i}` });
+    }
     return res.status(201).json(inscricao);
   }
 }

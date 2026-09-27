@@ -25,3 +25,14 @@ export function semErroDePagina(page: Page) {
 export function unico(prefixo: string, projeto: string) {
   return `${prefixo} ${projeto} ${Date.now()}`;
 }
+
+// CPF valido e diferente a cada chamada: a mesma pessoa nao se inscreve duas
+// vezes na season, e desktop e celular rodam no mesmo banco.
+export function cpfNovo() {
+  const d = String(100_000_000 + Math.floor(Math.random() * 899_999_999)).split("").map(Number);
+  for (const tamanho of [9, 10]) {
+    const soma = d.reduce((t, n, i) => t + n * (tamanho + 1 - i), 0);
+    d.push(((soma * 10) % 11) % 10);
+  }
+  return d.join("");
+}

@@ -219,12 +219,23 @@ describe("rotas publicas", () => {
 describe("inscricao", () => {
   // A equipe e todos os participantes chegam juntos em POST /inscricao e sao
   // gravados numa transacao: ou entra tudo, ou nada.
+  // Cada participante com um CPF valido diferente: a mesma pessoa nao pode se
+  // inscrever duas vezes na season.
+  let proximoCpf = 100_000_000;
+  const novoCpf = () => {
+    const d = String(proximoCpf++).split("").map(Number);
+    for (const tamanho of [9, 10]) {
+      const soma = d.reduce((t, n, i) => t + n * (tamanho + 1 - i), 0);
+      d.push(((soma * 10) % 11) % 10);
+    }
+    return d.join("");
+  };
   const participante = (extra = {}) => ({
     nome: "Participante Novo",
     email: "novo@exemplo.com",
     genero: "feminino",
     ufes: true,
-    cpf: "98765432100",
+    cpf: novoCpf(),
     curso: "Engenharia de Computacao",
     ...extra,
   });
@@ -276,10 +287,8 @@ describe("inscricao", () => {
     const s = await periodo(-dia, dia);
     assert.equal(s.inscricoesAbertas, true);
 
-    const r = await inscreve("Equipe Nova", [
-      participante({ email: "a@exemplo.com" }),
-      participante({ email: "b@exemplo.com", ufes: false, instituicao: "IFES" }),
-    ]);
+    const a = participante({ email: "a@exemplo.com" });
+    const r = await inscreve("Equipe Nova", [a, participante({ email: "b@exemplo.com", ufes: false, instituicao: "IFES" })]);
     assert.equal(r.status, 201);
     const corpo = await r.json();
     assert.deepEqual(Object.keys(corpo).sort(), ["id", "nome", "participantes"], "resposta sem dado pessoal");
@@ -289,9 +298,31 @@ describe("inscricao", () => {
     assert.equal(equipe.aprovada, false, "equipe nasce aprovada");
     const porEmail = Object.fromEntries(equipe.participantes.map((p) => [p.email, p]));
     assert.deepEqual(Object.keys(porEmail).sort(), ["a@exemplo.com", "b@exemplo.com"]);
-    assert.ok(equipe.participantes.every((p) => p.cpf === "98765432100"), "CPF gravado");
+    assert.equal(porEmail["a@exemplo.com"].cpf, a.cpf, "CPF gravado");
     assert.equal(porEmail["a@exemplo.com"].instituicao, null);
     assert.equal(porEmail["b@exemplo.com"].instituicao, "IFES");
+  });
+
+  it("recusa o mesmo CPF duas vezes na equipe", async () => {
+    const cpf = novoCpf();
+    const r = await inscreve("CPF Dobrado", [participante({ cpf }), participante({ cpf, email: "c@exemplo.com" })]);
+    assert.equal(r.status, 400);
+    assert.deepEqual(await r.json(), { error: "Participante 2: CPF repetido na equipe.", campo: "cpf2" });
+    assert.equal(await equipesChamadas("CPF Dobrado"), 0);
+  });
+
+  it("recusa CPF ja inscrito na season, mesmo chegando ao mesmo tempo", async () => {
+    // Tres pedidos simultaneos com o mesmo CPF: so um entra.
+    const cpf = novoCpf();
+    const status = await Promise.all([1, 2, 3].map((n) => inscreve(`Corrida ${n}`, [participante({ cpf })]).then((x) => x.status)));
+    assert.deepEqual(status.sort(), [201, 409, 409]);
+    assert.equal(await prisma.participante.count({ where: { cpf } }), 1);
+
+    // Depois, o mesmo CPF digitado com pontos, como segundo participante.
+    const r = await inscreve("Segunda Vez", [participante(), participante({ cpf: cpf.replace(/(\d{3})(\d{3})(\d{3})/, "$1.$2.$3-") })]);
+    assert.equal(r.status, 409);
+    assert.deepEqual(await r.json(), { error: "Participante 2: este CPF já está inscrito nesta season.", campo: "cpf2" });
+    assert.equal(await equipesChamadas("Segunda Vez"), 0);
   });
 
   it("recusa equipe acima do limite da temporada, sem gravar nada", async () => {
@@ -327,7 +358,9 @@ describe("inscricao", () => {
 
   it("ignora campos que o cliente nao deveria mandar", async () => {
     const outra = await prisma.equipe.findFirst({ where: { nome: "Equipe Semeada" } });
-    const r = await inscreve("Campos Extras", [participante({ id: "id-forjado", equipeId: outra.id, email: "x@exemplo.com" })]);
+    // O CPF e o do participante semeado numa season antiga: quem ja jogou pode
+    // se inscrever de novo na atual.
+    const r = await inscreve("Campos Extras", [participante({ id: "id-forjado", equipeId: outra.id, email: "x@exemplo.com", cpf: PESSOAL.cpf })]);
     assert.equal(r.status, 201);
     const gravado = await prisma.participante.findFirst({ where: { email: "x@exemplo.com" } });
     assert.notEqual(gravado.id, "id-forjado");
@@ -341,7 +374,7 @@ describe("inscricao", () => {
     const nova = equipes.find((e) => e.nome === "Equipe Nova");
     assert.ok(nova, "equipe inscrita aparece");
     assert.deepEqual(nova.participantes.map((p) => p.email).sort(), ["a@exemplo.com", "b@exemplo.com"]);
-    assert.equal(nova.participantes[0].cpf, "98765432100", "o painel ve o CPF, para o certificado");
+    assert.ok(nova.participantes.every((p) => /^\d{11}$/.test(p.cpf)), "o painel ve o CPF, para o certificado");
     assert.ok(equipes.every((e) => e.nome !== "Equipe Semeada"), "so a season pedida");
   });
 
