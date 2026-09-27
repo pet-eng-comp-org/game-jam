@@ -80,7 +80,7 @@ export default async function Materiais() {
             href="https://github.com/BrunoAngeloti/SuperPets"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-destaque hover:underline"
+            className="text-destaque underline underline-offset-2 hover:decoration-2"
           >
             (repositório)
           </a>. Nesse repositório vocês podem ter uma boa base de como desenvolver um jogo
@@ -93,7 +93,7 @@ export default async function Materiais() {
             <ul className="mt-[19px] list-disc space-y-5 pl-6 text-lg leading-[22px] marker:text-destaque">
               {links.map(m => (
                 <li key={m.id}>
-                  <a href={m.link} target="_blank" rel="noopener noreferrer" className="text-destaque hover:underline">
+                  <a href={m.link} target="_blank" rel="noopener noreferrer" className="text-destaque underline underline-offset-2 hover:decoration-2">
                     {m.nome}
                   </a>
                 </li>

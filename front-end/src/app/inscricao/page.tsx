@@ -25,7 +25,9 @@ export default function Inscricao() {
   // labirinto ampliava e os pontos caiam em cima do titulo.
   return (
     <div className="min-h-screen bg-fundo bg-[url('/background-inscricao.webp')] bg-cover bg-fixed bg-center">
-      <div className="mx-auto flex min-h-screen max-w-[1440px] flex-col items-center gap-10 px-4 py-12 lg:flex-row lg:items-start lg:justify-center lg:gap-[90px] lg:px-16">
+      {/* <main>: a regiao principal, que o leitor de tela usa para pular direto
+          ao conteudo. Esta pagina nao usa o Layout, que ja tem uma. */}
+      <main className="mx-auto flex min-h-screen max-w-[1440px] flex-col items-center gap-10 px-4 py-12 lg:flex-row lg:items-start lg:justify-center lg:gap-[90px] lg:px-16">
 
         {/* No desktop o logo acompanha a rolagem do formulario. */}
         <div className="flex shrink-0 justify-center lg:sticky lg:top-[calc(50vh-215px)] lg:w-[497px]">
@@ -60,7 +62,7 @@ export default function Inscricao() {
             )
           )}
         </div>
-      </div>
+      </main>
     </div>
   )
 }
