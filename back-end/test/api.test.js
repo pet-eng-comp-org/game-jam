@@ -159,6 +159,7 @@ describe("login do painel", () => {
     ["PUT", "/seasons/apagaCpfs"],
     ["GET", "/equipes"],
     ["DELETE", "/equipe"],
+    ["PUT", "/equipe/aprovada"],
     ["POST", "/jogos"],
     ["DELETE", "/jogos"],
     ["PUT", "/jogos"],
@@ -414,6 +415,16 @@ describe("inscricao", () => {
     assert.deepEqual(nova.participantes.map((p) => p.email).sort(), ["a@exemplo.com", "b@exemplo.com"]);
     assert.ok(nova.participantes.every((p) => /^\d{11}$/.test(p.cpf)), "o painel ve o CPF, para o certificado");
     assert.ok(equipes.every((e) => e.nome !== "Equipe Semeada"), "so a season pedida");
+  });
+
+  it("o painel aprova a equipe", async () => {
+    const token = await entra();
+    const alvo = await prisma.equipe.findFirst({ where: { nome: "Equipe Nova" } });
+    assert.equal((await api("PUT", `/equipe/aprovada?id=${alvo.id}`, { token, corpo: { aprovada: "sim" } })).status, 400);
+    assert.equal((await api("PUT", "/equipe/aprovada?id=nao-existe", { token, corpo: { aprovada: true } })).status, 404);
+    assert.equal((await api("PUT", `/equipe/aprovada?id=${alvo.id}`, { token, corpo: { aprovada: true } })).status, 200);
+    const lista = await (await api("GET", `/equipes?seasonId=${season.id}`, { token })).json();
+    assert.equal(lista.find((e) => e.id === alvo.id).aprovada, true);
   });
 
   it("o painel apaga a equipe inteira", async () => {

@@ -15,6 +15,7 @@ export interface ParticipanteInscrito {
 export interface EquipeInscrita {
   id: string;
   nome: string;
+  aprovada: boolean;
   createdAt: string | null;
   participantes: ParticipanteInscrito[];
 }
@@ -37,12 +38,13 @@ function campo(valor: string) {
 
 // Separador ";" e BOM: e o que o Excel em portugues abre direto, com acentos.
 export function planilhaDeInscritos(equipes: EquipeInscrita[]) {
-  const linhas = [["Equipe", "Nome", "E-mail", "CPF", "Curso", "Instituição", "Gênero"]];
+  const linhas = [["Equipe", "Aprovada", "Nome", "E-mail", "CPF", "Curso", "Instituição", "Gênero"]];
 
   for (const equipe of equipes) {
     for (const p of equipe.participantes) {
       linhas.push([
         equipe.nome,
+        equipe.aprovada ? "Sim" : "Não",
         p.nome,
         p.email,
         cpfFormatado(p.cpf),

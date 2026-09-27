@@ -32,7 +32,7 @@ import { ObtemMateriaisController } from "./controllers/material/ObtemMateriaisC
 import { ObtemPatrocinadoresController } from "./controllers/patrocinador/ObtemPatrocinadorController";
 
 import { CriaInscricaoController } from "./controllers/inscricao/CriaInscricaoController";
-import { ObtemEquipesController, DeletaEquipeController } from "./controllers/equipe/EquipeController";
+import { ObtemEquipesController, DeletaEquipeController, AprovaEquipeController } from "./controllers/equipe/EquipeController";
 
 const router = Router()
 const upload = multer(uploadConfig.upload("./tmp"))
@@ -83,5 +83,6 @@ router.post('/inscricao', limiteDeInscricao, new CriaInscricaoController().handl
 // Os inscritos, com CPF: so com login.
 router.get('/equipes', estaAutenticado, new ObtemEquipesController().handle)
 router.delete('/equipe', estaAutenticado, new DeletaEquipeController().handle)
+router.put('/equipe/aprovada', estaAutenticado, new AprovaEquipeController().handle)
 
 export { router }

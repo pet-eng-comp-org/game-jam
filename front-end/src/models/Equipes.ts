@@ -19,6 +19,19 @@ export async function obtemEquipes(seasonId: string): Promise<EquipeInscrita[]> 
     }
 }
 
+export async function aprovaEquipe(id: string, aprovada: boolean) {
+
+    try {
+        await painel.put("/equipe/aprovada", { aprovada }, { params: { id } })
+        return true
+    }
+    catch (err) {
+        console.log(err)
+        toast.error("Não foi possível mudar a aprovação.")
+        return false
+    }
+}
+
 export async function deletaEquipe(id: string) {
 
     try {

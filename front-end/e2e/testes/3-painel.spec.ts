@@ -50,9 +50,16 @@ test("organizador ve os inscritos, baixa a planilha e apaga uma equipe", async (
   await expect(page.getByRole("heading", { name: nome })).toBeVisible();
   await expect(page.getByText("052.998.224-72")).toBeVisible();
 
+  // Aprova a equipe: grava no banco e sai na planilha.
+  const aprova = page.getByRole("button", { name: `Equipe ${nome} aprovada` });
+  await expect(aprova).toHaveAttribute("aria-pressed", "false");
+  await aprova.click();
+  await expect(aprova).toHaveAttribute("aria-pressed", "true");
+  expect((await banco.equipe.findUnique({ where: { id: equipe.id } })).aprovada).toBe(true);
+
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Baixar planilha" }).click()]);
   const csv = await (await import("node:fs/promises")).readFile(await download.path(), "utf8");
-  expect(csv).toContain(`"${nome}";"Joana Inscrita";"joana@exemplo.com";"052.998.224-72"`);
+  expect(csv).toContain(`"${nome}";"Sim";"Joana Inscrita";"joana@exemplo.com";"052.998.224-72"`);
 
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: `Apagar a equipe ${nome}` }).click();

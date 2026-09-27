@@ -12,6 +12,7 @@ class ObtemEquipesService {
       select: {
         id: true,
         nome: true,
+        aprovada: true,
         createdAt: true,
         participantes: {
           orderBy: { createdAt: "asc" },

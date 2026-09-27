@@ -5,7 +5,7 @@ import Layout from "../components/Layout"
 import Botao from "../components/Botao"
 import { IconeLixeira } from "../components/Icones"
 import { Season } from "@/models/Season"
-import { deletaEquipe, obtemEquipes } from "@/models/Equipes"
+import { aprovaEquipe, deletaEquipe, obtemEquipes } from "@/models/Equipes"
 import { cpfFormatado, planilhaDeInscritos, type EquipeInscrita } from "@/lib/planilha"
 
 export default function Equipes() {
@@ -43,6 +43,13 @@ export default function Equipes() {
         carregaEquipes(seasonId)
     }
 
+    async function alternaAprovacao(equipe: EquipeInscrita) {
+        const aprovada = !equipe.aprovada
+        if (await aprovaEquipe(equipe.id, aprovada)) {
+            setEquipes((lista) => lista.map((e) => (e.id === equipe.id ? { ...e, aprovada } : e)))
+        }
+    }
+
     function baixaPlanilha() {
         const numero = seasons.find((s) => s.getId === seasonId)?.getNumero ?? ""
         const url = URL.createObjectURL(new Blob([planilhaDeInscritos(equipes)], { type: "text/csv;charset=utf-8" }))
@@ -54,6 +61,7 @@ export default function Equipes() {
     }
 
     const participantes = equipes.reduce((total, e) => total + e.participantes.length, 0)
+    const aprovadas = equipes.filter((e) => e.aprovada).length
 
     return (
 
@@ -77,7 +85,7 @@ export default function Equipes() {
                     </select>
                 </label>
 
-                <span>{equipes.length} equipe(s), {participantes} participante(s)</span>
+                <span>{equipes.length} equipe(s), {aprovadas} aprovada(s), {participantes} participante(s)</span>
 
                 {equipes.length > 0 && <Botao nome="Baixar planilha" onClick={baixaPlanilha} />}
             </div>
@@ -87,10 +95,20 @@ export default function Equipes() {
                     <section key={equipe.id} className="min-w-0 rounded-xl bg-white p-5">
                         <div className="mb-3 flex items-center justify-between gap-4">
                             <h2 className="min-w-0 break-words text-xl font-bold">{equipe.nome}</h2>
-                            <button onClick={() => apagaEquipe(equipe)} aria-label={`Apagar a equipe ${equipe.nome}`}
-                            className="shrink-0 rounded-full p-2 text-red-500 hover:bg-red-500 hover:text-white">
-                                {IconeLixeira}
-                            </button>
+                            <div className="flex shrink-0 items-center gap-2">
+                                {/* aria-pressed: o leitor de tela diz se esta aprovada. */}
+                                <button onClick={() => alternaAprovacao(equipe)} aria-pressed={equipe.aprovada}
+                                aria-label={`Equipe ${equipe.nome} aprovada`}
+                                className={`rounded-full px-3 py-1 text-sm font-semibold duration-200 ${equipe.aprovada
+                                    ? "bg-green-600 text-white hover:bg-green-700"
+                                    : "border border-gray-400 text-gray-700 hover:bg-gray-100"}`}>
+                                    {equipe.aprovada ? "✓ Aprovada" : "Aprovar"}
+                                </button>
+                                <button onClick={() => apagaEquipe(equipe)} aria-label={`Apagar a equipe ${equipe.nome}`}
+                                className="rounded-full p-2 text-red-500 hover:bg-red-500 hover:text-white">
+                                    {IconeLixeira}
+                                </button>
+                            </div>
                         </div>
 
                         {/* No celular a tabela rola dentro do cartao, sem vazar por cima do resto. */}
