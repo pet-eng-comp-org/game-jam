@@ -6,10 +6,10 @@ import Personagem from "./Personagem"
 
 // A ordem e os rotulos vem do mockup da Season 4 (Figma, pagina Site).
 // "Apoio" virou "Patrocinadores" e Jogos subiu para a segunda posicao.
-// A pagina ativa e marcada por um personagem do Pac-Man ao lado do nome, como
-// se o perseguisse. O mockup tinha uma bolinha colorida por pagina, meio para
-// fora da barra; um fantasma cortado ao meio ficaria so a saia, entao ele vem
-// inteiro, ao lado. Pac-Man no Inicio (amarelo, como a bolinha), depois os
+// A pagina ativa e marcada por um personagem do Pac-Man em cima do nome, no
+// lugar da bolinha colorida do mockup. A bolinha nascia meio para fora da
+// barra; um fantasma cortado ao meio ficaria so a saia, entao ele vem inteiro
+// e menor. Pac-Man no Inicio (amarelo, como a bolinha), depois os
 // fantasmas na ordem do jogo: Blinky, Pinky, Inky e Clyde.
 const paginas = [
   { label: 'Início', url: '/', personagem: 'pacman' },
@@ -34,10 +34,10 @@ export default function Navbar() {
 
         {/* A logo da Season IV em versao horizontal, para a barra: GAME JAM numa
             linha, da altura do texto dos links (28px), e o PET pequeno em cima,
-            como assinatura. 41px no todo, centrada na barra. A vertical, a
+            como assinatura. 43px no todo, centrada na barra. A vertical, a
             original, fica em marca/logo-pet-game-jam-vertical.svg. */}
-        <Link href="/" aria-label="PET Game Jam — início" className="md:absolute md:left-9 md:top-[19px]">
-          <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-[41px] w-auto" />
+        <Link href="/" aria-label="PET Game Jam — início" className="md:absolute md:left-9 md:top-[18px]">
+          <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-[43px] w-auto" />
         </Link>
 
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 md:absolute md:left-1/2 md:top-[25px] md:-translate-x-1/2 md:flex-nowrap md:gap-x-[53px]">
@@ -52,12 +52,14 @@ export default function Navbar() {
                 aria-current={ativa ? "page" : undefined}
                 className="relative py-2 text-base font-bold leading-[25px] text-destaque-claro transition-opacity hover:opacity-70 md:py-0"
               >
-                {/* Fora do fluxo, a esquerda do nome: o grupo de links continua
-                    centrado como no mockup. */}
+                {/* Fora do fluxo, para o grupo de links continuar centrado como no
+                    mockup. No desktop fica em cima do nome, onde era a bolinha,
+                    inteiro no espaco entre o topo da barra e o texto; no celular,
+                    com os links em mais de uma linha, fica ao lado. */}
                 {ativa && (
                   <Personagem
                     qual={pagina.personagem}
-                    className="absolute right-full top-1/2 mr-[7px] h-[19px] w-[19px] -translate-y-1/2"
+                    className="absolute right-full top-1/2 mr-[7px] h-[19px] w-[19px] -translate-y-1/2 md:right-auto md:top-auto md:bottom-full md:left-1/2 md:mr-0 md:mb-[3px] md:-translate-x-1/2 md:translate-y-0"
                   />
                 )}
                 {pagina.label}
