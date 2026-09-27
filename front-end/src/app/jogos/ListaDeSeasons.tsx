@@ -5,6 +5,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Titulo from "../components/Titulo"
+import { TEXTO } from "../components/estilo"
 import { capaDoJogo, listaDeIntegrantes } from "@/lib/capa"
 import type { SeasonComJogosJson } from "@/models/api"
 
@@ -30,14 +31,14 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
 
   return (
 
-      <div className="mx-auto w-[93%] max-w-[1340px] pt-[98px] pb-10">
+      <div className="mx-auto w-full max-w-[1340px] px-6 pb-10 pt-14 md:w-[93%] md:px-0 md:pt-[98px]">
 
         {/* O titulo do mockup era "Selecione uma opcao". Troquei para dizer o que
             a pagina e: os jogos das edicoes no formato antigo, que a Season 4
             abandonou. */}
         <div className="md:pl-[93px]">
-          <Titulo valor="EDIÇÕES ANTERIORES" />
-          <p className="mt-[30px] max-w-[1000px] text-lg leading-9">
+          <Titulo valor="edições anteriores" />
+          <p className={`mt-6 ${TEXTO}`}>
             Nas Seasons 1 a 3, o Game Jam tinha outro formato: cada equipe tinha algumas
             semanas para criar um jogo do zero, sobre um tema divulgado no início. Estes são
             os jogos dessas edições, e todos rodam no navegador: é só clicar na capa. A Season 4 muda o formato:{" "}
@@ -114,11 +115,13 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
 
                         {/* No mockup o texto fica centrado na altura da capa. */}
                         <div>
-                          <h3 className="text-2xl font-bold text-destaque md:text-[34px] md:leading-[42px]">{j.nome ?? j.equipe}</h3>
-                          {j.nome && j.equipe && <p className="mt-[6px] font-bold md:text-[29px] md:leading-[35px]">por {j.equipe}</p>}
+                          {/* Na escala do resto do site: a capa ja e o destaque, e o
+                              texto de 29px do mockup competia com ela. */}
+                          <h3 className="text-2xl font-bold text-destaque md:text-3xl">{j.nome ?? j.equipe}</h3>
+                          {j.nome && j.equipe && <p className="mt-1 text-lg font-bold text-destaque-claro/90">por {j.equipe}</p>}
                           {j.descricao
-                            ? <p className="mt-[32px] text-base md:text-[29px] md:leading-[35px]">{j.descricao}</p>
-                            : integrantes.length > 0 && <p className="mt-[32px] text-base md:text-[29px] md:leading-[35px]">{integrantes.join(" · ")}</p>}
+                            ? <p className={`mt-4 ${TEXTO} md:text-xl`}>{j.descricao}</p>
+                            : integrantes.length > 0 && <p className={`mt-4 ${TEXTO} md:text-xl`}>{integrantes.join(" · ")}</p>}
                         </div>
                       </li>
                       )

@@ -30,7 +30,7 @@ export default function Footer() {
   return (
     <footer className="mt-24 w-full bg-barra">
 
-      <div className="mx-auto grid max-w-[1154px] gap-8 px-9 py-10 md:grid-cols-[1.4fr_1fr_1fr] md:gap-8 md:px-0 md:w-[80%]">
+      <div className="mx-auto grid max-w-[1154px] gap-8 px-6 py-10 md:w-[80%] md:grid-cols-[1.4fr_1fr_1fr] md:gap-8 md:px-0">
 
         <div>
           {/* Marca do PET a esquerda e o selo da Ufes a direita, na mesma altura:

@@ -1,22 +1,24 @@
-// Subtitulo das secoes internas, como na Regras e na Materiais do mockup:
-// Jomhuria 48px em amarelo. E uma condensada, entao ocupa pouca largura mesmo
-// em frase longa ("AVISOS PARA EQUIPES DE FORA DO ESPÍRITO SANTO:").
-//
-// Diferente do PacFont, esta TEM os acentuados — nao precisa do truque do
-// aria-label que o Titulo usa, e por isso a caixa alta pode vir do CSS, sem
-// mexer no texto que esta no codigo.
+// Titulos dentro da pagina, em Jomhuria caixa alta amarela (a condensada dos
+// titulos das seasons). Dois niveis:
+//   secao (h2):    as partes da pagina ("Como funciona", "Equipes e inscrição")
+//   subsecao (h3): partes de uma secao ("Super PETs", "Vídeos")
+// A Jomhuria tem os acentuados, entao a caixa alta vem do CSS.
 interface TituloSecaoProps {
 
     valor: string
     className?: string
+    subsecao?: boolean
 }
 
-export default function TituloSecao(props: TituloSecaoProps) {
+export default function TituloSecao({ valor, className, subsecao = false }: TituloSecaoProps) {
+
+    const Tag = subsecao ? "h3" : "h2"
+    const tamanho = subsecao ? "text-3xl md:text-4xl" : "text-4xl md:text-6xl"
 
     return (
 
-        <h3 className={`font-secao text-3xl uppercase leading-none text-destaque md:text-5xl ${props.className ?? ""}`}>
-            {props.valor}
-        </h3>
+        <Tag className={`font-secao uppercase leading-none text-destaque ${tamanho} ${className ?? ""}`}>
+            {valor}
+        </Tag>
     )
 }

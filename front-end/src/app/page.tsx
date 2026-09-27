@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Layout from "./components/Layout";
-import Titulo from "./components/Titulo";
+import TituloSecao from "./components/TituloSecao";
+import { APOS_TITULO, PAGINA, SECAO, TEXTO } from "./components/estilo";
 import Contagem from "./components/Contagem";
 import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
@@ -31,8 +32,7 @@ export default async function Home() {
     <Layout>
       <EventoParaBusca season={season} />
 
-      {/* 1154/1440 do mockup = 80% da largura. */}
-      <div className="mx-auto w-[80%] max-w-[1154px] pt-[60px] pb-10">
+      <div className={PAGINA}>
 
         {/* Abertura: quem chega sabe na hora que e a Season 4 e quanto falta para
             a competicao. A data e a hora vem do painel; sem elas, so o formato.
@@ -71,16 +71,16 @@ export default async function Home() {
           )}
         </section>
 
-        <section className="mt-[97px]">
-          <Titulo valor="O QUE É GAMEJAM" />
-          <p className="mt-[30px] text-lg leading-9">
+        <section className={SECAO}>
+          <TituloSecao valor="O que é o Game Jam" />
+          <p className={`${APOS_TITULO} ${TEXTO}`}>
             É uma competição de programação em equipes do PET Engenharia de Computação da
             Ufes. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
             evento e usa programação para implementar parte da lógica dele.
           </p>
           {/* A Season 4 e a primeira neste formato: sem este aviso, os jogos das
               outras edicoes (em /jogos) pareciam o que se faz na competicao. */}
-          <p className="mt-6 text-lg leading-9">
+          <p className={`mt-4 ${TEXTO}`}>
             A Season 4 estreia esse formato. Nas três primeiras edições, o Game Jam era uma
             maratona de algumas semanas em que cada equipe criava um jogo do zero, sobre
             um tema. Os jogos criados nessas edições estão em{" "}
@@ -88,14 +88,9 @@ export default async function Home() {
           </p>
         </section>
 
-        {/* O segundo bloco entra recuado no mockup: x=214 contra x=143 dos
-            outros dois, e um pouco mais estreito. */}
-        {/* Distancias medidas no mockup renderizado (as caixas de texto do Figma sao
-            menores que o texto, entao o espacamento declarado nao vale): 132px da
-            ultima linha ao proximo titulo, 141px no bloco seguinte. */}
-        <section className="mt-[97px] md:ml-[6%] md:max-w-[1083px]">
-          <Titulo valor="como funciona" />
-          <p className="mt-[30px] text-lg leading-9">
+        <section className={SECAO}>
+          <TituloSecao valor="Como funciona" />
+          <p className={`${APOS_TITULO} ${TEXTO}`}>
             Nem tudo é revelado antes da competição: no início do dia são apresentadas as
             regras completas, o ambiente e o que é preciso para começar. A partir daí, cada
             equipe interpreta o problema, discute a estratégia e transforma ideias em código,
@@ -104,21 +99,20 @@ export default async function Home() {
           </p>
         </section>
 
-        <section className="mt-[106px]">
-          <Titulo valor="como participar" />
-          <p className="mt-[30px] text-lg leading-9">
+        <section className={SECAO}>
+          <TituloSecao valor="Como participar" />
+          <p className={`${APOS_TITULO} ${TEXTO}`}>
             Monte uma equipe de até {extenso} {pessoas === 1 ? "pessoa" : "pessoas"} e faça a inscrição aqui no site quando as
             inscrições abrirem. Cada equipe precisa de um nome, então escolham um bom!
           </p>
-          <ul className="mt-6 space-y-1 text-lg leading-9">
-            <li><strong>Data:</strong> {dataPorExtenso(season?.dataEvento) ?? "em breve"}</li>
-            <li><strong>Local:</strong> {season?.local ?? "em breve"}</li>
-            <li><strong>Inscrições:</strong> {periodo}</li>
-            <li><strong>Duração:</strong> 1 dia</li>
-            <li><strong>Formato:</strong> competição em equipes de até {pessoas} {pessoas === 1 ? "pessoa" : "pessoas"}</li>
-            <li><strong>Linguagens permitidas:</strong> {listaDeLinguagens(season?.linguagens) ?? "em breve"}</li>
-            <li><strong>Desafio:</strong> implementar a lógica de um jogo</li>
-          </ul>
+          {/* So o que o texto acima nao diz: formato, duracao e desafio ja estao
+              nas secoes anteriores. */}
+          <dl className={`mt-6 space-y-2 ${TEXTO}`}>
+            <div><dt className="inline font-bold">Data: </dt><dd className="inline">{dataPorExtenso(season?.dataEvento) ?? "em breve"}</dd></div>
+            <div><dt className="inline font-bold">Local: </dt><dd className="inline">{season?.local ?? "em breve"}</dd></div>
+            <div><dt className="inline font-bold">Inscrições: </dt><dd className="inline">{periodo}</dd></div>
+            <div><dt className="inline font-bold">Linguagens permitidas: </dt><dd className="inline">{listaDeLinguagens(season?.linguagens) ?? "em breve"}</dd></div>
+          </dl>
         </section>
       </div>
     </Layout>

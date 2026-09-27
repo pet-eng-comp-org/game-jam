@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Layout from "../components/Layout";
 import { patrocinadores } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
+import { PAGINA } from "../components/estilo";
 
 export const metadata: Metadata = {
   title: "Patrocinadores",
@@ -18,7 +19,7 @@ export default async function Patrocinadores() {
 
     <Layout>
 
-      <div className="mx-auto w-[80%] max-w-[1154px] pt-[98px] pb-24">
+      <div className={PAGINA}>
 
         <Titulo valor="patrocinadores" />
 
