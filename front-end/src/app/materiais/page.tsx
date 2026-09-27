@@ -1,11 +1,12 @@
 import Layout from "../components/Layout";
-import { materiais, miniaturaDoYoutube } from "@/lib/conteudo";
+import { listaDeLinguagens, materiais, miniaturaDoYoutube, seasonAtual } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 
 export default async function Materiais() {
 
-  const todos = await materiais();
+  const [todos, season] = await Promise.all([materiais(), seasonAtual()]);
+  const linguagens = listaDeLinguagens(season?.linguagens);
   const comMiniatura = await Promise.all(todos.map(async (m) => ({ ...m, miniatura: await miniaturaDoYoutube(m.link) })));
   const videos = comMiniatura.filter((m) => m.miniatura);
   const links = comMiniatura.filter((m) => !m.miniatura);
@@ -21,13 +22,45 @@ export default async function Materiais() {
 
         <Titulo valor="materiais" />
 
-        <p className="mt-3 text-lg leading-[22px]">
-          Nesta seção, você encontrará diversos materiais úteis para iniciar e aprofundar seus
-          estudos em desenvolvimento de jogos. Reunimos dicas, projetos de exemplo e recursos
-          selecionados para facilitar sua jornada.
+        {/* A Season 4 nao pede um jogo feito do zero: a equipe recebe um pronto e
+            implementa parte da logica. O que ajuda a se preparar vem primeiro;
+            os materiais de Phaser das edicoes anteriores ficam depois, como extra. */}
+        <p className="mt-3 text-lg leading-9">
+          Na Season 4, ninguém precisa criar um jogo do zero: cada equipe recebe um jogo
+          pronto e implementa parte da lógica dele. Então a melhor preparação é de
+          programação, não de desenvolvimento de jogos.
         </p>
 
-        <Titulo valor="DICAS" className="mt-[139px]" />
+        <Titulo valor="COMO SE PREPARAR" className="mt-[100px]" />
+        <ul className="mt-[30px] list-disc space-y-4 pl-6 text-lg leading-9 marker:text-destaque">
+          <li>
+            <strong>Pratique lógica e a linguagem da competição.</strong>{" "}
+            {linguagens ? <>As linguagens permitidas são: {linguagens}.</> : <>As linguagens permitidas serão divulgadas em breve.</>}{" "}
+            Resolver exercícios curtos, com tempo contado, é o treino mais parecido com o dia.
+          </li>
+          <li>
+            <strong>Entenda como um jogo funciona por dentro.</strong> Quase todo jogo repete
+            o mesmo ciclo várias vezes por segundo: lê o que o jogador fez, atualiza o estado
+            (posição, pontos, vidas) e desenha a tela. Colisão, pontuação e fim de jogo são
+            regras aplicadas nesse ciclo, e é esse tipo de lógica que a equipe vai escrever.
+          </li>
+          <li>
+            <strong>Treine ler código que não é seu.</strong> No dia, a equipe parte do
+            código do jogo preparado: entender rápido o que já existe vale tanto quanto
+            escrever código novo.
+          </li>
+          <li>
+            <strong>Combinem a divisão do trabalho.</strong> O tempo é curto: vale decidir
+            antes quem lê o código, quem escreve e quem testa.
+          </li>
+        </ul>
+
+        <Titulo valor="PARA IR ALÉM" className="mt-[130px]" />
+        <p className="mt-[30px] text-lg leading-9">
+          Nas edições anteriores, as equipes criavam o jogo do zero com o framework Phaser3,
+          em JavaScript. Os materiais daquela época continuam aqui para quem quer entender
+          como se faz um jogo inteiro.
+        </p>
 
         <TituloSecao valor="Super PETs:" className="mt-[32px]" />
         {/* Entrelinha 21,8px e lista com 20px entre itens: valores por trecho do

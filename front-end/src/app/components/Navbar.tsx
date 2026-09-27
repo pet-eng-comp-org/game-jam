@@ -18,7 +18,9 @@ const paginas = [
   { label: 'Patrocinadores', url: '/apoio', personagem: 'laranja' },
 ] as const
 
-export default function Navbar() {
+// Sem patrocinador cadastrado, o link some: levava a uma pagina so com "em
+// breve". A pagina continua no ar pelo endereco.
+export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
 
   const caminho = usePathname()
 
@@ -40,7 +42,7 @@ export default function Navbar() {
         </Link>
 
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 md:absolute md:left-1/2 md:top-[25px] md:-translate-x-1/2 md:flex-nowrap md:gap-x-[53px]">
-          {paginas.map((pagina) => {
+          {paginas.filter((p) => mostraPatrocinadores || p.url !== '/apoio').map((pagina) => {
 
             const ativa = caminho === pagina.url
 
