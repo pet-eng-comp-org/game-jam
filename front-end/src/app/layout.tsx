@@ -1,13 +1,25 @@
 import type { Metadata } from "next";
-import { Inter, Jomhuria } from "next/font/google";
+import { Jomhuria } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "sonner";
 
-// Inter e a fonte de corpo do mockup da Season 4, nos pesos 400/500/700.
-const inter = Inter({
+// Inter e a fonte de corpo do mockup da Season 4, nos pesos 400/500/700. E a
+// 3.19, hospedada aqui, e nao a do Google Fonts: o mockup foi feito com ela, e
+// a do Google (4.x) tem outro espacamento — a mesma linha de 18px saia 28px
+// mais estreita que no Figma e quebrava em outro lugar. Medido no Chrome:
+// Figma 1140px, Inter 3.19 1137px, Google 1112px. Arquivos so com o latim
+// (fontTools subset) e gerados da versao DESKTOP: a "Inter Web" do mesmo
+// pacote tem outras medidas (1115px na mesma linha). Licenca OFL em
+// fontes/LICENCA-inter.txt.
+const inter = localFont({
   variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  display: "swap",
+  src: [
+    { path: "./fontes/inter-3.19-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fontes/inter-3.19-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fontes/inter-3.19-Bold.woff2", weight: "700", style: "normal" },
+  ],
 });
 
 // Jomhuria e a condensada dos titulos de secao do mockup (48px). Ao contrario
