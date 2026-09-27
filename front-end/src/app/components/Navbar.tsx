@@ -52,8 +52,8 @@ export default function Navbar() {
                 className="relative py-2 text-base font-bold leading-[25px] text-destaque-claro transition-opacity hover:opacity-70 md:py-0"
               >
                 {/* Fora do fluxo, para o grupo de links continuar centrado. No
-                    desktop fica no lugar da bolinha do mockup (34px, meio para
-                    fora da tela), de cabeca para baixo: a borda corta a saia e
+                    desktop fica no lugar da bolinha do mockup, um pouco menor
+                    (26px) e com um terco para fora da tela, de cabeca para baixo: a borda corta a saia e
                     aparece a cabeca, pendurada olhando o link. O Pac-Man fica como
                     esta: de boca para baixo, o corte deixava so as duas pontas
                     da mandibula. No celular, com os links
@@ -61,7 +61,7 @@ export default function Navbar() {
                 {ativa && (
                   <Personagem
                     qual={pagina.personagem}
-                    className={`absolute right-full top-1/2 mr-[7px] h-[19px] w-[19px] -translate-y-1/2 md:right-auto md:left-1/2 md:top-[-37px] md:mr-0 md:h-[34px] md:w-[34px] md:-translate-x-1/2 md:translate-y-0 ${pagina.personagem === "pacman" ? "" : "md:-scale-y-100"}`}
+                    className={`absolute right-full top-1/2 mr-[7px] h-[19px] w-[19px] -translate-y-1/2 md:right-auto md:left-1/2 md:top-[-34px] md:mr-0 md:h-[26px] md:w-[26px] md:-translate-x-1/2 md:translate-y-0 ${pagina.personagem === "pacman" ? "" : "md:-scale-y-100"}`}
                   />
                 )}
                 {pagina.label}
