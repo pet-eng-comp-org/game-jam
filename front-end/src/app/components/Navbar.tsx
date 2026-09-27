@@ -48,7 +48,7 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
     <nav className="sticky top-0 z-50 w-full bg-barra">
 
       {/* Desktop */}
-      <div className="relative mx-auto hidden h-[79px] max-w-[1440px] md:block">
+      <div className="relative mx-auto hidden h-[79px] max-w-[1440px] lg:block">
 
         {/* A logo da Season IV em versao horizontal: GAME JAM da altura do texto
             dos links (28px) e o PET pequeno em cima, como assinatura. 43px no
@@ -58,7 +58,7 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
           <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-[43px] w-auto" />
         </Link>
 
-        <div className="absolute left-1/2 top-[25px] flex -translate-x-1/2 items-center gap-x-[53px]">
+        <div className="absolute left-1/2 top-[25px] flex -translate-x-1/2 items-center gap-x-8 xl:gap-x-[53px]">
           {visiveis.map((pagina) => {
 
             const ativa = caminho === pagina.url
@@ -96,7 +96,7 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
       </div>
 
       {/* Celular */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <div className="flex h-[60px] items-center justify-between gap-3 px-4">
           {/* A logo encolhe quando falta espaco (telas de 280px, como o Galaxy
               Fold dobrado); os botoes nunca: antes a logo empurrava o

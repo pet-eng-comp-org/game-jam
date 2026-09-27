@@ -91,3 +91,25 @@ test("nenhuma pagina passa da tela no celular mais estreito (280px)", async ({ p
     expect(fora.vazando, `${caminho} com elemento fora da tela`).toEqual([]);
   }
 });
+
+test("a barra de cima nao sobrepoe logo, links e botao em nenhuma largura", async ({ page }) => {
+  // Em 768px a barra de desktop ja aparecia com os links por cima da logo e do
+  // "Inscreva-se": ela so cabe a partir de 1024px. /apoio tem os cinco links.
+  for (const largura of [412, 768, 1023, 1024, 1280, 1440]) {
+    await page.setViewportSize({ width: largura, height: 800 });
+    await page.goto("/apoio");
+    const caixas = await page.evaluate(() =>
+      [...document.querySelectorAll("nav a")]
+        .map((a) => ({ nome: a.textContent?.trim() || a.getAttribute("aria-label"), b: a.getBoundingClientRect() }))
+        .filter(({ b }) => b.width > 0 && b.height > 0)
+        .map(({ nome, b }) => ({ nome, x0: b.left, x1: b.right, y0: b.top, y1: b.bottom })),
+    );
+    for (let i = 0; i < caixas.length; i++) {
+      for (let j = i + 1; j < caixas.length; j++) {
+        const [a, b] = [caixas[i], caixas[j]];
+        const encostam = a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
+        expect(encostam, `${largura}px: "${a.nome}" sobre "${b.nome}"`).toBe(false);
+      }
+    }
+  }
+});
