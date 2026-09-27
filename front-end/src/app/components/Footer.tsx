@@ -38,12 +38,13 @@ export default function Footer() {
             <a href="https://pet.inf.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site do PET Engenharia de Computação" className="inline-block transition-opacity hover:opacity-80">
               <img src="/marca/logo-pet.svg" alt="PET Engenharia de Computação — Ufes" className="w-[120px] sm:w-[150px]" />
             </a>
-            {/* Marca oficial da Ufes, tirada em vetor do manual de marca da
-                Secom (comunicacao.ufes.br/manual-de-marca). As letras sao
-                pretas, entao ela vai sobre branco, com a folga em volta que o
-                manual pede e acima do minimo de 2 cm de largura. */}
-            <a href="https://www.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site da Ufes" className="inline-block rounded-md bg-white p-2.5 transition-opacity hover:opacity-90">
-              <img src="/marca/ufes.svg" alt="Ufes, Universidade Federal do Espírito Santo" className="w-[84px] sm:w-[96px]" />
+            {/* Marca oficial da Ufes, identidade de 2024 (Manual de Identidade
+                Visual da Secom). Pelo diagrama de decisoes do manual, fundo
+                escuro pede a assinatura em negativo, branca: e a vertical, tirada
+                em vetor do resumo oficial de aplicacoes. Acima do minimo digital
+                (75 x 51 px) e com a distancia minima da marca do PET. */}
+            <a href="https://www.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site da Ufes" className="inline-block transition-opacity hover:opacity-80">
+              <img src="/marca/ufes.svg" alt="Ufes, Universidade Federal do Espírito Santo" className="w-[84px] sm:w-[104px]" />
             </a>
           </div>
           <p className="mt-4 max-w-[320px] text-sm leading-6 text-destaque-claro/80">
