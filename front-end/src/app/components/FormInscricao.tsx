@@ -95,36 +95,35 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
   const participantesForm = [];
 
   for (let index = 1; index <= quantos; index++) {
-    const romano = ROMANOS[index - 1] ?? String(index);
-
     participantesForm.push(
-      // Como no mockup, "participante i" e o rotulo do campo de nome e "email i" o
-      // do e-mail; os campos que o mockup nao tem seguem a mesma numeracao.
-      <fieldset key={index} className="mt-[19px] min-w-0">
-        <legend className="sr-only">Participante {index}</legend>
+      <fieldset key={index} className="mt-10 min-w-0">
+        {/* Um titulo por participante, e rotulos simples nos campos. O mockup
+            numerava cada rotulo ("participante i", "email i"), o que com um
+            participante so parecia erro de digitacao. */}
+        <legend className="mb-[19px] font-titulo text-xl lowercase leading-[25px] text-destaque">participante <span className="font-bold">{index}</span></legend>
 
         <div className="grid gap-x-8 gap-y-[23px] sm:grid-cols-2">
-          <Campo id={`nome${index}`} rotulo={`participante ${romano}`} leitor={`Nome do participante ${index}`} erro={erros["nome" + index]}>
+          <Campo id={`nome${index}`} rotulo="nome" leitor={`Nome do participante ${index}`} erro={erros["nome" + index]}>
             <input {...marca("nome" + index)} type="text" autoComplete={index === 1 ? "name" : "off"}
               value={valor("nome" + index)} onChange={e => handleInputChange("nome" + index, e.target.value)} />
           </Campo>
 
-          <Campo id={`email${index}`} rotulo={`email ${romano}`} leitor={`E-mail do participante ${index}`} erro={erros["email" + index]}>
+          <Campo id={`email${index}`} rotulo="email" leitor={`E-mail do participante ${index}`} erro={erros["email" + index]}>
             <input {...marca("email" + index)} type="email" autoComplete={index === 1 ? "email" : "off"}
               value={valor("email" + index)} onChange={e => handleInputChange("email" + index, e.target.value)} />
           </Campo>
 
-          <Campo id={`cpf${index}`} rotulo={`cpf ${romano}`} leitor={`CPF do participante ${index}, para o certificado`} erro={erros["cpf" + index]}>
+          <Campo id={`cpf${index}`} rotulo="cpf" leitor={`CPF do participante ${index}, para o certificado`} erro={erros["cpf" + index]}>
             <input {...marca("cpf" + index)} type="text" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00"
               value={valor("cpf" + index)} onChange={e => handleInputChange("cpf" + index, formataCpf(e.target.value))} />
           </Campo>
 
-          <Campo id={`curso${index}`} rotulo={`curso ${romano}`} leitor={`Curso do participante ${index}, se for universitário`}>
+          <Campo id={`curso${index}`} rotulo="curso" leitor={`Curso do participante ${index}, se for universitário`}>
             <input {...marca("curso" + index)} type="text"
               value={valor("curso" + index)} onChange={e => handleInputChange("curso" + index, e.target.value)} />
           </Campo>
 
-          <Campo id={`genero${index}`} rotulo={`gênero ${romano}`} leitor={`Gênero do participante ${index}`}>
+          <Campo id={`genero${index}`} rotulo="gênero" leitor={`Gênero do participante ${index}`}>
             <select id={`genero${index}`} value={valor("genero" + index) || "nao-informado"}
               onChange={e => handleInputChange("genero" + index, e.target.value)} className={CAMPO}>
               <option value="nao-informado">Prefiro não informar</option>
@@ -134,7 +133,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
             </select>
           </Campo>
 
-          <Campo id={`ufes${index}`} rotulo={`estuda na ufes ${romano}`} leitor={`O participante ${index} estuda na Ufes?`}>
+          <Campo id={`ufes${index}`} rotulo="estuda na ufes" leitor={`O participante ${index} estuda na Ufes?`}>
             <select id={`ufes${index}`} value={ehUfes(index) ? "sim" : "nao"}
               onChange={e => setUfesStatus(prev => ({ ...prev, [index]: e.target.value === "sim" }))} className={CAMPO}>
               <option value="sim">Sim</option>
@@ -143,7 +142,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
           </Campo>
 
           {!ehUfes(index) && (
-            <Campo id={`instituicao${index}`} rotulo={`instituição ${romano}`} leitor={`Instituição de ensino do participante ${index}`} erro={erros["instituicao" + index]}>
+            <Campo id={`instituicao${index}`} rotulo="instituição" leitor={`Instituição de ensino do participante ${index}`} erro={erros["instituicao" + index]}>
               <input {...marca("instituicao" + index)} type="text"
                 value={valor("instituicao" + index)} onChange={e => handleInputChange("instituicao" + index, e.target.value)} />
             </Campo>
@@ -220,8 +219,6 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
 function semCampos<T>(objeto: { [campo: string]: T }, tira: (campo: string) => boolean) {
   return Object.fromEntries(Object.entries(objeto).filter(([k]) => !tira(k)));
 }
-
-const ROMANOS = ["i", "ii", "iii", "iv", "v", "vi"];
 
 // Campo do mockup: 42px de altura, #FCECA8, sem cantos arredondados.
 const CAMPO = "h-[42px] w-full bg-[#FCECA8] px-3 text-black outline-none focus:ring-2 focus:ring-[#FFCF00]";

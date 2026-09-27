@@ -11,6 +11,11 @@
        url("/fontes/pacfont-br.ttf") format("truetype");
   font-weight: 400;
   font-display: swap;
+  /* A PacFont nao desenha numeros nem hifen: esses caracteres existem no
+     arquivo, mas todos com o mesmo glifo de preenchimento, e "participante 2"
+     saia com uma bolinha no lugar do 2, e "inscrever-se" sem o hifen. Fora
+     desta faixa, o navegador usa a proxima fonte da pilha (Inter). */
+  unicode-range: U+0000-002C, U+002E-002F, U+003A-10FFFF;
 }
 
 /* "inline" e obrigatorio aqui: sem ele o Tailwind resolve os valores em tempo
@@ -28,7 +33,7 @@
   --color-perigo: #F20D0D;       /* ponto ativo da Regras */
   --color-agua: #1990E2;         /* ponto ativo de Jogos e Patrocinadores */
 
-  --font-titulo: "PacFont", "Inter", system-ui, sans-serif;
+  --font-titulo: "PacFont", var(--font-inter), system-ui, sans-serif;
   --font-secao: var(--font-jomhuria), "Inter", sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 }
