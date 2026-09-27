@@ -100,7 +100,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         {/* Um titulo por participante, e rotulos simples nos campos. O mockup
             numerava cada rotulo ("participante i", "email i"), o que com um
             participante so parecia erro de digitacao. */}
-        <legend className="mb-[19px] font-titulo text-xl lowercase leading-[25px] text-destaque">participante <span className="font-bold">{index}</span></legend>
+        <legend className="mb-[15px] font-secao text-[40px] uppercase leading-none text-destaque">Participante {index}</legend>
 
         <div className="grid gap-x-8 gap-y-[23px] sm:grid-cols-2">
           <Campo id={`nome${index}`} rotulo="nome" leitor={`Nome do participante ${index}`} erro={erros["nome" + index]}>
@@ -177,7 +177,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
 
       {quantos < numParticipantesPorEquipe && (
         <button type="button" onClick={() => setQuantos(q => q + 1)}
-          className="mt-8 h-[42px] self-start border-2 border-dashed border-[#FBDC70] px-5 font-titulo text-base lowercase text-[#FBDC70] transition-colors hover:bg-[#FBDC70]/10">
+          className="mt-8 h-[42px] self-start border-2 border-dashed border-[#FBDC70] px-5 text-sm font-bold uppercase tracking-wider text-[#FBDC70] transition-colors hover:bg-[#FBDC70]/10">
           + adicionar participante
           <span className="sr-only"> (a equipe pode ter até {numParticipantesPorEquipe})</span>
         </button>
@@ -210,14 +210,14 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
       </div>
       {erros.termo && <p id="termo-erro" className={`mt-2 pl-7 ${ERRO}`}>{erros.termo}</p>}
 
-      {/* Botao do mockup: 377x61, #FFCF00, cantos de 21px, texto em PacFont 20;
+      {/* Botao do mockup: 377x61, #FFCF00, cantos de 21px (o texto era em PacFont);
           no desenho ele fica 5px a esquerda do centro da coluna. */}
       <button
         type="submit"
         disabled={enviando}
-        className="mx-auto mt-10 h-[61px] w-full max-w-[377px] rounded-[21px] bg-[#FFCF00] font-titulo text-xl leading-[25px] text-[#001059] lg:-translate-x-[5px] transition-opacity hover:opacity-90 disabled:opacity-60"
+        className="mx-auto mt-10 h-[61px] w-full max-w-[377px] rounded-[21px] bg-[#FFCF00] text-xl font-bold leading-[25px] text-[#001059] lg:-translate-x-[5px] transition-opacity hover:opacity-90 disabled:opacity-60"
       >
-        {enviando ? "enviando..." : "inscrever-se"}
+        {enviando ? "Enviando..." : "Inscrever-se"}
       </button>
     </form>
   );
@@ -230,13 +230,15 @@ function semCampos<T>(objeto: { [campo: string]: T }, tira: (campo: string) => b
 // Campo do mockup: 42px de altura, #FCECA8, sem cantos arredondados.
 const CAMPO = "h-[42px] w-full bg-[#FCECA8] px-3 text-black outline-none focus:ring-2 focus:ring-[#FFCF00]";
 
-// Rotulo em PacFont 16, #FBDC70, como no mockup. O leitor de tela ouve o texto
+// Rotulo em Inter, caixa alta pequena, #FBDC70. O mockup usava a PacFont, que
+// em 16px e dificil de ler e, em todos os campos, satura a pagina: ela fica
+// so nos titulos grandes. O leitor de tela ouve o texto
 // completo, com o numero do participante.
 function Campo({ id, rotulo, leitor, erro, children }: { id: string; rotulo: string; leitor: string; erro?: string; children: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-[13px]">
       <label htmlFor={id} className="leading-[20px]">
-        <span aria-hidden className="font-titulo text-base lowercase leading-[20px] text-[#FBDC70]">{rotulo}</span>
+        <span aria-hidden className="text-sm font-bold uppercase leading-[20px] tracking-wider text-[#FBDC70]">{rotulo}</span>
         <span className="sr-only">{leitor}</span>
       </label>
       {children}

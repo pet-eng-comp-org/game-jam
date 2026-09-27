@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Layout from "./components/Layout";
 import Titulo from "./components/Titulo";
+import Contagem from "./components/Contagem";
 import { dataEHora, dataPorExtenso, listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
 
 export default async function Home() {
@@ -11,6 +12,10 @@ export default async function Home() {
   const periodo = season?.inscricoesAbrem && season?.inscricoesFecham
     ? `de ${dataEHora(season.inscricoesAbrem)} a ${dataEHora(season.inscricoesFecham)}`
     : "em breve";
+  // "28 de novembro", sem o ano: e o da edicao.
+  const diaDoEvento = season?.dataEvento
+    ? new Date(season.dataEvento).toLocaleDateString("pt-BR", { day: "numeric", month: "long", timeZone: "America/Sao_Paulo" })
+    : null;
   // Situacao das inscricoes em uma frase, para a abertura. A API diz em que
   // pe estao (a pagina fica em cache, entao a conta com o relogio e dela).
   const situacao = {
@@ -27,26 +32,30 @@ export default async function Home() {
       {/* 1154/1440 do mockup = 80% da largura. */}
       <div className="mx-auto w-[80%] max-w-[1154px] pt-[60px] pb-10">
 
-        {/* Abertura: quem chega sabe na hora que e a Season 4 e em que pe estao
-            as inscricoes. Tudo vem do painel. */}
-        <section className="grid items-center gap-6 md:grid-cols-[minmax(0,420px)_1fr] md:gap-16">
-          <img src="/marca/logo-season-iv-fantasmas.svg" alt="" className="mx-auto w-full max-w-[240px] md:max-w-[420px]" />
-          <div className="text-center md:text-left">
-            <h1 className="sr-only">PET Game Jam, Season 4</h1>
-            <p className="text-2xl font-bold leading-snug text-destaque md:text-[34px] md:leading-[42px]">
-              Competição de programação em equipes, em um único dia.
-            </p>
-            <ul className="mt-6 space-y-1 text-lg leading-8">
-              <li><strong>Inscrições:</strong> {situacao}</li>
-              <li><strong>Competição:</strong> {dataPorExtenso(season?.dataEvento) ?? "data em breve"}</li>
-            </ul>
-            <Link
-              href={season?.inscricoesAbertas ? "/inscricao" : "/regras"}
-              className="mt-8 inline-block rounded-full bg-destaque px-8 py-3 text-lg font-bold text-barra transition-opacity hover:opacity-90"
-            >
-              {season?.inscricoesAbertas ? "Inscreva-se" : "Veja como funciona"}
-            </Link>
-          </div>
+        {/* Abertura: quem chega sabe na hora que e a Season 4, quanto falta para
+            a competicao e em que pe estao as inscricoes. Tudo vem do painel. */}
+        <section className="text-center">
+          <h1 className="sr-only">PET Game Jam, Season {season?.numero ?? "4"}</h1>
+          <p className="text-sm font-bold uppercase tracking-[0.3em] text-destaque-claro/80">
+            Season {season?.numero ?? "4"}{diaDoEvento ? ` · ${diaDoEvento}` : ""}
+          </p>
+          {season?.dataEvento ? (
+            <>
+              <p className="mt-3 text-2xl font-bold text-destaque md:text-3xl">A competição começa em</p>
+              <div className="mt-8">
+                <Contagem inicio={season.dataEvento} abertura={season.inscricoesAbrem} rotuloData={diaDoEvento ?? ""} />
+              </div>
+            </>
+          ) : (
+            <p className="mt-3 text-2xl font-bold text-destaque md:text-3xl">Competição de programação em equipes, em um único dia.</p>
+          )}
+          <p className="mt-10 text-lg"><strong>Inscrições:</strong> {situacao}</p>
+          <Link
+            href={season?.inscricoesAbertas ? "/inscricao" : "/regras"}
+            className="mt-6 inline-block rounded-full bg-destaque px-8 py-3 text-lg font-bold text-barra transition-opacity hover:opacity-90"
+          >
+            {season?.inscricoesAbertas ? "Inscreva-se" : "Veja como funciona"}
+          </Link>
         </section>
 
         <section className="mt-[97px]">

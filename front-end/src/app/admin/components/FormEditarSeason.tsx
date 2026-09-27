@@ -15,9 +15,6 @@ function paraCampoDataHora(iso: string | null | undefined) {
   return d.toISOString().slice(0, 16)
 }
 
-function paraCampoData(iso: string | null | undefined) {
-  return paraCampoDataHora(iso).slice(0, 10)
-}
 
 interface Props {
   season: Season
@@ -31,7 +28,7 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
 
   const d = season.getDados
   const [pessoas, setPessoas] = useState(String(season.getNumParticipantesPorEquipe))
-  const [dataEvento, setDataEvento] = useState(paraCampoData(d?.dataEvento))
+  const [dataEvento, setDataEvento] = useState(paraCampoDataHora(d?.dataEvento))
   const [linguagens, setLinguagens] = useState(d?.linguagens ?? "")
   const [abrem, setAbrem] = useState(paraCampoDataHora(d?.inscricoesAbrem))
   const [fecham, setFecham] = useState(paraCampoDataHora(d?.inscricoesFecham))
@@ -44,8 +41,8 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
     e.preventDefault()
     const dados: EdicaoSeason = {
       numParticipantesPorEquipe: Number(pessoas),
-      // O dia do evento vai ao meio-dia, para nenhum fuso trocar a data.
-      dataEvento: dataEvento ? `${dataEvento}T12:00:00${FUSO}` : null,
+      // Dia e hora do inicio: o Inicio do site conta o tempo ate ele.
+      dataEvento: dataEvento ? `${dataEvento}:00${FUSO}` : null,
       linguagens: linguagens.trim() || null,
       inscricoesAbrem: abrem ? `${abrem}:00${FUSO}` : null,
       inscricoesFecham: fecham ? `${fecham}:00${FUSO}` : null,
@@ -75,8 +72,9 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="font-bold">Dia da competição</span>
-            <input type="date" value={dataEvento} onChange={e => setDataEvento(e.target.value)} className={CAMPO} />
+            <span className="font-bold">Início da competição (dia e hora, horário de Vitória)</span>
+            <span className="text-sm">O Início do site conta o tempo até aqui. Sem a hora definida, ponha uma provisória.</span>
+            <input type="datetime-local" value={dataEvento} onChange={e => setDataEvento(e.target.value)} className={CAMPO} />
           </label>
 
           <fieldset className="grid gap-4 sm:grid-cols-2">

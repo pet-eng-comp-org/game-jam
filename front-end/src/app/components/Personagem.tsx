@@ -11,7 +11,9 @@ const COR_FANTASMA = {
   laranja: "#FFA900",
 };
 
-export default function Personagem({ qual, className }: { qual: Personagem; className?: string }) {
+// pendurado: no desktop o fantasma fica de cabeca para baixo na barra, e as
+// pupilas vao para o lado que vira o de baixo.
+export default function Personagem({ qual, className, pendurado = false }: { qual: Personagem; className?: string; pendurado?: boolean }) {
   if (qual === "pacman") {
     return (
       <svg viewBox="0 0 13 13" aria-hidden shapeRendering="crispEdges" className={className}>
@@ -27,8 +29,8 @@ export default function Personagem({ qual, className }: { qual: Personagem; clas
       {/* Pupilas olhando para o lado (celular, ao lado do nome) ou, no desktop,
           para o topo do desenho: la o fantasma fica de cabeca para baixo,
           pendurado da borda, e o topo vira o lado do link. */}
-      <path className="md:hidden" fill="#3223FF" d="M117 64h17v17h-17zM65 64h17v17h-17z" />
-      <path className="hidden md:inline" fill="#3223FF" d="M55.5 44h17v17h-17zM106.5 44h17v17h-17z" />
+      <path className={pendurado ? "md:hidden" : undefined} fill="#3223FF" d="M117 64h17v17h-17zM65 64h17v17h-17z" />
+      {pendurado && <path className="hidden md:inline" fill="#3223FF" d="M55.5 44h17v17h-17zM106.5 44h17v17h-17z" />}
     </svg>
   );
 }

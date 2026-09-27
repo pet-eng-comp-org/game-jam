@@ -63,6 +63,7 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
                 {ativa && (
                   <Personagem
                     qual={pagina.personagem}
+                    pendurado
                     className={`absolute right-full top-1/2 mr-[7px] h-[19px] w-[19px] -translate-y-1/2 md:right-auto md:left-1/2 md:top-[-34px] md:mr-0 md:h-[26px] md:w-[26px] md:-translate-x-1/2 md:translate-y-0 ${pagina.personagem === "pacman" ? "" : "md:-scale-y-100"}`}
                   />
                 )}
