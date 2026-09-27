@@ -82,6 +82,11 @@ test("exige instituição de quem não é da Ufes, como o back-end", () => {
   assert.equal(ok.ok && ok.participantes[0].instituicao, "IFES");
 });
 
+test("exige responder se estuda na Ufes, sem presumir", () => {
+  // Pré-marcado "Sim", quem era de fora e não reparava virava aluno da Ufes.
+  assert.deepEqual(erros(montaInscricao(valido, {}, 3)), { ufes1: "Informe se estuda na Ufes." });
+});
+
 test("descarta instituição digitada por quem é da Ufes", () => {
   const r = montaInscricao({ ...valido, instituicao1: "IFES" }, todosUfes, 3);
   assert.equal(r.ok && r.participantes[0].instituicao, undefined);

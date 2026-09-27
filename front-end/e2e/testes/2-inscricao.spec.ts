@@ -13,6 +13,8 @@ async function preenche(page: Page, i: number, dados: { nome?: string; email?: s
   if (dados.nome) await page.getByRole("textbox", { name: `Nome do participante ${i}`, exact: true }).fill(dados.nome);
   if (dados.email) await page.getByRole("textbox", { name: `E-mail do participante ${i}`, exact: true }).fill(dados.email);
   if (dados.cpf) await page.getByRole("textbox", { name: `CPF do participante ${i}, para o certificado` }).fill(dados.cpf);
+  // "Estuda na Ufes" comeca sem resposta: quem preenche o participante responde.
+  if (dados.nome) await page.getByRole("combobox", { name: `O participante ${i} estuda na Ufes?` }).selectOption("sim");
 }
 
 test.beforeEach(async ({ page }) => {
@@ -125,4 +127,18 @@ test("adiciona e remove participante, ate o limite da season", async ({ page }) 
   await page.getByRole("button", { name: "Remover participante 3" }).click();
   await expect(page.getByRole("textbox", { name: "Nome do participante 3", exact: true })).toHaveCount(0);
   await expect(adiciona).toBeVisible();
+});
+
+test("estuda na Ufes comeca sem resposta e e exigido", async ({ page }, info) => {
+  const equipe = unico("Sem Ufes", info.project.name);
+  const ufes = page.getByRole("combobox", { name: "O participante 1 estuda na Ufes?" });
+  await expect(ufes).toHaveValue("");
+  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
+  await page.getByRole("textbox", { name: "Nome do participante 1", exact: true }).fill("Ana Teste");
+  await page.getByRole("textbox", { name: "E-mail do participante 1", exact: true }).fill("ana@exemplo.com");
+  await page.getByRole("textbox", { name: "CPF do participante 1, para o certificado" }).fill(cpfNovo());
+  await page.getByLabel(/Declaro que há pelo menos alguém/).check();
+  await page.getByRole("button", { name: "inscrever-se" }).click();
+  await expect(ufes).toHaveAccessibleDescription("Informe se estuda na Ufes.");
+  expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(0);
 });

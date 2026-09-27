@@ -13,7 +13,7 @@ interface FormInscricaoProps {
 
 export default function FormInscricao({ numParticipantesPorEquipe }: FormInscricaoProps) {
   const [formDataState, setFormDataState] = useState<{ [key: string]: string | boolean }>({});
-  const [ufesStatus, setUfesStatus] = useState<{ [key: number]: boolean }>({});
+  const [ufesStatus, setUfesStatus] = useState<{ [key: number]: boolean | undefined }>({});
   // O formulário começa com um participante; os outros entram pelo botão, até o
   // limite da season. Doze campos de uma vez cansavam quem vinha sozinho.
   const [quantos, setQuantos] = useState(1);
@@ -73,7 +73,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
   };
 
   const valor = (campo: string) => (formDataState[campo] as string) || "";
-  const ehUfes = (i: number) => ufesStatus[i] ?? true;
+  const naoEhUfes = (i: number) => ufesStatus[i] === false;
   // Liga o campo à mensagem de erro dele, para o leitor de tela ler junto.
   const marca = (campo: string) => ({
     id: campo,
@@ -88,7 +88,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
     const doUltimo = (campo: string) => campo.replace(/^[a-z]+/, "") === String(i);
     setFormDataState(prev => semCampos(prev, doUltimo));
     setErros(prev => semCampos(prev, doUltimo));
-    setUfesStatus(prev => ({ ...prev, [i]: true }));
+    setUfesStatus(prev => ({ ...prev, [i]: undefined }));
     setQuantos(i - 1);
   };
 
@@ -133,15 +133,22 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
             </select>
           </Campo>
 
-          <Campo id={`ufes${index}`} rotulo="estuda na ufes" leitor={`O participante ${index} estuda na Ufes?`}>
-            <select id={`ufes${index}`} value={ehUfes(index) ? "sim" : "nao"}
-              onChange={e => setUfesStatus(prev => ({ ...prev, [index]: e.target.value === "sim" }))} className={CAMPO}>
+          <Campo id={`ufes${index}`} rotulo="estuda na ufes" leitor={`O participante ${index} estuda na Ufes?`} erro={erros["ufes" + index]}>
+            {/* Comeca sem resposta: pre-marcado "Sim", quem era de fora e nao
+                reparava ficava registrado como aluno da Ufes. */}
+            <select {...marca("ufes" + index)}
+              value={ufesStatus[index] === undefined ? "" : ufesStatus[index] ? "sim" : "nao"}
+              onChange={e => {
+                setUfesStatus(prev => ({ ...prev, [index]: e.target.value === "sim" }))
+                if (erros["ufes" + index]) setErros(prev => semCampos(prev, k => k === "ufes" + index))
+              }}>
+              <option value="" disabled>Selecione</option>
               <option value="sim">Sim</option>
               <option value="nao">Não</option>
             </select>
           </Campo>
 
-          {!ehUfes(index) && (
+          {naoEhUfes(index) && (
             <Campo id={`instituicao${index}`} rotulo="instituição" leitor={`Instituição de ensino do participante ${index}`} erro={erros["instituicao" + index]}>
               <input {...marca("instituicao" + index)} type="text"
                 value={valor("instituicao" + index)} onChange={e => handleInputChange("instituicao" + index, e.target.value)} />

@@ -50,7 +50,7 @@ const emailValido = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 export function montaInscricao(
   estado: EstadoFormulario,
-  ufesPorParticipante: { [indice: number]: boolean },
+  ufesPorParticipante: { [indice: number]: boolean | undefined },
   numParticipantes: number,
 ): ResultadoInscricao {
   const erros: ErrosFormulario = {};
@@ -70,13 +70,14 @@ export function montaInscricao(
     // Sem escolha, "nao-informado": antes o padrao era "feminino", e quem nao
     // mexia no campo ficava registrado assim sem ter escolhido.
     const genero = (estado["genero" + i] as string) || "nao-informado";
-    // Sem valor, conta como da Ufes, o mesmo padrão que o formulário mostra.
-    const ufes = ufesPorParticipante[i] ?? true;
+    // Sem resposta, fica sem resposta: o formulário começava marcado "Sim", e
+    // quem era de fora e não reparava ficava registrado como aluno da Ufes.
+    const ufes = ufesPorParticipante[i];
 
     // Participante acrescentado e deixado em branco não entra. Preenchido pela
     // metade é engano de quem preencheu, e antes sumia sem aviso.
     // A instituição só conta se o campo estiver visível (quem não é da Ufes).
-    const emBranco = !nome && !email && !cpf && !curso && (ufes || !instituicao);
+    const emBranco = !nome && !email && !cpf && !curso && (ufes !== false || !instituicao);
     if (emBranco && i > 1) continue;
 
     if (!nome) erros["nome" + i] = "Informe o nome.";
@@ -85,7 +86,8 @@ export function montaInscricao(
     if (!cpf) erros["cpf" + i] = "Informe o CPF.";
     else if (!cpfValido(cpf)) erros["cpf" + i] = "CPF inválido. Confira os números.";
     else if (cpfs.has(cpf)) erros["cpf" + i] = "CPF repetido na equipe.";
-    if (!ufes && !instituicao) erros["instituicao" + i] = "Informe a instituição de ensino.";
+    if (ufes === undefined) erros["ufes" + i] = "Informe se estuda na Ufes.";
+    else if (!ufes && !instituicao) erros["instituicao" + i] = "Informe a instituição de ensino.";
     cpfs.add(cpf);
 
     participantes.push({
@@ -94,8 +96,8 @@ export function montaInscricao(
       cpf,
       curso: curso || undefined,
       genero,
-      ufes,
-      instituicao: ufes ? undefined : instituicao,
+      ufes: ufes === true,
+      instituicao: ufes === false ? instituicao : undefined,
     });
   }
 
