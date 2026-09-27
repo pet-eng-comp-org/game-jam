@@ -471,6 +471,8 @@ describe("jogos", () => {
     assert.match(separados.integrantes, /Rafael Ferraço/);
     assert.equal(seasons.filter((s) => s.numero === "3").length, 1, "nao duplica a season 3");
     assert.deepEqual([s2.ano, s2.tema], ["2023", "Não pare de se mexer"]);
+    const s1 = seasons.find((s) => s.numero === "1");
+    assert.deepEqual([s1.ano, s1.tema], ["2021", "O ambiente muda você"]);
   });
 
   it("cadastro sem capa e recusado", async () => {

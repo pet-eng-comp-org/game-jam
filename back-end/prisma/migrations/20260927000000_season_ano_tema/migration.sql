@@ -16,7 +16,7 @@ UPDATE `seasons` SET `ano` = '2023', `tema` = 'Não pare de se mexer'
 UPDATE `seasons` SET `ano` = '2025', `tema` = 'Plataformas'
   WHERE `numero` = '3' AND `ano` IS NULL AND `tema` IS NULL;
 
--- Season 1: tema "O ambiente muda voce" (confirmado pela organizacao). O ano
--- fica em branco: nao ha registro dele.
-UPDATE `seasons` SET `tema` = 'O ambiente muda você'
-  WHERE `numero` = '1' AND `tema` IS NULL;
+-- Season 1: edicao de 2021, tema "O ambiente muda voce" (confirmados pela
+-- organizacao).
+UPDATE `seasons` SET `ano` = '2021', `tema` = 'O ambiente muda você'
+  WHERE `numero` = '1' AND `ano` IS NULL AND `tema` IS NULL;
