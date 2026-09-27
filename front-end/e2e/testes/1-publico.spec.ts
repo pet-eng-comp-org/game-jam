@@ -54,7 +54,7 @@ test("o site manda os cabecalhos de seguranca", async ({ page }) => {
 test("o inicio mostra a contagem ate a competicao", async ({ page }) => {
   // A data vem do painel (no banco de teste, 15/11/2026).
   await page.goto("/");
-  await expect(page.getByText("A competição começa em")).toBeVisible();
+  await expect(page.getByText("A competição começa em", { exact: true })).toBeVisible();
   await expect(page.getByText("A competição começa em 15 de novembro.")).toBeAttached();
   await expect(page.getByText("dias", { exact: true })).toBeVisible();
 });
