@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import Layout from "../components/Layout";
 import { patrocinadores } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
+
+export const metadata: Metadata = {
+  title: "Patrocinadores",
+  description: "Quem apoia o Game Jam, a competição de programação do PET Engenharia de Computação da Ufes.",
+};
 
 export default async function Patrocinadores() {
 

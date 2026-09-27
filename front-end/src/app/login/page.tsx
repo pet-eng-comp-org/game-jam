@@ -2,7 +2,11 @@ import { api } from "@/services/api";
 import { isAxiosError } from "axios";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import type { Metadata } from "next";
 import { COOKIE_SESSAO, DURACAO_SESSAO_S } from "@/lib/sessao";
+
+// O login do painel nao aparece em busca.
+export const metadata: Metadata = { title: "Entrar", robots: { index: false, follow: false } };
 
 export default function Login() {
 

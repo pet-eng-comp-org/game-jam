@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import Layout from "../components/Layout"
 import ListaDeSeasons from "./ListaDeSeasons"
 import { seasonsComJogos } from "@/lib/conteudo"
+
+export const metadata: Metadata = {
+  title: "Jogos das edições anteriores",
+  description: "Os jogos criados nas três primeiras edições do Game Jam da Ufes, todos jogáveis no navegador.",
+};
 
 // Os jogos vem do banco (cadastrados pelo painel; o historico de cada um esta
 // na migration 20260926210000_jogos_no_banco). So entram as seasons que ja tem

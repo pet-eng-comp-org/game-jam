@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Layout from "../components/Layout";
 import { listaDeLinguagens, materiais, miniaturaDoYoutube, seasonAtual } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
+
+export const metadata: Metadata = {
+  title: "Materiais",
+  description: "Como se preparar para o Game Jam da Ufes: lógica, a linguagem da competição e materiais das edições anteriores.",
+};
 
 export default async function Materiais() {
 

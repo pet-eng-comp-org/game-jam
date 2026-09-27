@@ -4,7 +4,7 @@ import Layout from "../components/Layout";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 
-export const metadata: Metadata = { title: "Privacidade · PET Game Jam" };
+export const metadata: Metadata = { title: "Privacidade" };
 
 const LISTA = "list-disc space-y-3 pl-[24px] text-lg leading-8";
 const PARAGRAFO = "text-lg leading-8";

@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Layout from "../components/Layout";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 import Markdown, { type Components } from "react-markdown";
 import { dataEHora, dataPorExtenso, listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
+
+export const metadata: Metadata = {
+  title: "Regras",
+  description: "Formato, equipes, inscrição e data do Game Jam, a competição de programação do PET Engenharia de Computação da Ufes.",
+};
 
 const LISTA = "list-decimal space-y-5 pl-[24px] text-lg leading-[22px]";
 

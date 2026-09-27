@@ -47,15 +47,19 @@ const jomhuria = Jomhuria({
 const versao =
   process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.COMMIT ?? "desconhecida";
 
+// "Ufes" e "Vitória" no texto: quem procura o evento busca por eles, e "pet game
+// jam" sozinho tambem traz o PET Jam, do PET Computacao da UFRGS.
 const descricao =
-  "O Game Jam é uma competição de programação em equipes, em um dia, organizada pelo PET Engenharia de Computação da Ufes.";
+  "Competição de programação em equipes, em um único dia, organizada pelo PET Engenharia de Computação da Ufes, em Vitória (ES).";
 
 export const metadata: Metadata = {
   other: { versao },
   // Sem metadataBase o Next resolve as URLs de imagem contra localhost, e a
   // prévia do link sai quebrada fora da máquina de quem construiu.
   metadataBase: new URL("https://gamejam.pet.inf.ufes.br"),
-  title: "PET Game Jam",
+  // Cada pagina tem o proprio titulo ("Regras · PET Game Jam"); antes todas
+  // se chamavam "PET Game Jam", e o Google nao tinha como distinguir.
+  title: { default: "PET Game Jam · Competição de programação da Ufes", template: "%s · PET Game Jam" },
   description: descricao,
   // Sem isto, o link colado no WhatsApp ou no Instagram aparece sem imagem e
   // sem texto nenhum — e divulgação é metade do evento.
