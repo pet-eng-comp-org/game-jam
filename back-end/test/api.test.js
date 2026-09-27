@@ -281,6 +281,7 @@ describe("inscricao", () => {
   };
 
   it("sem periodo definido, recusa", async () => {
+    assert.equal((await (await api("GET", "/seasons/atual")).json()).situacaoInscricoes, "sem-data");
     const r = await inscreve("Cedo Demais", [participante()]);
     assert.equal(r.status, 403);
     assert.equal(await equipesChamadas("Cedo Demais"), 0);
@@ -289,6 +290,7 @@ describe("inscricao", () => {
   it("antes da abertura, recusa", async () => {
     const s = await periodo(dia, 2 * dia);
     assert.equal(s.inscricoesAbertas, false);
+    assert.equal(s.situacaoInscricoes, "antes");
     assert.equal((await inscreve("Antes Da Hora", [participante()])).status, 403);
   });
 
@@ -315,6 +317,7 @@ describe("inscricao", () => {
   it("dentro do periodo, grava a equipe com os participantes na temporada atual", async () => {
     const s = await periodo(-dia, dia);
     assert.equal(s.inscricoesAbertas, true);
+    assert.equal(s.situacaoInscricoes, "abertas");
 
     const a = participante({ email: "a@exemplo.com" });
     const r = await inscreve("Equipe Nova", [a, participante({ email: "b@exemplo.com", ufes: false, instituicao: "IFES" })]);
@@ -454,6 +457,7 @@ describe("inscricao", () => {
   it("depois do fechamento, recusa", async () => {
     const s = await periodo(-2 * dia, -dia);
     assert.equal(s.inscricoesAbertas, false);
+    assert.equal(s.situacaoInscricoes, "encerradas");
     const r = await inscreve("Tarde Demais", [participante()]);
     assert.equal(r.status, 403);
   });

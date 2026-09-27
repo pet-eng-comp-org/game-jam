@@ -30,7 +30,7 @@ export default function Inscricao() {
         {/* No desktop o logo acompanha a rolagem do formulario. */}
         <div className="flex shrink-0 justify-center lg:sticky lg:top-[calc(50vh-215px)] lg:w-[497px]">
           <Link href="/" aria-label="Voltar ao início do Game Jam">
-            <img src="/logo-alt.png" alt="PET Game Jam, Season IV" className="h-64 object-contain md:h-96 lg:h-[431px]" />
+            <img src="/marca/logo-season-iv-fantasmas.svg" alt="PET Game Jam, Season IV" className="h-64 object-contain md:h-96 lg:h-[431px]" />
           </Link>
         </div>
 

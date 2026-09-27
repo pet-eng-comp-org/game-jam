@@ -11,15 +11,45 @@ export default async function Home() {
   const periodo = season?.inscricoesAbrem && season?.inscricoesFecham
     ? `de ${dataEHora(season.inscricoesAbrem)} a ${dataEHora(season.inscricoesFecham)}`
     : "em breve";
+  // Situacao das inscricoes em uma frase, para a abertura. A API diz em que
+  // pe estao (a pagina fica em cache, entao a conta com o relogio e dela).
+  const situacao = {
+    abertas: `abertas até ${dataEHora(season?.inscricoesFecham)}`,
+    antes: `abrem em ${dataEHora(season?.inscricoesAbrem)}`,
+    encerradas: "encerradas",
+    "sem-data": "em breve",
+  }[season?.situacaoInscricoes ?? "sem-data"];
 
   return (
 
     <Layout>
 
-      {/* 1154/1440 do mockup = 80% da largura, com o mesmo respiro no topo. */}
-      <div className="mx-auto w-[80%] max-w-[1154px] pt-[98px] pb-10">
+      {/* 1154/1440 do mockup = 80% da largura. */}
+      <div className="mx-auto w-[80%] max-w-[1154px] pt-[60px] pb-10">
 
-        <section>
+        {/* Abertura: quem chega sabe na hora que e a Season 4 e em que pe estao
+            as inscricoes. Tudo vem do painel. */}
+        <section className="grid items-center gap-6 md:grid-cols-[minmax(0,420px)_1fr] md:gap-16">
+          <img src="/marca/logo-season-iv-fantasmas.svg" alt="" className="mx-auto w-full max-w-[240px] md:max-w-[420px]" />
+          <div className="text-center md:text-left">
+            <h1 className="sr-only">PET Game Jam, Season 4</h1>
+            <p className="text-2xl font-bold leading-snug text-destaque md:text-[34px] md:leading-[42px]">
+              Competição de programação em equipes, em um único dia.
+            </p>
+            <ul className="mt-6 space-y-1 text-lg leading-8">
+              <li><strong>Inscrições:</strong> {situacao}</li>
+              <li><strong>Competição:</strong> {dataPorExtenso(season?.dataEvento) ?? "data em breve"}</li>
+            </ul>
+            <Link
+              href={season?.inscricoesAbertas ? "/inscricao" : "/regras"}
+              className="mt-8 inline-block rounded-full bg-destaque px-8 py-3 text-lg font-bold text-barra transition-opacity hover:opacity-90"
+            >
+              {season?.inscricoesAbertas ? "Inscreva-se" : "Veja como funciona"}
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-[97px]">
           <Titulo valor="O QUE É GAMEJAM" />
           <p className="mt-[30px] text-lg leading-9">
             É uma competição de programação em equipes do PET Engenharia de Computação da

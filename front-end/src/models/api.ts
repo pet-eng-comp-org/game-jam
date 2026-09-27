@@ -8,6 +8,7 @@ export interface SeasonJson {
     atual: boolean
     // Calculado pela API a partir das duas datas abaixo.
     inscricoesAbertas: boolean
+    situacaoInscricoes: "sem-data" | "antes" | "abertas" | "encerradas"
     inscricoesAbrem: string | null
     inscricoesFecham: string | null
     dataEvento: string | null
