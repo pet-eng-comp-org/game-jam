@@ -56,10 +56,16 @@ model Season {
 model Jogo {
 
   id String @id @default(uuid())
-  nome String
+  // Opcional: de alguns jogos antigos so se sabe a equipe.
+  nome String?
+  equipe String @default("")
+  integrantes String? @db.Text // um por linha
+  // Nome de arquivo enviado pelo painel (servido em /files) ou caminho de uma
+  // capa do proprio site ("/jogos/x.jpg").
   capa String
-  descricao String
+  descricao String @db.Text
   link String
+  ordem Int @default(0) // ordem dentro da season
   createdAt DateTime? @default(now())
   updatedAt DateTime? @default(now())
 

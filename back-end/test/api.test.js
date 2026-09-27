@@ -61,7 +61,8 @@ async function preparaBanco() {
   season = await prisma.season.create({
     data: { numero: "4", capa: "capa.png", numParticipantesPorEquipe: "2", atual: true },
   });
-  const antiga = await prisma.season.create({ data: { numero: "3", capa: "capa3.png", numParticipantesPorEquipe: "4" } });
+  // A migration dos jogos cria as seasons 1 a 3; reaproveita a 3.
+  const antiga = await prisma.season.findFirst({ where: { numero: "3" } });
   await prisma.jogo.create({ data: { nome: "Jogo", capa: "j.png", descricao: "d", link: "https://exemplo.com", seasonId: antiga.id } });
   const equipe = await prisma.equipe.create({ data: { nome: "Equipe Semeada", seasonId: antiga.id } });
   await prisma.participante.create({ data: { ...PESSOAL, genero: "outro", ufes: true, equipeId: equipe.id } });
@@ -133,6 +134,7 @@ describe("login do painel", () => {
     ["DELETE", "/equipe"],
     ["POST", "/jogos"],
     ["DELETE", "/jogos"],
+    ["PUT", "/jogos"],
     ["POST", "/patrocinador"],
     ["DELETE", "/patrocinador/remove"],
     ["POST", "/material"],
@@ -371,6 +373,44 @@ describe("inscricao", () => {
     assert.equal(s.inscricoesAbertas, false);
     const r = await inscreve("Tarde Demais", [participante()]);
     assert.equal(r.status, 403);
+  });
+});
+
+describe("jogos", () => {
+  // Os jogos das seasons passadas vinham fixos no codigo da pagina; a migration
+  // os trouxe para o banco.
+  it("a migration traz os jogos antigos, na ordem e com acento", async () => {
+    const seasons = await (await api("GET", "/seasonsComJogos")).json();
+    const s2 = seasons.find((s) => s.numero === "2");
+    assert.deepEqual(s2.jogos.map((j) => j.nome), ["Fire Escape", "GRVTY", "Asteroide", "Separados pelo Tempo", "Tarantella"]);
+    const separados = s2.jogos.find((j) => j.nome === "Separados pelo Tempo");
+    assert.equal(separados.equipe, "void 0");
+    assert.match(separados.integrantes, /Rafael Ferraço/);
+    assert.equal(seasons.filter((s) => s.numero === "3").length, 1, "nao duplica a season 3");
+  });
+
+  it("cadastro sem capa e recusado", async () => {
+    const token = await entra();
+    const r = await api("POST", "/jogos", { token, corpo: { seasonId: season.id, equipe: "E", link: "https://x.com" } });
+    assert.equal(r.status, 400);
+  });
+
+  it("edita os textos, validando equipe e link", async () => {
+    const token = await entra();
+    const jogo = await prisma.jogo.findFirst({ where: { nome: "Jogo" } });
+    const base = { nome: "", equipe: "Equipe Nova", integrantes: "Ana\nBia", descricao: "nova", link: "https://exemplo.com/novo", ordem: 5 };
+
+    assert.equal((await api("PUT", `/jogos?id=${jogo.id}`, { token, corpo: { ...base, equipe: " " } })).status, 400);
+    assert.equal((await api("PUT", `/jogos?id=${jogo.id}`, { token, corpo: { ...base, link: "javascript:alert(1)" } })).status, 400);
+    assert.equal((await api("PUT", "/jogos?id=nao-existe", { token, corpo: base })).status, 404);
+
+    const r = await api("PUT", `/jogos?id=${jogo.id}`, { token, corpo: base });
+    assert.equal(r.status, 200);
+    const salvo = await prisma.jogo.findUnique({ where: { id: jogo.id } });
+    assert.equal(salvo.nome, null, "nome vazio vira sem nome");
+    assert.equal(salvo.equipe, "Equipe Nova");
+    assert.equal(salvo.ordem, 5);
+    assert.equal(salvo.capa, "j.png", "a capa nao muda na edicao");
   });
 });
 

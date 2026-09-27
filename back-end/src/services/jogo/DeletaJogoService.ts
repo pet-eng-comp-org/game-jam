@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import prismaClient from "../../prisma";
 
 interface JogoRequest {
@@ -9,22 +11,14 @@ class DeletaJogoService {
 
     async execute({ id }: JogoRequest) {
 
+        const jogo = await prismaClient.jogo.delete({ where: { id } })
 
-        const jogo = await prismaClient.jogo.delete({
-
-            where: {
-                id
-            }
-        })
-
-        const fs = require('fs')
-        const path = require('path')
-
-        if (jogo.capa) {
-            const imagePath = path.join(__dirname, '..', '..', '..', 'tmp', jogo.capa);
-            fs.unlink(imagePath, (err) => {
-              if (err) console.error('Erro ao deletar imagem:', err);
-              else console.log('Imagem deletada com sucesso.');
+        // So apaga capa enviada pelo painel (um nome de arquivo em tmp/). As
+        // capas dos jogos antigos sao caminhos do proprio site ("/jogos/x.jpg")
+        // e ficam no front-end.
+        if (jogo.capa && !jogo.capa.includes("/")) {
+            fs.unlink(path.join(__dirname, '..', '..', '..', 'tmp', jogo.capa), (err) => {
+                if (err) console.error('Erro ao deletar imagem:', err);
             });
         }
 

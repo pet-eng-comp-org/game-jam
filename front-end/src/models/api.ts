@@ -17,10 +17,16 @@ export interface SeasonJson {
 
 export interface JogoJson {
     id: string
-    nome: string
+    // Nome proprio do jogo, quando se sabe; sem ele o site mostra a equipe.
+    nome: string | null
+    equipe: string
+    // Um participante por linha.
+    integrantes: string | null
+    // Arquivo enviado pelo painel, ou caminho do proprio site ("/jogos/x.jpg").
     capa: string
     descricao: string
     link: string
+    ordem: number
 }
 
 export interface SeasonComJogosJson extends SeasonJson {

@@ -114,17 +114,7 @@ class Season {
                 const season = Season.deJson(seasonJSON)
 
                 const jogosJSON = seasonJSON.jogos
-                jogosJSON.forEach((jogoJSON: JogoJson) => {
-                    const jogo = new Jogo(
-                        jogoJSON.nome,
-                        jogoJSON.capa,
-                        jogoJSON.descricao,
-                        jogoJSON.link,
-                        jogoJSON.id
-                    )
-
-                    season.jogos.push(jogo)
-                })
+                jogosJSON.forEach((jogoJSON: JogoJson) => season.jogos.push(new Jogo(jogoJSON)))
 
                 return season
             })

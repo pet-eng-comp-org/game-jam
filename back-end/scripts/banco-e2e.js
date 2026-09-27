@@ -53,10 +53,7 @@ async function main() {
         regulamento: "## O formato\n\n1. A competição acontece em um único dia.\n2. Cada equipe recebe um jogo preparado para o evento.",
       },
     });
-    const antiga = await prisma.season.create({ data: { numero: "3", capa: "capa3.png", numParticipantesPorEquipe: "3" } });
-    await prisma.jogo.create({
-      data: { nome: "Jogo da Season 3", capa: "jogo.png", descricao: "Descricao do jogo", link: "https://exemplo.com/jogo", seasonId: antiga.id },
-    });
+    // Os jogos sao os de verdade, que a migration traz para as seasons 1 a 3.
     await prisma.patrocinador.create({ data: { nome: "Patrocinador E2E", logo: "logo.png" } });
     await prisma.material.create({ data: { nome: "Material E2E", link: "https://exemplo.com/material", descricao: "Descricao do material" } });
   } finally {

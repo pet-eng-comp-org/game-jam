@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { test, expect } from "@playwright/test";
 import { ORGANIZADOR } from "../ambiente.mjs";
 import { banco } from "./ajuda";
@@ -98,4 +99,35 @@ test("organizador edita a season e o site mostra na hora", async ({ page }, info
   await page.goto("/regras");
   await expect(page.getByRole("heading", { name: "Premiação" })).toBeVisible();
   await expect(page.getByText("Medalhas para o pódio.")).toBeVisible();
+});
+
+test("organizador edita e cadastra jogo, e a pagina de jogos mostra", async ({ page }, info) => {
+  const marca = `${info.project.name}${Date.now() % 100000}`;
+  await entra(page);
+  await page.goto("/admin/jogos");
+  await page.getByRole("combobox").selectOption({ label: "Season 2" });
+
+  // Os jogos antigos vieram da migration: edita um deles.
+  const tarantella = page.locator("div", { has: page.getByText("Tarantella", { exact: true }) }).last();
+  await tarantella.getByRole("button", { name: "Editar" }).click();
+  await page.getByRole("textbox", { name: "Descrição", exact: true }).fill(`Dança italiana ${marca}.`);
+  await page.getByRole("button", { name: "Salvar" }).click();
+  await expect(page.getByText("Jogo salvo!")).toBeVisible();
+
+  // E cadastra um novo, com capa enviada pelo painel.
+  await page.getByRole("button", { name: "Cadastrar Jogo" }).click();
+  await page.getByLabel("Capa do jogo").setInputFiles(fileURLToPath(new URL("../../public/jogos/grvty.jpg", import.meta.url)));
+  await page.getByLabel(/^Nome do jogo/).fill(`Novo ${marca}`);
+  await page.getByLabel("Equipe", { exact: true }).fill("Equipe E2E");
+  await page.getByLabel("Link para jogar").fill("https://exemplo.com/novo");
+  await page.getByRole("button", { name: "Salvar" }).click();
+  await expect(page.getByText("Jogo cadastrado com sucesso!")).toBeVisible();
+
+  await page.goto("/jogos");
+  await page.getByRole("button", { name: /Season 2/ }).click();
+  await expect(page.getByText(`Dança italiana ${marca}.`)).toBeVisible();
+  const capa = page.getByRole("img", { name: `Jogar Novo ${marca}` });
+  await expect(capa).toBeVisible();
+  // A capa enviada vem da API e carrega de verdade.
+  expect(await capa.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
 });

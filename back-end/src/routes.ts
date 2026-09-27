@@ -22,6 +22,7 @@ import { ApagaCpfsSeasonController } from "./controllers/season/ApagaCpfsSeasonC
 import { EditaSeasonController } from "./controllers/season/EditaSeasonController";
 
 import { CriaJogoController } from "./controllers/jogo/CriaJogoController";
+import { EditaJogoController } from "./controllers/jogo/EditaJogoController";
 import { DeletaJogoController } from "./controllers/jogo/DeletaJogoController";
 import { CriaPatrocinadorController } from "./controllers/patrocinador/CriaPatrocinadorController";
 import { DeletaPatrocinadorController } from "./controllers/patrocinador/DeletaPatrocinadorController";
@@ -58,6 +59,7 @@ router.put('/seasons/apagaCpfs', estaAutenticado, new ApagaCpfsSeasonController(
 // -- ROUTES JOGO --
 router.post('/jogos', estaAutenticado, upload.single('file'), new CriaJogoController().handle)
 router.delete('/jogos', estaAutenticado, new DeletaJogoController().handle)
+router.put('/jogos', estaAutenticado, new EditaJogoController().handle)
 
 // -- ROUTES PATROCINADOR --
 // O GET fica publico porque o site exibe os patrocinadores. Criar e apagar exige login.

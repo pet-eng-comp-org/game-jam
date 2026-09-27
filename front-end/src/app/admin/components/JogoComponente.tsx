@@ -1,31 +1,36 @@
 import { Jogo } from "@/models/Jogos"
 import { IconeLixeira } from "./Icones"
+import { capaDoJogo } from "@/lib/capa"
 
 interface JogoProps {
 
     jogo: Jogo
+    editaJogo: (jogo: Jogo) => void
     deletaJogo: (jogo: Jogo) => void
 }
 
-export default function JogoComponente({ jogo, deletaJogo }: JogoProps) {
+export default function JogoComponente({ jogo, editaJogo, deletaJogo }: JogoProps) {
 
-    const capaLink = `${process.env.NEXT_PUBLIC_API_URL}/files/${jogo?.getCapa}`
+    const d = jogo.getDados
+    const titulo = d.nome ?? d.equipe
 
     return (
 
-        <div className="flex border border-gray-800 p-4 md:w-max w-52 rounded-md gap-5 md:flex-row flex-col">
+        <div className="flex w-full max-w-3xl flex-col gap-5 rounded-md border border-gray-800 p-4 md:flex-row">
 
-            <img src={capaLink} alt={`Capa de ${jogo.getNome}`} className="md:w-44 w-full object-cover"/>
+            <img src={capaDoJogo(d.capa)} alt={`Capa de ${titulo}`} className="w-full object-cover md:w-44"/>
 
-            <div className="md:w-80 w-full flex flex-col">
-                <span className="md:text-xl text-lg font-semibold mb-5">{jogo.getNome}</span>
-                <div className="md:text-base text-sm w-full">
-                    {jogo.getDescricao}
+            <div className="flex w-full flex-col">
+                <span className="text-lg font-semibold md:text-xl">{titulo}</span>
+                {d.nome && <span className="mb-3 text-sm text-gray-600">por {d.equipe}</span>}
+                <div className="w-full text-sm md:text-base">
+                    {d.descricao}
                 </div>
 
-                <div className="flex grow justify-end items-end">
-                    <button onClick={() => deletaJogo(jogo)}
-                    className="text-red-500 hover:bg-red-500 hover:text-white p-2 rounded-full">{IconeLixeira}</button>
+                <div className="flex grow items-end justify-end gap-2">
+                    <button onClick={() => editaJogo(jogo)} className="rounded-md px-3 py-1 font-semibold text-blue-950 hover:bg-blue-950 hover:text-white">Editar</button>
+                    <button onClick={() => deletaJogo(jogo)} aria-label={`Apagar ${titulo}`}
+                    className="rounded-full p-2 text-red-500 hover:bg-red-500 hover:text-white">{IconeLixeira}</button>
                 </div>
             </div>
         </div>

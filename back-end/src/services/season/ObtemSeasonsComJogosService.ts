@@ -10,7 +10,7 @@ class ObtemSeasonsComJogosService {
                 numero: "asc"
             },
             include:{
-                jogos: true
+                jogos: { orderBy: [{ ordem: "asc" }, { createdAt: "asc" }] }
             }
         })
 
