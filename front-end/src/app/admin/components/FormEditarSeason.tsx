@@ -30,6 +30,7 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
   const [pessoas, setPessoas] = useState(String(season.getNumParticipantesPorEquipe))
   const [dataEvento, setDataEvento] = useState(paraCampoDataHora(d?.dataEvento))
   const [linguagens, setLinguagens] = useState(d?.linguagens ?? "")
+  const [local, setLocal] = useState(d?.local ?? "")
   const [abrem, setAbrem] = useState(paraCampoDataHora(d?.inscricoesAbrem))
   const [fecham, setFecham] = useState(paraCampoDataHora(d?.inscricoesFecham))
   const [regulamento, setRegulamento] = useState(d?.regulamento ?? "")
@@ -44,6 +45,7 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
       // Dia e hora do inicio: o Inicio do site conta o tempo ate ele.
       dataEvento: dataEvento ? `${dataEvento}:00${FUSO}` : null,
       linguagens: linguagens.trim() || null,
+      local: local.trim() || null,
       inscricoesAbrem: abrem ? `${abrem}:00${FUSO}` : null,
       inscricoesFecham: fecham ? `${fecham}:00${FUSO}` : null,
       regulamento: regulamento.trim() || null,
@@ -91,6 +93,11 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
               O site abre e fecha as inscrições sozinho nesses horários. Sem as duas datas, ficam fechadas.
             </p>
           </fieldset>
+
+          <label className="flex flex-col gap-1">
+            <span className="font-bold">Local</span>
+            <input type="text" maxLength={191} placeholder="CT 9 da Ufes" value={local} onChange={e => setLocal(e.target.value)} className={CAMPO} />
+          </label>
 
           <label className="flex flex-col gap-1">
             <span className="font-bold">Linguagens permitidas (uma por linha)</span>

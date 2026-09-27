@@ -10,6 +10,7 @@ export interface EdicaoSeason {
     numParticipantesPorEquipe?: number
     dataEvento?: string | null
     linguagens?: string | null
+    local?: string | null
     regulamento?: string | null
     ano?: string | null
     tema?: string | null

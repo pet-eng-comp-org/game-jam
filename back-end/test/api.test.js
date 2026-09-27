@@ -306,10 +306,11 @@ describe("inscricao", () => {
 
   it("a season atual publica os dados da edicao", async () => {
     const token = await entra();
-    const r = await api("PUT", `/seasons?id=${season.id}`, { token, corpo: { linguagens: "C\nPython", regulamento: "## Formato\n\nUm dia.", dataEvento: "2026-11-15T12:00:00Z" } });
+    const r = await api("PUT", `/seasons?id=${season.id}`, { token, corpo: { linguagens: "C\nPython", local: "CT 9 da Ufes", regulamento: "## Formato\n\nUm dia.", dataEvento: "2026-11-15T12:00:00Z" } });
     assert.equal(r.status, 200);
     const atual = await (await api("GET", "/seasons/atual")).json();
     assert.equal(atual.linguagens, "C\nPython");
+    assert.equal(atual.local, "CT 9 da Ufes");
     assert.equal(atual.regulamento, "## Formato\n\nUm dia.");
     assert.equal(new Date(atual.dataEvento).toISOString(), "2026-11-15T12:00:00.000Z");
   });

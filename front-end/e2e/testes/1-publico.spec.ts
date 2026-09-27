@@ -57,4 +57,17 @@ test("o inicio mostra a contagem ate a competicao", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "A Season 4 começa em" })).toBeVisible();
   await expect(page.getByText("dias", { exact: true })).toBeVisible();
   await expect(page.getByText("Domingo, 15 de novembro, às 09:00", { exact: true })).toBeVisible();
+  await expect(page.getByText("CT 9 da Ufes", { exact: true }).first()).toBeVisible();
+});
+
+test("o inicio marca a competicao como evento para o Google", async ({ page }) => {
+  await page.goto("/");
+  const json = await page.locator('script[type="application/ld+json"]').textContent();
+  const evento = JSON.parse(json ?? "{}");
+  expect(evento["@type"]).toBe("Event");
+  expect(evento.name).toBe("PET Game Jam · Season 4");
+  expect(evento.startDate).toBe("2026-11-15T12:00:00.000Z");
+  expect(evento.location.name).toBe("CT 9 da Ufes");
+  expect(evento.location.address.addressLocality).toBe("Vitória");
+  expect(evento.offers.price).toBe("0");
 });

@@ -48,6 +48,10 @@ class EditaSeasonController {
     if (linguagens === "invalido") return res.status(400).json({ error: "Linguagens: no máximo 191 caracteres." });
     if (linguagens !== undefined) dados.linguagens = linguagens;
 
+    const local = texto(corpo.local, 191);
+    if (local === "invalido") return res.status(400).json({ error: "Local: no máximo 191 caracteres." });
+    if (local !== undefined) dados.local = local;
+
     const regulamento = texto(corpo.regulamento, 60000);
     if (regulamento === "invalido") return res.status(400).json({ error: "Regulamento grande demais." });
     if (regulamento !== undefined) dados.regulamento = regulamento;

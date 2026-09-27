@@ -2,6 +2,7 @@ import Link from "next/link";
 import Layout from "./components/Layout";
 import Titulo from "./components/Titulo";
 import Contagem from "./components/Contagem";
+import EventoParaBusca from "./components/EventoParaBusca";
 import { dataEHora, dataPorExtenso, listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
 
 export default async function Home() {
@@ -26,6 +27,7 @@ export default async function Home() {
   return (
 
     <Layout>
+      <EventoParaBusca season={season} />
 
       {/* 1154/1440 do mockup = 80% da largura. */}
       <div className="mx-auto w-[80%] max-w-[1154px] pt-[60px] pb-10">
@@ -43,6 +45,7 @@ export default async function Home() {
                 <Contagem inicio={season.dataEvento} rotuloData={inicioDoEvento} />
               </div>
               <p className="mt-6 text-lg">{inicioDoEvento.charAt(0).toUpperCase() + inicioDoEvento.slice(1)}</p>
+              {season.local && <p className="text-lg">{season.local}</p>}
             </>
           ) : (
             <p className="mt-4 text-xl text-destaque-claro">Competição de programação em equipes, em um único dia. Data em breve.</p>
@@ -90,6 +93,7 @@ export default async function Home() {
           </p>
           <ul className="mt-6 space-y-1 text-lg leading-9">
             <li><strong>Data:</strong> {dataPorExtenso(season?.dataEvento) ?? "em breve"}</li>
+            <li><strong>Local:</strong> {season?.local ?? "em breve"}</li>
             <li><strong>Inscrições:</strong> {periodo}</li>
             <li><strong>Duração:</strong> 1 dia</li>
             <li><strong>Formato:</strong> competição em equipes de até {pessoas} {pessoas === 1 ? "pessoa" : "pessoas"}</li>

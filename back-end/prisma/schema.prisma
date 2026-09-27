@@ -37,7 +37,8 @@ model Season {
   atual Boolean @default(false)
 
   // Dados da edicao, editados pelo painel (antes ficavam no codigo do site).
-  dataEvento  DateTime? // dia da competicao
+  dataEvento  DateTime? // dia e hora do inicio da competicao
+  local       String?   // onde acontece ("CT 9 da Ufes")
   linguagens  String?   // uma por linha
   regulamento String?   @db.Text // markdown
 

@@ -4,6 +4,7 @@ export interface EdicaoSeason {
   numParticipantesPorEquipe?: string;
   dataEvento?: Date | null;
   linguagens?: string | null;
+  local?: string | null;
   regulamento?: string | null;
   ano?: string | null;
   tema?: string | null;

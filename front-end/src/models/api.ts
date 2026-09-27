@@ -13,6 +13,7 @@ export interface SeasonJson {
     inscricoesFecham: string | null
     dataEvento: string | null
     linguagens: string | null
+    local: string | null
     regulamento: string | null
     // Contexto das edicoes antigas, mostrado em /jogos.
     ano: string | null
