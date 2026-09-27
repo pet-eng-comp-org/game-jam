@@ -8,7 +8,7 @@ import { banco, cpfNovo, semErroDePagina, unico } from "./ajuda";
 async function preenche(page: Page, i: number, dados: { nome?: string; email?: string; cpf?: string }) {
   // O formulario comeca com um participante; os outros entram pelo botao.
   while (!(await page.getByRole("textbox", { name: `Nome do participante ${i}`, exact: true }).isVisible())) {
-    await page.getByRole("button", { name: /adicionar participante/ }).click();
+    await page.getByRole("button", { name: /adicionar participante/i }).click();
   }
   if (dados.nome) await page.getByRole("textbox", { name: `Nome do participante ${i}`, exact: true }).fill(dados.nome);
   if (dados.email) await page.getByRole("textbox", { name: `E-mail do participante ${i}`, exact: true }).fill(dados.email);
@@ -118,7 +118,7 @@ test("CPF ja inscrito na season fica marcado no campo", async ({ page }, info) =
 });
 
 test("adiciona e remove participante, ate o limite da season", async ({ page }) => {
-  const adiciona = page.getByRole("button", { name: /adicionar participante/ });
+  const adiciona = page.getByRole("button", { name: /adicionar participante/i });
   await expect(page.getByRole("textbox", { name: "Nome do participante 2", exact: true })).toHaveCount(0);
   await adiciona.click();
   await adiciona.click();

@@ -19,7 +19,7 @@ const paginas = [
   { label: "Inscrição", url: "/inscricao" },
 ]
 
-const TITULO = "mb-3 text-sm font-bold uppercase tracking-wider text-destaque"
+const TITULO = "mb-3 text-base font-bold text-destaque"
 
 export default function Footer() {
 
@@ -80,9 +80,8 @@ export default function Footer() {
       </div>
 
       <div className="w-full border-t border-white/20">
-        <p className="mx-auto flex max-w-[1154px] flex-col items-center gap-1 px-4 py-4 text-center text-sm text-destaque-claro/80 md:flex-row md:justify-center md:gap-2">
-          <span>© {ano} PET Engenharia de Computação · Ufes</span>
-          <span aria-hidden className="hidden md:inline">·</span>
+        <p className="mx-auto flex max-w-[1154px] flex-col items-center gap-1 px-4 py-4 text-center text-sm text-destaque-claro/80 md:flex-row md:justify-center md:gap-6">
+          <span>© {ano} PET Engenharia de Computação da Ufes</span>
           <Link href="/privacidade" className="underline hover:text-destaque">Privacidade</Link>
         </p>
       </div>

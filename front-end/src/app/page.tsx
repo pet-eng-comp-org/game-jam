@@ -15,15 +15,16 @@ export default async function Home() {
   const periodo = season?.inscricoesAbrem && season?.inscricoesFecham
     ? `de ${dataEHora(season.inscricoesAbrem)} a ${dataEHora(season.inscricoesFecham)}`
     : "em breve";
-  // "sábado, 28 de novembro · 12h": dia e hora do inicio, sem o ano (e o da
+  // "sábado, 28 de novembro, às 12h": dia e hora do inicio, sem o ano (e o da
   // edicao).
   const inicioDoEvento = season?.dataEvento
     ? (() => {
         const d = new Date(season.dataEvento);
         const dia = d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Sao_Paulo" });
         const [h, m] = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }).split(":");
-        // Espacos inseparaveis: a hora nao quebra sozinha para a linha de baixo.
-        return `${dia}\u00a0·\u00a0${Number(h)}h${m === "00" ? "" : m}`;
+        // Frase, e nao "dia · hora". O espaco inseparavel antes da hora impede
+        // que ela quebre sozinha para a linha de baixo.
+        return `${dia}, às\u00a0${Number(h)}h${m === "00" ? "" : m}`;
       })()
     : null;
 

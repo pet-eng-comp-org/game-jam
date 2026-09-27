@@ -6,6 +6,10 @@ import { useState } from "react"
 import Link from "next/link"
 import Titulo from "../components/Titulo"
 import { TEXTO } from "../components/estilo"
+
+// "Ana, Bia e Caio": a lista de integrantes escrita como frase.
+const emFrase = (nomes: string[]) =>
+  nomes.length < 2 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`
 import { capaDoJogo, listaDeIntegrantes } from "@/lib/capa"
 import type { SeasonComJogosJson } from "@/models/api"
 
@@ -83,7 +87,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
                         cada jogo, ja que o formato dessas edicoes era outro. */}
                     {(t.ano || t.tema) && (
                       <span className="basis-full font-sans text-base normal-case leading-snug text-destaque-claro md:ml-8 md:basis-auto md:text-xl">
-                        {[t.ano, t.tema && `tema: ${t.tema}`].filter(Boolean).join(" · ")}
+                        {t.ano && t.tema ? `${t.ano}, tema “${t.tema}”` : t.ano ?? `tema “${t.tema}”`}
                       </span>
                     )}
                   </button>
@@ -121,7 +125,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
                           {j.nome && j.equipe && <p className="mt-1 text-lg font-bold text-destaque-claro/90">por {j.equipe}</p>}
                           {j.descricao
                             ? <p className={`mt-4 ${TEXTO} md:text-xl`}>{j.descricao}</p>
-                            : integrantes.length > 0 && <p className={`mt-4 ${TEXTO} md:text-xl`}>{integrantes.join(" · ")}</p>}
+                            : integrantes.length > 0 && <p className={`mt-4 ${TEXTO} md:text-xl`}>{emFrase(integrantes)}</p>}
                         </div>
                       </li>
                       )

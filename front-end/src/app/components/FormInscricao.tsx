@@ -103,27 +103,27 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         <legend className="mb-[15px] font-secao text-[40px] uppercase leading-none text-destaque">Participante {index}</legend>
 
         <div className="grid gap-x-8 gap-y-[23px] sm:grid-cols-2">
-          <Campo id={`nome${index}`} rotulo="nome" leitor={`Nome do participante ${index}`} erro={erros["nome" + index]}>
+          <Campo id={`nome${index}`} rotulo="Nome" leitor={`Nome do participante ${index}`} erro={erros["nome" + index]}>
             <input {...marca("nome" + index)} type="text" autoComplete={index === 1 ? "name" : "off"}
               value={valor("nome" + index)} onChange={e => handleInputChange("nome" + index, e.target.value)} />
           </Campo>
 
-          <Campo id={`email${index}`} rotulo="email" leitor={`E-mail do participante ${index}`} erro={erros["email" + index]}>
+          <Campo id={`email${index}`} rotulo="E-mail" leitor={`E-mail do participante ${index}`} erro={erros["email" + index]}>
             <input {...marca("email" + index)} type="email" autoComplete={index === 1 ? "email" : "off"}
               value={valor("email" + index)} onChange={e => handleInputChange("email" + index, e.target.value)} />
           </Campo>
 
-          <Campo id={`cpf${index}`} rotulo="cpf" leitor={`CPF do participante ${index}, para o certificado`} erro={erros["cpf" + index]}>
+          <Campo id={`cpf${index}`} rotulo="CPF" leitor={`CPF do participante ${index}, para o certificado`} erro={erros["cpf" + index]}>
             <input {...marca("cpf" + index)} type="text" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00"
               value={valor("cpf" + index)} onChange={e => handleInputChange("cpf" + index, formataCpf(e.target.value))} />
           </Campo>
 
-          <Campo id={`curso${index}`} rotulo="curso" leitor={`Curso do participante ${index}, se for universitário`}>
+          <Campo id={`curso${index}`} rotulo="Curso" leitor={`Curso do participante ${index}, se for universitário`}>
             <input {...marca("curso" + index)} type="text"
               value={valor("curso" + index)} onChange={e => handleInputChange("curso" + index, e.target.value)} />
           </Campo>
 
-          <Campo id={`genero${index}`} rotulo="gênero" leitor={`Gênero do participante ${index}`}>
+          <Campo id={`genero${index}`} rotulo="Gênero" leitor={`Gênero do participante ${index}`}>
             <select id={`genero${index}`} value={valor("genero" + index) || "nao-informado"}
               onChange={e => handleInputChange("genero" + index, e.target.value)} className={CAMPO}>
               <option value="nao-informado">Prefiro não informar</option>
@@ -133,7 +133,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
             </select>
           </Campo>
 
-          <Campo id={`ufes${index}`} rotulo="estuda na ufes" leitor={`O participante ${index} estuda na Ufes?`} erro={erros["ufes" + index]}>
+          <Campo id={`ufes${index}`} rotulo="Estuda na Ufes?" leitor={`O participante ${index} estuda na Ufes?`} erro={erros["ufes" + index]}>
             {/* Comeca sem resposta: pre-marcado "Sim", quem era de fora e nao
                 reparava ficava registrado como aluno da Ufes. */}
             <select {...marca("ufes" + index)}
@@ -149,7 +149,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
           </Campo>
 
           {naoEhUfes(index) && (
-            <Campo id={`instituicao${index}`} rotulo="instituição" leitor={`Instituição de ensino do participante ${index}`} erro={erros["instituicao" + index]}>
+            <Campo id={`instituicao${index}`} rotulo="Instituição" leitor={`Instituição de ensino do participante ${index}`} erro={erros["instituicao" + index]}>
               <input {...marca("instituicao" + index)} type="text"
                 value={valor("instituicao" + index)} onChange={e => handleInputChange("instituicao" + index, e.target.value)} />
             </Campo>
@@ -177,8 +177,8 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
 
       {quantos < numParticipantesPorEquipe && (
         <button type="button" onClick={() => setQuantos(q => q + 1)}
-          className="mt-8 h-[42px] self-start border-2 border-dashed border-[#FBDC70] px-5 text-sm font-bold uppercase tracking-wider text-[#FBDC70] transition-colors hover:bg-[#FBDC70]/10">
-          + adicionar participante
+          className="mt-8 h-[42px] self-start border-2 border-dashed border-[#FBDC70] px-5 text-base font-bold text-[#FBDC70] transition-colors hover:bg-[#FBDC70]/10">
+          + Adicionar participante
           <span className="sr-only"> (a equipe pode ter até {numParticipantesPorEquipe})</span>
         </button>
       )}
@@ -230,15 +230,15 @@ function semCampos<T>(objeto: { [campo: string]: T }, tira: (campo: string) => b
 // Campo do mockup: 42px de altura, #FCECA8, sem cantos arredondados.
 const CAMPO = "h-[42px] w-full bg-[#FCECA8] px-3 text-black outline-none focus:ring-2 focus:ring-[#FFCF00]";
 
-// Rotulo em Inter, caixa alta pequena, #FBDC70. O mockup usava a PacFont, que
-// em 16px e dificil de ler e, em todos os campos, satura a pagina: ela fica
-// so nos titulos grandes. O leitor de tela ouve o texto
+// Rotulo em Inter negrito, #FBDC70, com a caixa normal da frase. O mockup
+// usava a PacFont (dificil de ler em 16px); depois veio caixa alta espacada,
+// que e o jeito generico de rotulo e grita em todo campo. O leitor de tela ouve o texto
 // completo, com o numero do participante.
 function Campo({ id, rotulo, leitor, erro, children }: { id: string; rotulo: string; leitor: string; erro?: string; children: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-[13px]">
       <label htmlFor={id} className="leading-[20px]">
-        <span aria-hidden className="text-sm font-bold uppercase leading-[20px] tracking-wider text-[#FBDC70]">{rotulo}</span>
+        <span aria-hidden className="text-base font-bold leading-[20px] text-[#FBDC70]">{rotulo}</span>
         <span className="sr-only">{leitor}</span>
       </label>
       {children}

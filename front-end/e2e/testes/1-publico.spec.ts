@@ -56,7 +56,7 @@ test("o inicio mostra a contagem ate a competicao", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1, name: "A Season 4 começa em" })).toBeVisible();
   await expect(page.getByText("dias", { exact: true })).toBeVisible();
-  await expect(page.getByText("Domingo, 15 de novembro · 9h", { exact: true })).toBeVisible();
+  await expect(page.getByText("Domingo, 15 de novembro, às 9h", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "CT 9, Ufes Goiabeiras" })).toBeVisible();
 });
 

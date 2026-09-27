@@ -84,7 +84,7 @@ export default function Contagem({ inicio, rotuloData }: Props) {
         {casas.map(([rotulo, valor]) => (
           <div key={rotulo} className="flex min-w-[52px] flex-col items-center gap-2 rounded-lg border-2 border-destaque/60 bg-barra px-1.5 py-2.5 min-[360px]:min-w-[68px] min-[360px]:px-2 min-[360px]:py-3 md:min-w-[130px] md:gap-3 md:rounded-xl md:px-6 md:py-4">
             <NumeroPixel valor={valor} />
-            <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-destaque-claro/80 min-[360px]:text-[10px] min-[360px]:tracking-[0.2em] md:text-xs">{rotulo}</span>
+            <span className="text-xs text-destaque-claro/80 md:text-sm">{rotulo}</span>
           </div>
         ))}
       </div>

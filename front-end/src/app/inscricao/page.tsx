@@ -39,14 +39,14 @@ export default function Inscricao() {
         </div>
 
         <div className="flex w-full max-w-[555px] flex-col lg:pt-[148px]">
-          {estado.tipo === "pronto" && estado.season && (
-            <p className="mb-2 text-center text-sm font-bold uppercase tracking-[0.3em] text-destaque-claro/80">
-              Season {estado.season.getNumero}
-            </p>
-          )}
-          <h1 className="mb-10 lg:mb-[74px] text-center font-titulo text-[min(36px,11vw)] text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
+          <h1 className="text-center font-titulo text-[min(36px,11vw)] text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
             inscrições
           </h1>
+          {/* A edicao numa frase embaixo do titulo, e nao numa etiqueta em caixa
+              alta em cima dele. Vem do painel. */}
+          <p className="mb-10 mt-2 text-center text-lg text-destaque-claro lg:mb-[64px]">
+            {estado.tipo === "pronto" && estado.season ? `Para a Season ${estado.season.getNumero} do Game Jam.` : "\u00a0"}
+          </p>
 
           {estado.tipo === "carregando" && <Aviso titulo="Carregando..." />}
 
