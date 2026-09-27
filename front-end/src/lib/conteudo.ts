@@ -1,9 +1,13 @@
 // Conteudo das paginas publicas, buscado no SERVIDOR do Next (nao no navegador):
-// a pagina ja sai pronta, com o texto, e fica em cache por 5 minutos. Se a API
-// cair, a pagina continua com a ultima versao boa; se nunca houve versao boa
-// (o build do CI, sem API), sai o texto de "em breve" e a proxima visita tenta
-// de novo. Salvar no painel refaz na hora (app/api/revalida).
+// a pagina ja sai pronta, com o texto, e fica em cache por 5 minutos. Salvar no
+// painel refaz na hora (app/api/revalida).
+//
+// Se a API cair, a busca LANCA erro: o Next mantem a ultima versao boa da
+// pagina e tenta de novo na visita seguinte. Devolver null ali trocaria a
+// pagina boa pelo texto de "em breve" por 5 minutos. So no build (o do CI, sem
+// API) a falha vira null, e a pagina sai com o "em breve" ate a primeira visita.
 import "server-only";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 import type { JogoJson, MaterialJson, PatrocinadorJson, SeasonComJogosJson, SeasonJson } from "@/models/api";
 
 export const TAG_CONTEUDO = "conteudo";
@@ -15,10 +19,11 @@ const base = () => process.env.API_URL_INTERNA || process.env.NEXT_PUBLIC_API_UR
 async function busca<T>(caminho: string): Promise<T | null> {
   try {
     const r = await fetch(`${base()}${caminho}`, { next: { revalidate: 300, tags: [TAG_CONTEUDO] } });
-    if (!r.ok) return null;
+    if (!r.ok) throw new Error(`API respondeu ${r.status} em ${caminho}`);
     return (await r.json()) as T;
-  } catch {
-    return null;
+  } catch (err) {
+    if (process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD) return null;
+    throw err;
   }
 }
 
