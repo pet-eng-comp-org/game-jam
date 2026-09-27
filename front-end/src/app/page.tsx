@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Layout from "./components/Layout";
 import Titulo from "./components/Titulo";
 import { dataEHora, dataPorExtenso, listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
@@ -24,6 +25,14 @@ export default async function Home() {
             É uma competição de programação em equipes do PET Engenharia de Computação da
             UFES. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
             evento e usa programação para implementar parte da lógica dele.
+          </p>
+          {/* A Season 4 e a primeira neste formato: sem este aviso, os jogos das
+              outras edicoes (em /jogos) pareciam o que se faz na competicao. */}
+          <p className="mt-6 text-lg leading-9">
+            A Season 4 estreia esse formato. Nas três primeiras edições, o Game Jam era uma
+            maratona de cerca de três semanas em que cada equipe criava um jogo do zero, sobre
+            um tema. Os jogos criados nessas edições estão em{" "}
+            <Link href="/jogos" className="text-destaque underline">Jogos</Link>.
           </p>
         </section>
 

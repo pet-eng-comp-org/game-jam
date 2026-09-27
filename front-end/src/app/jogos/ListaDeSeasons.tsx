@@ -3,6 +3,7 @@
 // A lista de seasons com os jogos, que abre e fecha no navegador. Os dados vem
 // prontos da pagina (servidor).
 import { useState } from "react"
+import Link from "next/link"
 import Titulo from "../components/Titulo"
 import { capaDoJogo, listaDeIntegrantes } from "@/lib/capa"
 import type { SeasonComJogosJson } from "@/models/api"
@@ -31,8 +32,18 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
 
       <div className="mx-auto w-[93%] max-w-[1340px] pt-[98px] pb-10">
 
+        {/* O titulo do mockup era "Selecione uma opcao". Troquei para dizer o que
+            a pagina e: os jogos das edicoes no formato antigo, que a Season 4
+            abandonou. */}
         <div className="pl-[93px]">
-          <Titulo valor="SELECIONE UMA OPÇÃO:" />
+          <Titulo valor="EDIÇÕES ANTERIORES" />
+          <p className="mt-[30px] max-w-[1000px] text-lg leading-9">
+            Nas Seasons 1 a 3, o Game Jam tinha outro formato: cada equipe tinha cerca de três
+            semanas para criar um jogo do zero, sobre um tema divulgado no início, e enviava
+            pelo itch.io. Estes são os jogos dessas edições, e todos rodam no navegador: é só
+            clicar na capa. A Season 4 muda o formato:{" "}
+            <Link href="/" className="text-destaque underline">veja como funciona</Link>.
+          </p>
         </div>
 
         {/* Medido contra o mockup em pixels: letras de "SEASON" a cada 56px, a
