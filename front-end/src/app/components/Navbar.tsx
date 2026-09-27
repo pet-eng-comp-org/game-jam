@@ -6,11 +6,10 @@ import Personagem from "./Personagem"
 
 // A ordem e os rotulos vem do mockup da Season 4 (Figma, pagina Site).
 // "Apoio" virou "Patrocinadores" e Jogos subiu para a segunda posicao.
-// A pagina ativa e marcada por um personagem do Pac-Man em cima do nome, no
-// lugar da bolinha colorida do mockup. A bolinha nascia meio para fora da
-// barra; um fantasma cortado ao meio ficaria so a saia, entao ele vem inteiro
-// e menor. Pac-Man no Inicio (amarelo, como a bolinha), depois os
-// fantasmas na ordem do jogo: Blinky, Pinky, Inky e Clyde.
+// A pagina ativa e marcada por um personagem do Pac-Man no lugar da bolinha
+// colorida do mockup, pendurado do topo da tela: Pac-Man no Inicio (amarelo,
+// como a bolinha), depois os fantasmas na ordem do jogo: Blinky, Pinky, Inky e
+// Clyde.
 const paginas = [
   { label: 'Início', url: '/', personagem: 'pacman' },
   { label: 'Jogos', url: '/jogos', personagem: 'vermelho' },
@@ -52,14 +51,17 @@ export default function Navbar() {
                 aria-current={ativa ? "page" : undefined}
                 className="relative py-2 text-base font-bold leading-[25px] text-destaque-claro transition-opacity hover:opacity-70 md:py-0"
               >
-                {/* Fora do fluxo, para o grupo de links continuar centrado como no
-                    mockup. No desktop fica em cima do nome, onde era a bolinha,
-                    inteiro no espaco entre o topo da barra e o texto; no celular,
-                    com os links em mais de uma linha, fica ao lado. */}
+                {/* Fora do fluxo, para o grupo de links continuar centrado. No
+                    desktop fica no lugar da bolinha do mockup (34px, meio para
+                    fora da tela), de cabeca para baixo: a borda corta a saia e
+                    aparece a cabeca, pendurada olhando o link. O Pac-Man fica como
+                    esta: de boca para baixo, o corte deixava so as duas pontas
+                    da mandibula. No celular, com os links
+                    em mais de uma linha, fica ao lado do nome. */}
                 {ativa && (
                   <Personagem
                     qual={pagina.personagem}
-                    className="absolute right-full top-1/2 mr-[7px] h-[19px] w-[19px] -translate-y-1/2 md:right-auto md:top-auto md:bottom-full md:left-1/2 md:mr-0 md:mb-[3px] md:-translate-x-1/2 md:translate-y-0"
+                    className={`absolute right-full top-1/2 mr-[7px] h-[19px] w-[19px] -translate-y-1/2 md:right-auto md:left-1/2 md:top-[-37px] md:mr-0 md:h-[34px] md:w-[34px] md:-translate-x-1/2 md:translate-y-0 ${pagina.personagem === "pacman" ? "" : "md:-scale-y-100"}`}
                   />
                 )}
                 {pagina.label}
