@@ -6,7 +6,7 @@ import { semErroDePagina } from "./ajuda";
 // exigia o cookie numa rota publica); o teste abre sem login, como o visitante.
 const paginas: { caminho: string; mostra: (p: import("@playwright/test").Page) => import("@playwright/test").Locator }[] = [
   { caminho: "/", mostra: (p) => p.getByText("cada equipe recebe um jogo preparado especialmente", { exact: false }).first() },
-  { caminho: "/regras", mostra: (p) => p.getByText("REGRAS").first() },
+  { caminho: "/regras", mostra: (p) => p.getByRole("heading", { name: "REGRAS" }) },
   { caminho: "/materiais", mostra: (p) => p.getByText("Material E2E").first() },
   { caminho: "/apoio", mostra: (p) => p.getByAltText("Patrocinador E2E").first() },
   { caminho: "/inscricao", mostra: (p) => p.getByRole("textbox", { name: "Nome da equipe" }) },

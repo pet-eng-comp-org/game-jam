@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Personagem from "./Personagem"
 
@@ -23,29 +24,42 @@ const paginas = [
 export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
 
   const caminho = usePathname()
+  const [menuAberto, setMenuAberto] = useState(false)
+
+  // Esc fecha o menu do celular.
+  useEffect(() => {
+    if (!menuAberto) return
+    const fecha = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuAberto(false) }
+    window.addEventListener("keydown", fecha)
+    return () => window.removeEventListener("keydown", fecha)
+  }, [menuAberto])
 
   // Medidas do mockup (Figma, Season 4, "Nav-Bar"): barra de 79px; logo em
   // x=36; links num grupo CENTRADO na pagina (x=444 a 996 em 1440), 53px entre
   // eles, texto em y=25 com 25px de altura; botao de 143x53 em y=13, com
   // 25/14px de respiro. O botao Login saiu: o "Inscreva-se" fica onde ele
   // terminava, 17px antes da borda.
-  return (
-    // No desktop a barra acompanha a rolagem: e fina (79px), as paginas sao
-    // longas e o botao de inscricao fica sempre a mao. No celular ela ocupa um
-    // quarto da tela, entao rola junto.
-    <nav className="w-full bg-barra md:sticky md:top-0 md:z-50">
-      <div className="relative mx-auto flex h-auto max-w-[1440px] flex-col items-center gap-4 px-9 py-4 md:block md:h-[79px] md:p-0">
+  const visiveis = paginas.filter((p) => mostraPatrocinadores || p.url !== '/apoio')
 
-        {/* A logo da Season IV em versao horizontal, para a barra: GAME JAM numa
-            linha, da altura do texto dos links (28px), e o PET pequeno em cima,
-            como assinatura. 43px no todo, centrada na barra. A vertical, a
-            original, fica em marca/logo-pet-game-jam-vertical.svg. */}
-        <Link href="/" aria-label="PET Game Jam — início" className="md:absolute md:left-9 md:top-[18px]">
+  return (
+    // A barra acompanha a rolagem. No desktop e fina (79px); no celular vira
+    // uma faixa de 60px com a logo, a inscricao e o menu, em vez de empilhar
+    // logo, links e botao (230px, um quarto da tela).
+    <nav className="sticky top-0 z-50 w-full bg-barra">
+
+      {/* Desktop */}
+      <div className="relative mx-auto hidden h-[79px] max-w-[1440px] md:block">
+
+        {/* A logo da Season IV em versao horizontal: GAME JAM da altura do texto
+            dos links (28px) e o PET pequeno em cima, como assinatura. 43px no
+            todo, centrada na barra. A vertical fica em
+            marca/logo-pet-game-jam-vertical.svg. */}
+        <Link href="/" aria-label="PET Game Jam — início" className="absolute left-9 top-[18px]">
           <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-[43px] w-auto" />
         </Link>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 md:absolute md:left-1/2 md:top-[25px] md:-translate-x-1/2 md:flex-nowrap md:gap-x-[53px]">
-          {paginas.filter((p) => mostraPatrocinadores || p.url !== '/apoio').map((pagina) => {
+        <div className="absolute left-1/2 top-[25px] flex -translate-x-1/2 items-center gap-x-[53px]">
+          {visiveis.map((pagina) => {
 
             const ativa = caminho === pagina.url
 
@@ -54,20 +68,18 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
                 key={pagina.url}
                 href={pagina.url}
                 aria-current={ativa ? "page" : undefined}
-                className="relative py-2 text-base font-bold leading-[25px] text-destaque-claro transition-opacity hover:opacity-70 md:py-0"
+                className="relative text-base font-bold leading-[25px] text-destaque-claro transition-opacity hover:opacity-70"
               >
-                {/* Fora do fluxo, para o grupo de links continuar centrado. No
-                    desktop fica no lugar da bolinha do mockup, um pouco menor
-                    (26px) e com um terco para fora da tela, de cabeca para baixo: a borda corta a saia e
-                    aparece a cabeca, pendurada olhando o link. O Pac-Man fica como
-                    esta: de boca para baixo, o corte deixava so as duas pontas
-                    da mandibula. No celular, com os links
-                    em mais de uma linha, fica ao lado do nome. */}
+                {/* No lugar da bolinha do mockup: 26px, um terco para fora da
+                    tela e de cabeca para baixo, entao a borda corta a saia e
+                    aparece a cabeca, pendurada olhando o link. O Pac-Man fica
+                    como esta: de boca para baixo, o corte deixava so as duas
+                    pontas da mandibula. */}
                 {ativa && (
                   <Personagem
                     qual={pagina.personagem}
                     pendurado
-                    className={`absolute right-full top-1/2 mr-[7px] h-[19px] w-[19px] -translate-y-1/2 md:right-auto md:left-1/2 md:top-[-34px] md:mr-0 md:h-[26px] md:w-[26px] md:-translate-x-1/2 md:translate-y-0 ${pagina.personagem === "pacman" ? "" : "md:-scale-y-100"}`}
+                    className={`absolute left-1/2 top-[-34px] h-[26px] w-[26px] -translate-x-1/2 ${pagina.personagem === "pacman" ? "" : "-scale-y-100"}`}
                   />
                 )}
                 {pagina.label}
@@ -76,11 +88,56 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
           })}
         </div>
 
-        <Link href="/inscricao" className="w-full md:absolute md:right-[17px] md:top-[13px] md:w-auto">
-          <span className="block w-full rounded-full bg-destaque px-[25px] py-3 text-center text-base font-bold leading-[25px] text-barra transition-opacity hover:opacity-90 md:w-auto md:py-[14px]">
+        <Link href="/inscricao" className="absolute right-[17px] top-[13px]">
+          <span className="block rounded-full bg-destaque px-[25px] py-[14px] text-center text-base font-bold leading-[25px] text-barra transition-opacity hover:opacity-90">
             Inscreva-se
           </span>
         </Link>
+      </div>
+
+      {/* Celular */}
+      <div className="md:hidden">
+        <div className="flex h-[60px] items-center justify-between gap-3 px-4">
+          <Link href="/" aria-label="PET Game Jam — início" onClick={() => setMenuAberto(false)}>
+            <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-9 w-auto" />
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/inscricao" onClick={() => setMenuAberto(false)}
+              className="rounded-full bg-destaque px-4 py-2 text-sm font-bold text-barra transition-opacity hover:opacity-90">
+              Inscreva-se
+            </Link>
+            <button type="button" onClick={() => setMenuAberto((a) => !a)}
+              aria-expanded={menuAberto} aria-controls="menu-celular"
+              aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
+              className="flex h-10 w-10 items-center justify-center rounded-md text-destaque-claro hover:bg-white/10">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+                {menuAberto
+                  ? <path d="M6 6l12 12M18 6L6 18" />
+                  : <path d="M4 7h16M4 12h16M4 17h16" />}
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {menuAberto && (
+          <ul id="menu-celular" className="border-t border-white/10 px-4 pb-4 pt-2">
+            {visiveis.map((pagina) => {
+              const ativa = caminho === pagina.url
+              return (
+                <li key={pagina.url}>
+                  <Link href={pagina.url} aria-current={ativa ? "page" : undefined} onClick={() => setMenuAberto(false)}
+                    className={`flex items-center gap-3 rounded-md px-2 py-3 text-lg font-bold ${ativa ? "text-destaque" : "text-destaque-claro"}`}>
+                    {/* A pagina atual leva o personagem dela, como no desktop. */}
+                    <span className="flex h-6 w-6 items-center justify-center">
+                      {ativa && <Personagem qual={pagina.personagem} className="h-5 w-5" />}
+                    </span>
+                    {pagina.label}
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
     </nav>
   )
