@@ -30,7 +30,10 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
   // 25/14px de respiro. O botao Login saiu: o "Inscreva-se" fica onde ele
   // terminava, 17px antes da borda.
   return (
-    <nav className="w-full bg-barra">
+    // No desktop a barra acompanha a rolagem: e fina (79px), as paginas sao
+    // longas e o botao de inscricao fica sempre a mao. No celular ela ocupa um
+    // quarto da tela, entao rola junto.
+    <nav className="w-full bg-barra md:sticky md:top-0 md:z-50">
       <div className="relative mx-auto flex h-auto max-w-[1440px] flex-col items-center gap-4 px-9 py-4 md:block md:h-[79px] md:p-0">
 
         {/* A logo da Season IV em versao horizontal, para a barra: GAME JAM numa
