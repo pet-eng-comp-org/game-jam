@@ -39,7 +39,7 @@ export default function Inscricao() {
         </div>
 
         <div className="flex w-full max-w-[555px] flex-col lg:pt-[148px]">
-          <h1 className="text-center font-titulo text-[min(36px,11vw)] text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
+          <h1 className="text-center font-secao text-5xl uppercase leading-none text-[#FFD935] md:text-7xl lg:text-8xl">
             inscrições
           </h1>
           {/* A edicao numa frase embaixo do titulo, e nao numa etiqueta em caixa

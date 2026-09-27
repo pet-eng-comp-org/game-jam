@@ -22,8 +22,7 @@ const inter = localFont({
   ],
 });
 
-// Jomhuria e a condensada dos titulos de secao do mockup (48px). Ao contrario
-// do PacFont, ela TEM os acentuados, entao "DUVIDAS" e "PREMIACAO" saem certos.
+// Jomhuria e a condensada dos titulos do mockup: de pagina e de secao.
 const jomhuria = Jomhuria({
   variable: "--font-jomhuria",
   subsets: ["latin"],
