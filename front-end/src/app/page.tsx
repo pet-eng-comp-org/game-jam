@@ -13,7 +13,7 @@ export default function Home() {
 
         <section>
           <Titulo valor="O QUE É GAMEJAM" />
-          <p className="mt-6 text-lg leading-9">
+          <p className="mt-[30px] text-lg leading-9">
             É uma competição de programação em equipes do PET Engenharia de Computação da
             UFES, nos mesmos moldes do TOPCOM, o maior torneio de programação do Espírito
             Santo. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
@@ -23,9 +23,12 @@ export default function Home() {
 
         {/* O segundo bloco entra recuado no mockup: x=214 contra x=143 dos
             outros dois, e um pouco mais estreito. */}
-        <section className="mt-[150px] md:ml-[6%] md:max-w-[1083px]">
+        {/* Distancias medidas no mockup renderizado (as caixas de texto do Figma sao
+            menores que o texto, entao o espacamento declarado nao vale): 132px da
+            ultima linha ao proximo titulo, 141px no bloco seguinte. */}
+        <section className="mt-[97px] md:ml-[6%] md:max-w-[1083px]">
           <Titulo valor="como funciona" />
-          <p className="mt-6 text-lg leading-9">
+          <p className="mt-[30px] text-lg leading-9">
             Nem tudo é revelado antes da competição: no início do dia são apresentadas as
             regras completas, o ambiente e o que é preciso para começar. A partir daí, cada
             equipe interpreta o problema, discute a estratégia e transforma ideias em código,
@@ -34,9 +37,9 @@ export default function Home() {
           </p>
         </section>
 
-        <section className="mt-[150px]">
+        <section className="mt-[106px]">
           <Titulo valor="como participar" />
-          <p className="mt-6 text-lg leading-9">
+          <p className="mt-[30px] text-lg leading-9">
             Monte uma equipe de até três pessoas e faça a inscrição aqui no site quando as
             inscrições abrirem. Cada equipe precisa de um nome, então escolham um bom!
           </p>

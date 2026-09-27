@@ -46,10 +46,14 @@ export default function Materiais() {
           selecionados para facilitar sua jornada.
         </p>
 
-        <Titulo valor="DICAS" className="mt-[125px]" />
+        <Titulo valor="DICAS" className="mt-[139px]" />
 
-        <TituloSecao valor="Super PETs:" className="mt-5" />
-        <p className="mt-4 text-lg leading-9">
+        <TituloSecao valor="Super PETs:" className="mt-[32px]" />
+        {/* Entrelinha 21,8px e lista com 20px entre itens: valores por trecho do
+            texto no Figma (o estilo geral diz 36, mas cada trecho sobrescreve). */}
+        {/* 1145px: a caixa do Figma tem 1150, mas o Chrome desenha a Inter 0,4% mais
+            estreita e "aberto" cabia na 1a linha, que no mockup quebra em "codigo". */}
+        <p className="mt-[17px] max-w-[1145px] text-lg leading-[22px]">
           Para ajudá-los nessa nova jornada no desenvolvimento de jogos, o PET EngComp
           desenvolveu o Super PETs, um jogo de código aberto no GitHub{" "}
           <a
@@ -65,8 +69,8 @@ export default function Materiais() {
 
         {links.length > 0 && (
           <>
-            <TituloSecao valor="Links úteis:" className="mt-5" />
-            <ul className="mt-4 list-disc pl-6 text-lg leading-9 marker:text-destaque">
+            <TituloSecao valor="Links úteis:" className="mt-[37px]" />
+            <ul className="mt-[19px] list-disc space-y-5 pl-6 text-lg leading-[22px] marker:text-destaque">
               {links.map(m => (
                 <li key={m.getId}>
                   <a href={m.getLink} target="_blank" rel="noopener noreferrer" className="text-destaque hover:underline">
@@ -80,19 +84,19 @@ export default function Materiais() {
 
         {videos.length > 0 && (
           <>
-            <Titulo valor="VÍDEOS" className="mt-[125px]" />
+            <Titulo valor="VÍDEOS" className="mt-[130px]" />
 
-            <div className="mt-14 flex flex-col gap-[53px]">
+            <div className="mt-[54px] flex flex-col gap-[53px]">
               {videos.map(m => {
                 const videoId = getYouTubeEmbedUrl(m.getLink);
 
                 return (
-                  <article key={m.getId} className="grid items-center gap-8 md:grid-cols-[538fr_528fr] md:gap-[72px]">
+                  <article key={m.getId} className="grid items-center gap-8 md:ml-[7px] md:grid-cols-[538px_528px] md:gap-[72px]">
                     <a href={m.getLink} target="_blank" rel="noopener noreferrer" aria-label={`Assistir: ${m.getNome}`}>
                       <img
                         src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
                         alt=""
-                        className="aspect-[538/421] w-full rounded-[10px] object-cover"
+                        className="aspect-[538/421] w-full rounded-[10px] object-cover md:h-[421px] md:w-[538px]"
                       />
                     </a>
 

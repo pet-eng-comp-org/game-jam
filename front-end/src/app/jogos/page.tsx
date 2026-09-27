@@ -196,7 +196,9 @@ export default function Jogos() {
           <Titulo valor="SELECIONE UMA OPÇÃO:" />
         </div>
 
-        <div className="mt-12">
+        {/* Medido contra o mockup em pixels: letras de "SEASON" a cada 56px, a
+            primeira em y=318. */}
+        <div className="mt-[53px]">
           {temporadas.map((t) => {
 
             const estaAberta = abertas.has(t.numero)
@@ -210,7 +212,7 @@ export default function Jogos() {
                     onClick={() => alterna(t.numero)}
                     aria-expanded={estaAberta}
                     aria-controls={`season-${t.numero}`}
-                    className="flex w-full items-center pt-[13px] pb-0 pl-[121px] text-left font-secao text-4xl uppercase leading-none text-destaque transition-opacity hover:opacity-80 md:text-5xl"
+                    className="flex w-full items-center pt-[7px] pb-0 pl-[121px] text-left font-secao text-4xl uppercase leading-none text-destaque transition-opacity hover:opacity-80 md:text-5xl"
                   >
                     <span className="md:w-[129px]">Season {t.numero}</span>
                     <span aria-hidden className={`flex w-[26px] shrink-0 items-center justify-center leading-[0] ${estaAberta ? "-translate-y-[2px]" : "-translate-y-[4.5px]"}`}>
@@ -233,7 +235,7 @@ export default function Jogos() {
                 {estaAberta && (
                   <ul id={`season-${t.numero}`} className="flex flex-col gap-[70px] pb-14 pt-[68px] pl-[101px]">
                     {t.jogos.map((j) => (
-                      <li key={j.link} className="grid gap-[72px] md:grid-cols-[538px_528px] md:items-start">
+                      <li key={j.link} className="grid gap-[72px] md:grid-cols-[538px_528px] md:items-center">
 
                         <a
                           href={j.link}
@@ -252,7 +254,8 @@ export default function Jogos() {
                           />
                         </a>
 
-                        <div className="md:pt-[66px]">
+                        {/* No mockup o texto fica centrado na altura da capa. */}
+                        <div>
                           <h3 className="text-2xl font-bold text-destaque md:text-[34px] md:leading-[42px]">{j.nome ?? j.equipe}</h3>
                           {j.nome && j.equipe && <p className="mt-[6px] font-bold md:text-[29px] md:leading-[35px]">por {j.equipe}</p>}
                           {j.descricao

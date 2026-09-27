@@ -34,8 +34,8 @@ export default function Inscricao() {
           </Link>
         </div>
 
-        <div className="flex w-full max-w-[555px] flex-col lg:pt-[84px]">
-          <h1 className="mb-10 text-center font-titulo text-4xl text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
+        <div className="flex w-full max-w-[555px] flex-col lg:pt-[148px]">
+          <h1 className="mb-10 lg:mb-[74px] text-center font-titulo text-4xl text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
             inscrições
           </h1>
 
