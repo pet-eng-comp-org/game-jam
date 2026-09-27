@@ -33,18 +33,18 @@ export default function Footer() {
       <div className="mx-auto grid max-w-[1154px] gap-8 px-9 py-10 md:grid-cols-[1.4fr_1fr_1fr] md:gap-8 md:px-0 md:w-[80%]">
 
         <div>
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+          {/* Marca do PET a esquerda e o selo da Ufes a direita, na mesma altura:
+              e o padrao do manual da Ufes (2024, pag. 47) para unidades com marca
+              propria, e a instituicao de nivel mais alto fica a direita (pag. 26).
+              Selo em negativo, branco, porque o fundo e escuro (diagrama de
+              decisoes, pag. 21), tirado em vetor do resumo oficial. */}
+          <div className="flex items-center gap-6">
             {/* A logo e do PET: leva ao site do PET, e nao ao inicio do Game Jam. */}
             <a href="https://pet.inf.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site do PET Engenharia de Computação" className="inline-block transition-opacity hover:opacity-80">
-              <img src="/marca/logo-pet.svg" alt="PET Engenharia de Computação — Ufes" className="w-[120px] sm:w-[150px]" />
+              <img src="/marca/logo-pet.svg" alt="PET Engenharia de Computação — Ufes" className="h-[52px] w-auto sm:h-[60px]" />
             </a>
-            {/* Marca oficial da Ufes, identidade de 2024 (Manual de Identidade
-                Visual da Secom). Pelo diagrama de decisoes do manual, fundo
-                escuro pede a assinatura em negativo, branca: e a vertical, tirada
-                em vetor do resumo oficial de aplicacoes. Acima do minimo digital
-                (75 x 51 px) e com a distancia minima da marca do PET. */}
             <a href="https://www.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site da Ufes" className="inline-block transition-opacity hover:opacity-80">
-              <img src="/marca/ufes.svg" alt="Ufes, Universidade Federal do Espírito Santo" className="w-[84px] sm:w-[104px]" />
+              <img src="/marca/ufes.svg" alt="Ufes" className="h-[52px] w-auto sm:h-[60px]" />
             </a>
           </div>
           <p className="mt-4 max-w-[320px] text-sm leading-6 text-destaque-claro/80">
