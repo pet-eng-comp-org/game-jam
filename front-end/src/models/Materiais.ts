@@ -1,7 +1,6 @@
-import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
-import { revalidaSite } from "@/lib/revalida"
 import type { MaterialJson } from "./api"
 
 class Material {
@@ -37,18 +36,8 @@ class Material {
 
     static async cadastrar({ nome, descricao, link }: { nome: string; descricao: string; link: string }) {
 
-        const token = getCookieClient()
-
-        if (!token) return
-
         try {
-            await api.post("/material", { nome, descricao, link }, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-
-        // Espera o site se refazer antes de dizer que salvou.
-
-        await revalidaSite()
+            await painel.post("/material", { nome, descricao, link })
 
         toast.success("Material cadastrado com sucesso!")
         }
@@ -77,17 +66,10 @@ class Material {
 
     async deletar() {
 
-        const token = getCookieClient()
-
-        if (!token) return
-
         try {
-            await api.delete("/material", {
-                params: { id: this.id },
-                headers: { Authorization: `Bearer ${token}` }
+            await painel.delete("/material", {
+                params: { id: this.id }
             })
-            // Espera o site se refazer antes de dizer que salvou.
-            await revalidaSite()
             toast.success('Material deletado com sucesso!')
         }
         catch (err) {

@@ -1,9 +1,8 @@
-import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
 import type { JogoJson, SeasonComJogosJson, SeasonJson } from "./api"
 import { Jogo } from "./Jogos"
-import { revalidaSite } from "@/lib/revalida"
 import { isAxiosError } from "axios"
 
 // Campos que o painel edita numa season (PUT /seasons).
@@ -79,16 +78,8 @@ class Season {
 
     static async obtemTodos() {
 
-        const token = getCookieClient()
-                
-        if(!token) return
-
         try {
-            const response = await api.get("/seasons", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+            const response = await painel.get("/seasons")
 
             const seasonsJSON = response.data
 
@@ -128,20 +119,8 @@ class Season {
 
     static async cadastrar(data: FormData) {
 
-        const token = getCookieClient()
-        
-        if(!token) return
-
         try {
-            await api.post("/seasons", data, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-            })
-
-            // Espera o site se refazer antes de dizer que salvou.
-
-            await revalidaSite()
+            await painel.post("/seasons", data)
 
             toast.success('Season cadastrada com sucesso!')
         }
@@ -166,23 +145,12 @@ class Season {
 
     async tornaAtual() {
 
-        const token = getCookieClient()
-                
-        if(!token) return
-
         try {
-            await api.put("/seasons/atual", {}, {
+            await painel.put("/seasons/atual", {}, {
                 params: {
                     id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
                 }
             })
-
-            // Espera o site se refazer antes de dizer que salvou.
-
-            await revalidaSite()
 
             toast.success("Season Atual atualizada com sucesso!")
         }
@@ -195,19 +163,10 @@ class Season {
     // periodo de inscricao). Devolve true se salvou.
     async editar(dados: EdicaoSeason) {
 
-        const token = getCookieClient()
-
-        if(!token) return false
-
         try {
-            await api.put("/seasons", dados, {
-                params: { id: this.id },
-                headers: { Authorization: `Bearer ${token}` }
+            await painel.put("/seasons", dados, {
+                params: { id: this.id }
             })
-
-            // Espera o site se refazer antes de dizer que salvou.
-
-            await revalidaSite()
 
             toast.success("Season atualizada!")
             return true
@@ -223,14 +182,9 @@ class Season {
     // certificado da PROEX; emitidos os certificados, ele nao deve ficar guardado.
     async apagaCpfs() {
 
-        const token = getCookieClient()
-
-        if(!token) return
-
         try {
-            const response = await api.put("/seasons/apagaCpfs", {}, {
-                params: { id: this.id },
-                headers: { Authorization: `Bearer ${token}` }
+            const response = await painel.put("/seasons/apagaCpfs", {}, {
+                params: { id: this.id }
             })
 
             const apagados: number = response.data.apagados
@@ -244,21 +198,12 @@ class Season {
 
     async deletar() {
 
-        const token = getCookieClient()
-        
-        if(!token) return
-
         try {
-            await api.delete("/seasons", {
+            await painel.delete("/seasons", {
                 params: {
                     id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
                 }
             })
-            // Espera o site se refazer antes de dizer que salvou.
-            await revalidaSite()
             toast.success('Season deletada com sucesso!')
         }
         catch(err) {

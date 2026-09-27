@@ -2,6 +2,7 @@ import { api } from "@/services/api";
 import { isAxiosError } from "axios";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { COOKIE_SESSAO, DURACAO_SESSAO_S } from "@/lib/sessao";
 
 export default function Login() {
 
@@ -21,12 +22,14 @@ export default function Login() {
 
       if(!response.data.token) return
 
+      // httpOnly: o JavaScript da pagina nao le o token (um script injetado nao
+      // rouba a sessao); o painel fala com a API por app/api/painel.
       const cookieStore = await cookies()
-      const expressTime = 60 * 60 * 24 * 30
-      cookieStore.set("sessao", response.data.token, {
-        maxAge: expressTime,
+      cookieStore.set(COOKIE_SESSAO, response.data.token, {
+        maxAge: DURACAO_SESSAO_S,
         path: "/",
-        httpOnly: false,
+        httpOnly: true,
+        sameSite: "lax",
         secure: process.env.NODE_ENV === "production"
       })
     } 

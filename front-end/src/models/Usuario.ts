@@ -1,6 +1,5 @@
-import { getCookieClient } from "@/lib/cookieClient"
 import type { UsuarioJson } from "./api"
-import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
 
 class Usuario {
@@ -30,16 +29,8 @@ class Usuario {
 
     static async obtemTodos() {
 
-        const token = getCookieClient()
-        
-        if(!token) return
-
         try {
-            const response = await api.get("/users", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+            const response = await painel.get("/users")
 
             return response.data
         }
@@ -50,16 +41,8 @@ class Usuario {
 
     static async detalhesUsuarioLogado() {
 
-        const token = getCookieClient()
-
-        if(!token) return
-
         try {
-            const response = await api.get("/eu", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+            const response = await painel.get("/eu")
 
             return new Usuario(response.data.username, response.data.id)
         }
@@ -70,18 +53,10 @@ class Usuario {
 
     async cadastrar() {
 
-        const token = getCookieClient()
-        
-        if(!token) return
-
         try {
-            await api.post("/users", {
+            await painel.post("/users", {
                 username: this.username,
                 senha: this.senha
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
             })
 
             toast.success('Usuário cadastrado com sucesso!')
@@ -95,17 +70,10 @@ class Usuario {
 
     async deletar() {
 
-        const token = getCookieClient()
-        
-        if(!token) return
-
         try {
-            await api.delete("/users", {
+            await painel.delete("/users", {
                 params: {
                     id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
                 }
             })
             toast.success('Usuário deletado com sucesso!')
@@ -118,19 +86,10 @@ class Usuario {
 
     async alterarSenha(senha: string) {
 
-        const token = getCookieClient()
-        
-        if(!token) return
-
         try {
-            await api.put("/users", {
+            await painel.put("/users", {
                 id: this.id,
                 senha
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
             })
             toast.success('Senha alterada com sucesso!')
         }

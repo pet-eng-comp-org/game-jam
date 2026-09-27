@@ -1,19 +1,13 @@
-import { getCookieClient } from "@/lib/cookieClient"
-import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
 import type { EquipeInscrita } from "@/lib/planilha"
 
 // Os inscritos de uma season, para o painel (rota com login).
 export async function obtemEquipes(seasonId: string): Promise<EquipeInscrita[]> {
 
-    const token = getCookieClient()
-
-    if (!token) return []
-
     try {
-        const response = await api.get("/equipes", {
-            params: { seasonId },
-            headers: { Authorization: `Bearer ${token}` }
+        const response = await painel.get("/equipes", {
+            params: { seasonId }
         })
 
         return response.data
@@ -27,14 +21,9 @@ export async function obtemEquipes(seasonId: string): Promise<EquipeInscrita[]> 
 
 export async function deletaEquipe(id: string) {
 
-    const token = getCookieClient()
-
-    if (!token) return
-
     try {
-        await api.delete("/equipe", {
-            params: { id },
-            headers: { Authorization: `Bearer ${token}` }
+        await painel.delete("/equipe", {
+            params: { id }
         })
 
         toast.success("Equipe apagada.")

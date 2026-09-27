@@ -1,8 +1,6 @@
-import { getCookieClient } from "@/lib/cookieClient"
-import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
 import { isAxiosError } from "axios"
-import { revalidaSite } from "@/lib/revalida"
 import type { JogoJson } from "./api"
 
 // Campos que o painel edita. A capa so entra no cadastro.
@@ -42,19 +40,8 @@ class Jogo {
 
     static async cadastrar(data: FormData) {
 
-        const token = getCookieClient()
-
-        if(!token) return false
-
         try {
-            await api.post("/jogos", data, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-            })
-
-            // Espera o site se refazer antes de dizer que salvou.
-            await revalidaSite()
+            await painel.post("/jogos", data)
 
             toast.success('Jogo cadastrado com sucesso!')
             return true
@@ -67,16 +54,10 @@ class Jogo {
 
     async editar(dados: EdicaoJogo) {
 
-        const token = getCookieClient()
-
-        if(!token) return false
-
         try {
-            await api.put("/jogos", dados, {
+            await painel.put("/jogos", dados, {
                 params: { id: this.dados.id },
-                headers: { Authorization: `Bearer ${token}` },
             })
-            await revalidaSite()
             toast.success('Jogo salvo!')
             return true
         }
@@ -88,21 +69,12 @@ class Jogo {
 
     async deletar() {
 
-        const token = getCookieClient()
-
-        if(!token) return
-
         try {
-            await api.delete("/jogos", {
+            await painel.delete("/jogos", {
                 params: {
                     id: this.dados.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
                 }
             })
-            // Espera o site se refazer antes de dizer que salvou.
-            await revalidaSite()
             toast.success('Jogo deletado com sucesso!')
         }
         catch(err) {

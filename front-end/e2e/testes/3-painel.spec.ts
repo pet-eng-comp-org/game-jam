@@ -131,3 +131,29 @@ test("organizador edita e cadastra jogo, e a pagina de jogos mostra", async ({ p
   // A capa enviada vem da API e carrega de verdade.
   expect(await capa.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);
 });
+
+test("a sessao fica num cookie que o JavaScript da pagina nao le", async ({ page, context }) => {
+  await entra(page);
+  const sessao = (await context.cookies()).find((c) => c.name === "sessao");
+  expect(sessao?.httpOnly).toBe(true);
+  expect(sessao?.sameSite).toBe("Lax");
+  expect(await page.evaluate(() => document.cookie)).not.toContain("sessao");
+
+  // O painel funciona pelo repasse do proprio site.
+  await page.goto("/admin/usuarios");
+  await expect(page.getByText(ORGANIZADOR.usuario).first()).toBeVisible();
+
+  // Escrita vinda de outro site e recusada, mesmo com o cookie.
+  const r = await page.request.post("/api/painel/material", {
+    headers: { origin: "https://site-estranho.exemplo" },
+    data: { nome: "x", link: "https://x.com", descricao: "x" },
+  });
+  expect(r.status()).toBe(403);
+
+  // Sair apaga a sessao de verdade.
+  await page.getByRole("button", { name: "Sair" }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  expect((await context.cookies()).some((c) => c.name === "sessao")).toBe(false);
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/login$/);
+});

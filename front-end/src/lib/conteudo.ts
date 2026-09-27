@@ -1,6 +1,6 @@
 // Conteudo das paginas publicas, buscado no SERVIDOR do Next (nao no navegador):
 // a pagina ja sai pronta, com o texto, e fica em cache por 5 minutos. Salvar no
-// painel refaz na hora (app/api/revalida).
+// painel refaz na hora (app/api/painel).
 //
 // Se a API cair, a busca LANCA erro: o Next mantem a ultima versao boa da
 // pagina e tenta de novo na visita seguinte. Devolver null ali trocaria a

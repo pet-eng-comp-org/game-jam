@@ -4,7 +4,6 @@ import MenuItem from "./MenuItem"
 import Image from "next/image"
 import logoPET from "../../../../public/logo-pet.png"
 import { IconeUsuarios, IconeSair, IconePerfil, IconeDinheiro, IconeComputador, IconeEquipe, IconeMaterial } from "./Icones"
-import { deleteCookieClient } from "@/lib/cookieClient"
 import { useRouter } from "next/navigation"
 
 export default function Menu() {
@@ -13,7 +12,8 @@ export default function Menu() {
 
     async function logout() {
         
-        deleteCookieClient()
+        // O cookie da sessao e httpOnly: quem apaga e o servidor.
+        await fetch("/api/sessao", { method: "DELETE" })
         router.replace("/login")
     }
 
