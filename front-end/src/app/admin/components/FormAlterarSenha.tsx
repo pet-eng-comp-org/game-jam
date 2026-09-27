@@ -14,7 +14,7 @@ export default function FormAlterarSenha({fechar, alterarSenha}: FormProps) {
 
     return (
 
-        <div className="absolute top-0 h-screen w-screen bg-gray-800/50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/50 p-4">
 
             <section className="relative w-max bg-gray-200 pt-12 p-7 rounded-xl">
 

@@ -26,7 +26,7 @@ export default function MenuItem(props: MenuItemProps) {
     // Link quando leva a uma pagina, botao quando faz uma acao (Sair). Antes o
     // clique ficava num <li>, que o teclado nao alcanca.
     return (
-        <li className="hover:bg-gray-100">
+        <li className="shrink-0 hover:bg-gray-100">
             {props.url ? (
                 <Link href={props.url}>{conteudo}</Link>
             ) : (

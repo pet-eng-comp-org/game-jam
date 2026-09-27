@@ -79,8 +79,11 @@ services:
       - "traefik.http.routers.game-jam_back-end.tls.certresolver=le"
       - "traefik.docker.network=traefik"
     networks:
-      - traefik
-      - internal
+      # O front busca o conteudo das paginas publicas pelo servidor, e chega a API
+      # por este nome, sem sair da VM (API_URL_INTERNA no front).
+      traefik:
+        aliases: [game-jam-api]
+      internal:
     volumes:
       - uploads:/app/tmp
 
@@ -93,6 +96,10 @@ services:
     # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-5891c23778c748b674bfb0ad242a7b9277af2d96)
     image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:48dcbc88341bedb07eb5d5e660942a9337d3ebab8b3d953c77859971f865e81e
     container_name: game-jam_front-end
+    environment:
+      # Lida em execucao (a NEXT_PUBLIC_API_URL e assada no build): e por onde o
+      # servidor do Next busca o conteudo das paginas publicas.
+      API_URL_INTERNA: http://game-jam-api:3333
     restart: unless-stopped
     logging: *logging
     labels:

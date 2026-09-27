@@ -3,6 +3,18 @@ import { api } from "@/services/api"
 import { toast } from "sonner"
 import type { JogoJson, SeasonComJogosJson, SeasonJson } from "./api"
 import { Jogo } from "./Jogos"
+import { revalidaSite } from "@/lib/revalida"
+import { isAxiosError } from "axios"
+
+// Campos que o painel edita numa season (PUT /seasons).
+export interface EdicaoSeason {
+    numParticipantesPorEquipe?: number
+    dataEvento?: string | null
+    linguagens?: string | null
+    regulamento?: string | null
+    inscricoesAbrem?: string | null
+    inscricoesFecham?: string | null
+}
 
 class Season {
 
@@ -13,6 +25,8 @@ class Season {
     private atual: boolean
     private inscricoesAbertas: boolean
     private jogos: Jogo[]
+    // A season inteira como veio da API (datas, linguagens, regulamento).
+    private dados: SeasonJson | null = null
 
     constructor(numero: number, capa: string, numParticipantesPorEquipe: number, atual: boolean, inscricoesAbertas: boolean, id?: string) {
 
@@ -53,6 +67,16 @@ class Season {
         return this.inscricoesAbertas
     }
 
+    get getDados() {
+        return this.dados
+    }
+
+    static deJson(json: SeasonJson) {
+        const season = new Season(parseInt(json.numero), json.capa, parseInt(json.numParticipantesPorEquipe), json.atual, json.inscricoesAbertas, json.id)
+        season.dados = json
+        return season
+    }
+
     static async obtemTodos() {
 
         const token = getCookieClient()
@@ -68,14 +92,7 @@ class Season {
 
             const seasonsJSON = response.data
 
-            const seasons = seasonsJSON.map((seasonJSON: SeasonJson) => new Season(
-                parseInt(seasonJSON.numero),
-                seasonJSON.capa,
-                parseInt(seasonJSON.numParticipantesPorEquipe),
-                seasonJSON.atual,
-                seasonJSON.inscricoesAbertas,
-                seasonJSON.id
-            ))
+            const seasons = seasonsJSON.map((seasonJSON: SeasonJson) => Season.deJson(seasonJSON))
 
             return seasons
         }
@@ -94,14 +111,7 @@ class Season {
             const seasonsJSON = response.data
 
             const seasons = seasonsJSON.map((seasonJSON: SeasonComJogosJson) => {
-                const season = new Season(
-                    parseInt(seasonJSON.numero),
-                    seasonJSON.capa,
-                    parseInt(seasonJSON.numParticipantesPorEquipe),
-                    seasonJSON.atual,
-                    seasonJSON.inscricoesAbertas,
-                    seasonJSON.id
-                )
+                const season = Season.deJson(seasonJSON)
 
                 const jogosJSON = seasonJSON.jogos
                 jogosJSON.forEach((jogoJSON: JogoJson) => {
@@ -139,6 +149,10 @@ class Season {
                 },
             })
 
+            // Espera o site se refazer antes de dizer que salvou.
+
+            await revalidaSite()
+
             toast.success('Season cadastrada com sucesso!')
         }
         catch(err) {
@@ -157,14 +171,7 @@ class Season {
 
         if (!seasonJSON) return null
 
-        return new Season(
-            parseInt(seasonJSON.numero),
-            seasonJSON.capa,
-            parseInt(seasonJSON.numParticipantesPorEquipe),
-            seasonJSON.atual,
-            seasonJSON.inscricoesAbertas,
-            seasonJSON.id
-        )
+        return Season.deJson(seasonJSON)
     }
 
     async tornaAtual() {
@@ -183,6 +190,10 @@ class Season {
                 }
             })
 
+            // Espera o site se refazer antes de dizer que salvou.
+
+            await revalidaSite()
+
             toast.success("Season Atual atualizada com sucesso!")
         }
         catch(err) {
@@ -190,49 +201,31 @@ class Season {
         }
     }
 
-    async abreInscricoes() {
+    // Edita a season (numero por equipe, data, linguagens, regulamento e o
+    // periodo de inscricao). Devolve true se salvou.
+    async editar(dados: EdicaoSeason) {
 
         const token = getCookieClient()
-                
-        if(!token) return
+
+        if(!token) return false
 
         try {
-            await api.put("/seasons/abreInscricao", {}, {
-                params: {
-                    id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            await api.put("/seasons", dados, {
+                params: { id: this.id },
+                headers: { Authorization: `Bearer ${token}` }
             })
 
-            toast.success("Incrições abertas!")
+            // Espera o site se refazer antes de dizer que salvou.
+
+            await revalidaSite()
+
+            toast.success("Season atualizada!")
+            return true
         }
         catch(err) {
             console.log(err)
-        }
-    }
-
-    async fechaInscricoes() {
-
-        const token = getCookieClient()
-                
-        if(!token) return
-
-        try {
-            await api.put("/seasons/fechaInscricao", {}, {
-                params: {
-                    id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            toast.success("Incrições fechadas!")
-        }
-        catch(err) {
-            console.log(err)
+            toast.error(isAxiosError(err) ? err.response?.data?.error ?? "Não foi possível salvar." : "Não foi possível salvar.")
+            return false
         }
     }
 
@@ -274,6 +267,8 @@ class Season {
                     Authorization: `Bearer ${token}`
                 }
             })
+            // Espera o site se refazer antes de dizer que salvou.
+            await revalidaSite()
             toast.success('Season deletada com sucesso!')
         }
         catch(err) {

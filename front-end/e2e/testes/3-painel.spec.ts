@@ -79,3 +79,23 @@ test("organizador apaga os CPFs da season pelo painel", async ({ page }) => {
   const participante = await banco.participante.findFirst({ where: { equipeId: equipe.id } });
   expect(participante.cpf).toBeNull();
 });
+
+test("organizador edita a season e o site mostra na hora", async ({ page }, info) => {
+  const linguagem = `Linguagem${info.project.name}${Date.now() % 100000}`;
+  await entra(page);
+  await page.goto("/admin/seasons");
+  await page.getByRole("row", { name: /^4 / }).getByRole("button", { name: "Editar" }).click();
+
+  await page.getByLabel("Linguagens permitidas (uma por linha)").fill(`Rust\n${linguagem}`);
+  await page.getByLabel(/^Regulamento/).fill("## Premiação\n\n1. Medalhas para o pódio.");
+  await page.getByRole("button", { name: "Salvar" }).click();
+  await expect(page.getByText("Season atualizada!")).toBeVisible();
+
+  // As paginas publicas sao geradas no servidor e ficam em cache; salvar no
+  // painel precisa refaze-las sem esperar os 5 minutos.
+  await page.goto("/");
+  await expect(page.getByText(`Rust, ${linguagem}`)).toBeVisible();
+  await page.goto("/regras");
+  await expect(page.getByRole("heading", { name: "Premiação" })).toBeVisible();
+  await expect(page.getByText("Medalhas para o pódio.")).toBeVisible();
+});

@@ -29,9 +29,9 @@ export default function FormCadastrarSeason({fechar, cadastrarSeason}: FormProps
 
     return (
 
-        <div className="absolute top-0 h-screen w-screen bg-gray-800/50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/50 p-4">
 
-            <section className="relative flex flex-col items-center justify-center bg-gray-200 pt-12 p-7 rounded-xl w-xl">
+            <section className="relative flex flex-col items-center justify-center bg-gray-200 pt-12 p-7 rounded-xl w-full max-w-xl max-h-[92vh] overflow-y-auto">
 
                 <button onClick={fechar} className="absolute right-4 top-2 text-xl font-bold hover:text-red-500">x</button>
 

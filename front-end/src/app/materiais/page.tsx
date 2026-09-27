@@ -1,33 +1,14 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { Material } from "@/models/Materiais";
+import { materiais, miniaturaDoYoutube } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 
-export default function Materiais() {
+export default async function Materiais() {
 
-  const [materiais, setMateriais] = useState<Material[]>([]);
-
-  async function obtemMateriais() {
-
-    const m = await Material.obtemTodosMateriais();
-    setMateriais(m);
-  }
-
-  useEffect(() => {
-    obtemMateriais();
-  }, []);
-
-  function getYouTubeEmbedUrl(link: string) {
-
-    const match = link.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]+)/);
-    return match ? match[1] : null;
-  }
-
-  const videos = materiais.filter(m => getYouTubeEmbedUrl(m.getLink));
-  const links = materiais.filter(m => !getYouTubeEmbedUrl(m.getLink));
+  const todos = await materiais();
+  const comMiniatura = await Promise.all(todos.map(async (m) => ({ ...m, miniatura: await miniaturaDoYoutube(m.link) })));
+  const videos = comMiniatura.filter((m) => m.miniatura);
+  const links = comMiniatura.filter((m) => !m.miniatura);
 
   // Medidas do mockup (Figma, Season 4, frame Materiais 78:607): texto Inter
   // 18px com entrelinha 36, subtitulos Jomhuria 48 ("SUPER PETS:"), e cada
@@ -72,9 +53,9 @@ export default function Materiais() {
             <TituloSecao valor="Links úteis:" className="mt-[37px]" />
             <ul className="mt-[19px] list-disc space-y-5 pl-6 text-lg leading-[22px] marker:text-destaque">
               {links.map(m => (
-                <li key={m.getId}>
-                  <a href={m.getLink} target="_blank" rel="noopener noreferrer" className="text-destaque hover:underline">
-                    {m.getNome}
+                <li key={m.id}>
+                  <a href={m.link} target="_blank" rel="noopener noreferrer" className="text-destaque hover:underline">
+                    {m.nome}
                   </a>
                 </li>
               ))}
@@ -88,22 +69,20 @@ export default function Materiais() {
 
             <div className="mt-[54px] flex flex-col gap-[53px]">
               {videos.map(m => {
-                const videoId = getYouTubeEmbedUrl(m.getLink);
-
                 return (
-                  <article key={m.getId} className="grid items-center gap-8 md:ml-[7px] md:grid-cols-[538px_528px] md:gap-[72px]">
-                    <a href={m.getLink} target="_blank" rel="noopener noreferrer" aria-label={`Assistir: ${m.getNome}`}>
+                  <article key={m.id} className="grid items-center gap-8 md:ml-[7px] md:grid-cols-[538px_528px] md:gap-[72px]">
+                    <a href={m.link} target="_blank" rel="noopener noreferrer" aria-label={`Assistir: ${m.nome}`}>
                       <img
-                        src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                        src={m.miniatura!}
                         alt=""
                         className="aspect-[538/421] w-full rounded-[10px] object-cover md:h-[421px] md:w-[538px]"
                       />
                     </a>
 
                     <div>
-                      <h3 className="text-2xl font-bold text-destaque md:text-[34px] md:leading-[42px]">{m.getNome}</h3>
+                      <h3 className="text-2xl font-bold text-destaque md:text-[34px] md:leading-[42px]">{m.nome}</h3>
                       <p className="mt-1 text-xl font-bold md:text-[29px] md:leading-[35px]">por EQUIPE PET</p>
-                      <p className="mt-8 whitespace-pre-wrap text-xl md:text-[29px] md:leading-[35px]">{m.getDescricao}</p>
+                      <p className="mt-8 whitespace-pre-wrap text-xl md:text-[29px] md:leading-[35px]">{m.descricao}</p>
                     </div>
                   </article>
                 );

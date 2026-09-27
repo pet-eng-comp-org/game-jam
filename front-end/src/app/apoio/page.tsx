@@ -1,23 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { Patrocinador } from "@/models/Patrocinadores";
+import { patrocinadores } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
 
-export default function Patrocinadores() {
+export default async function Patrocinadores() {
 
-  const [patrocinadores, setPatrocinadores] = useState<Patrocinador[]>([]);
-
-  async function obtemPatrocinadores() {
-
-    const p = await Patrocinador.obtemTodosPatrocinadores();
-    setPatrocinadores(p);
-  }
-
-  useEffect(() => {
-    obtemPatrocinadores();
-  }, []);
+  const lista = await patrocinadores();
 
   // Como no mockup (frame Patrocinadores 78:775): titulo alinhado a esquerda,
   // na mesma margem das outras paginas.
@@ -29,13 +16,13 @@ export default function Patrocinadores() {
 
         <Titulo valor="patrocinadores" />
 
-        {patrocinadores.length > 0 ? (
+        {lista.length > 0 ? (
           <div className="mt-14 flex flex-wrap items-center gap-10">
-            {patrocinadores.map((p) => (
+            {lista.map((p) => (
               <img
-                key={p.getId}
-                src={p.getLogo}
-                alt={p.getNome}
+                key={p.id}
+                src={p.logo}
+                alt={p.nome}
                 className="h-30 w-auto object-contain"
               />
             ))}

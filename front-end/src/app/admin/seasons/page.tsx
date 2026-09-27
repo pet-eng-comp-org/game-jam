@@ -6,11 +6,13 @@ import { Season } from "@/models/Season";
 import Botao from "../components/Botao";
 import Layout from "../components/Layout";
 import FormCadastrarSeason from "../components/FormCadastrarSeason";
+import FormEditarSeason from "../components/FormEditarSeason";
 
 export default function Seasons() {
 
     const [seasons, setSeasons] = useState<Season[]>([])
     const [exibeFormCadastro, setExibeFormCadastro] = useState(false)
+    const [editando, setEditando] = useState<Season | null>(null)
 
     async function cadastrarSeason(numero: string, capa: File, numParticipantesPorEquipe: string) {
 
@@ -28,18 +30,6 @@ export default function Seasons() {
     async function tornaSeasonAtual(season: Season) {
         
         await season.tornaAtual()
-
-        carregaSeasons()
-    }
-
-    async function abreFechaInscricoes(season: Season) {
-
-        if(season.getInscricoesAbertas){
-            await season.fechaInscricoes()
-        }
-        else {
-            await season.abreInscricoes()
-        }
 
         carregaSeasons()
     }
@@ -90,6 +80,8 @@ export default function Seasons() {
 
                 <td className={`flex items-center justify-center gap-3 p-2 text-lg ${((i+1) % 2) ? 'bg-gray-300' : 'bg-gray-200'} `}>
 
+                        <Botao nome="Editar" onClick={() => setEditando(season)} className="text-sm" />
+
                         <Botao nome="Apagar CPFs" onClick={() => apagaCpfs(season)}
                         className="text-sm bg-gray-600 hover:bg-gray-500"/>
 
@@ -106,10 +98,9 @@ export default function Seasons() {
                                 </>
                             ) :
                             (
-                                <Botao nome={season.getInscricoesAbertas ? "Fechar Inscrições" : "Abrir Inscrições"} 
-                                onClick={() => abreFechaInscricoes(season)}
-                                className="text-sm"
-                                />
+                                <span className={`rounded px-2 py-1 text-xs font-bold ${season.getInscricoesAbertas ? "bg-green-600 text-white" : "bg-gray-400"}`}>
+                                    {season.getInscricoesAbertas ? "inscrições abertas" : "inscrições fechadas"}
+                                </span>
                             )
                         }
                         
@@ -123,7 +114,10 @@ export default function Seasons() {
     return (
 
         <Layout titulo="Season"
-        form={exibeFormCadastro ? <FormCadastrarSeason cadastrarSeason={cadastrarSeason} fechar={() => setExibeFormCadastro(false)}/> : false}
+        form={
+            editando ? <FormEditarSeason season={editando} fechar={() => setEditando(null)} salvo={() => { setEditando(null); carregaSeasons() }} />
+            : exibeFormCadastro ? <FormCadastrarSeason cadastrarSeason={cadastrarSeason} fechar={() => setExibeFormCadastro(false)}/> : false
+        }
         >
 
             <p className="mb-10">
@@ -134,7 +128,11 @@ export default function Seasons() {
 
             <Botao nome="Nova Season" onClick={() => setExibeFormCadastro(true)} className="mb-5"/>
 
-            <table className="w-1/2 rounded-xl">
+            {/* No celular a tabela rola dentro desta caixa. */}
+
+            <div className="overflow-x-auto">
+
+            <table className="w-full rounded-xl lg:w-auto">
                 <thead className="font-bold bg-blue-950 text-white">
                     <tr>
                         <th className="rounded-tl-xl p-2 border-r border-r-white">season</th>
@@ -146,6 +144,7 @@ export default function Seasons() {
                     {renderizaSeasons()}
                 </tbody>
             </table>
+            </div>
         </Layout>
     )
 }

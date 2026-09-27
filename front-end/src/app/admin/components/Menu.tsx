@@ -19,16 +19,17 @@ export default function Menu() {
 
     return (
 
+        // No celular o menu vira uma faixa no topo, com rolagem lateral; a partir
+        // de md, a coluna lateral de sempre.
         <aside className={`
-            sticky top-0
-            flex flex-col h-screen
-            bg-blue-950 text-white
+            sticky top-0 z-40 flex overflow-x-auto bg-blue-950 text-white
+            md:h-screen md:flex-col md:overflow-visible
         `}>
 
-            <div className="h-16 p-3 flex justify-center items-center">
+            <div className="hidden h-16 p-3 md:flex justify-center items-center">
                 <Image src={logoPET} alt="Logo do PET Engenharia de Computação" height={50}/>
             </div>
-            <ul className="grow">
+            <ul className="flex md:grow md:flex-col">
                 <MenuItem url="/admin/usuarios" texto="Usuários" icone={IconeUsuarios}/>
                 <MenuItem url="/admin/seasons" texto="Season" icone={IconeComputador}/>
                 <MenuItem url="/admin/jogos" texto="Jogos" icone={IconeComputador}/>
@@ -36,7 +37,7 @@ export default function Menu() {
                 <MenuItem url="/admin/materiais" texto="Materiais" icone={IconeMaterial}/>
                 <MenuItem url="/admin/patrocinadores" texto="Patrocínio" icone={IconeDinheiro}/>
             </ul>
-            <ul>
+            <ul className="flex md:flex-col">
                 <MenuItem
                     url="/admin"
                     texto="Perfil"

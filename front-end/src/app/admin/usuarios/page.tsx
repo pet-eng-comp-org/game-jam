@@ -87,7 +87,11 @@ export default function Usuarios() {
 
             <Botao nome="Cadastrar Usuário" onClick={() => setAbreCadastro(true)} className="mb-5"/>
 
-            <table className="w-1/2 rounded-xl">
+            {/* No celular a tabela rola dentro desta caixa. */}
+
+            <div className="overflow-x-auto">
+
+            <table className="w-full rounded-xl lg:w-auto">
                 <thead className="font-bold bg-blue-950 text-white">
                     <tr>
                         <th className="rounded-tl-xl p-2 border-r border-r-white">username</th>
@@ -98,6 +102,7 @@ export default function Usuarios() {
                     {renderizaUsuarios()}
                 </tbody>
             </table>
+            </div>
         </Layout>
     )
 }

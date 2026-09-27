@@ -1,6 +1,7 @@
 import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
 import { toast } from "sonner"
+import { revalidaSite } from "@/lib/revalida"
 
 class Jogo {
 
@@ -52,6 +53,10 @@ class Jogo {
                 },
             })
 
+            // Espera o site se refazer antes de dizer que salvou.
+
+            await revalidaSite()
+
             toast.success('Jogo cadastrado com sucesso!')
         }
         catch(err) {
@@ -76,6 +81,8 @@ class Jogo {
                     Authorization: `Bearer ${token}`
                 }
             })
+            // Espera o site se refazer antes de dizer que salvou.
+            await revalidaSite()
             toast.success('Jogo deletado com sucesso!')
         }
         catch(err) {

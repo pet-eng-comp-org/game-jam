@@ -1,8 +1,15 @@
 import Layout from "./components/Layout";
 import Titulo from "./components/Titulo";
-import { dataDaEdicao, linguagensDaEdicao } from "@/lib/edicao";
+import { dataEHora, dataPorExtenso, listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
 
-export default function Home() {
+export default async function Home() {
+
+  const season = await seasonAtual();
+  const pessoas = season ? Number(season.numParticipantesPorEquipe) || 3 : 3;
+  const extenso = ["", "uma", "duas", "três", "quatro", "cinco", "seis"][pessoas] ?? String(pessoas);
+  const periodo = season?.inscricoesAbrem && season?.inscricoesFecham
+    ? `de ${dataEHora(season.inscricoesAbrem)} a ${dataEHora(season.inscricoesFecham)}`
+    : "em breve";
 
   return (
 
@@ -40,14 +47,15 @@ export default function Home() {
         <section className="mt-[106px]">
           <Titulo valor="como participar" />
           <p className="mt-[30px] text-lg leading-9">
-            Monte uma equipe de até três pessoas e faça a inscrição aqui no site quando as
+            Monte uma equipe de até {extenso} {pessoas === 1 ? "pessoa" : "pessoas"} e faça a inscrição aqui no site quando as
             inscrições abrirem. Cada equipe precisa de um nome, então escolham um bom!
           </p>
           <ul className="mt-6 space-y-1 text-lg leading-9">
-            <li><strong>Data:</strong> {dataDaEdicao()}</li>
+            <li><strong>Data:</strong> {dataPorExtenso(season?.dataEvento) ?? "em breve"}</li>
+            <li><strong>Inscrições:</strong> {periodo}</li>
             <li><strong>Duração:</strong> 1 dia</li>
-            <li><strong>Formato:</strong> competição em equipes de até 3 pessoas</li>
-            <li><strong>Linguagens permitidas:</strong> {linguagensDaEdicao()}</li>
+            <li><strong>Formato:</strong> competição em equipes de até {pessoas} {pessoas === 1 ? "pessoa" : "pessoas"}</li>
+            <li><strong>Linguagens permitidas:</strong> {listaDeLinguagens(season?.linguagens) ?? "em breve"}</li>
             <li><strong>Desafio:</strong> implementar a lógica de um jogo</li>
           </ul>
         </section>

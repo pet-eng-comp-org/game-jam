@@ -1,6 +1,7 @@
 import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
 import { toast } from "sonner"
+import { revalidaSite } from "@/lib/revalida"
 import type { MaterialJson } from "./api"
 
 class Material {
@@ -45,6 +46,10 @@ class Material {
             headers: { Authorization: `Bearer ${token}` }
         })
 
+        // Espera o site se refazer antes de dizer que salvou.
+
+        await revalidaSite()
+
         toast.success("Material cadastrado com sucesso!")
         }
         catch (err) {
@@ -81,6 +86,8 @@ class Material {
                 params: { id: this.id },
                 headers: { Authorization: `Bearer ${token}` }
             })
+            // Espera o site se refazer antes de dizer que salvou.
+            await revalidaSite()
             toast.success('Material deletado com sucesso!')
         }
         catch (err) {

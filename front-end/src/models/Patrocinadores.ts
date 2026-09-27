@@ -1,6 +1,7 @@
 import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
 import { toast } from "sonner"
+import { revalidaSite } from "@/lib/revalida"
 import type { PatrocinadorJson } from "./api"
 
 class Patrocinador {
@@ -41,6 +42,8 @@ class Patrocinador {
                     "Content-Type": "multipart/form-data" 
                 }
             })
+            // Espera o site se refazer antes de dizer que salvou.
+            await revalidaSite()
             toast.success("Patrocinador cadastrado com sucesso!")
         }
         catch (err) {
@@ -77,6 +80,8 @@ class Patrocinador {
                 params: { id: this.id },
                 headers: { Authorization: `Bearer ${token}` }
             })
+            // Espera o site se refazer antes de dizer que salvou.
+            await revalidaSite()
             toast.success("Patrocinador deletado com sucesso!")
         }
         catch (err) {
