@@ -30,7 +30,7 @@ export default async function Home() {
               outras edicoes (em /jogos) pareciam o que se faz na competicao. */}
           <p className="mt-6 text-lg leading-9">
             A Season 4 estreia esse formato. Nas três primeiras edições, o Game Jam era uma
-            maratona de cerca de três semanas em que cada equipe criava um jogo do zero, sobre
+            maratona de algumas semanas em que cada equipe criava um jogo do zero, sobre
             um tema. Os jogos criados nessas edições estão em{" "}
             <Link href="/jogos" className="text-destaque underline">Jogos</Link>.
           </p>

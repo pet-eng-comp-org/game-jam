@@ -5,6 +5,8 @@ export interface EdicaoSeason {
   dataEvento?: Date | null;
   linguagens?: string | null;
   regulamento?: string | null;
+  ano?: string | null;
+  tema?: string | null;
   inscricoesAbrem?: Date | null;
   inscricoesFecham?: Date | null;
 }

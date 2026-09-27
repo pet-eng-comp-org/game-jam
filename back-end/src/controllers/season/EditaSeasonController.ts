@@ -20,7 +20,7 @@ function texto(valor: unknown, max: number): string | null | undefined | "invali
 }
 
 // Edicao da season pelo painel: numero de participantes, dados da edicao,
-// regulamento e o periodo de inscricao. Campo ausente fica como esta.
+// regulamento, periodo de inscricao, e ano e tema das edicoes antigas. Campo ausente fica como esta.
 class EditaSeasonController {
   async handle(req: Request, res: Response): Promise<any> {
     const id = req.query.id;
@@ -51,6 +51,14 @@ class EditaSeasonController {
     const regulamento = texto(corpo.regulamento, 60000);
     if (regulamento === "invalido") return res.status(400).json({ error: "Regulamento grande demais." });
     if (regulamento !== undefined) dados.regulamento = regulamento;
+
+    const ano = texto(corpo.ano, 4);
+    if (ano === "invalido" || (ano && !/^\d{4}$/.test(ano))) return res.status(400).json({ error: "Ano inválido." });
+    if (ano !== undefined) dados.ano = ano;
+
+    const tema = texto(corpo.tema, 191);
+    if (tema === "invalido") return res.status(400).json({ error: "Tema: no máximo 191 caracteres." });
+    if (tema !== undefined) dados.tema = tema;
 
     const abrem = dados.inscricoesAbrem !== undefined ? dados.inscricoesAbrem : atual.inscricoesAbrem;
     const fecham = dados.inscricoesFecham !== undefined ? dados.inscricoesFecham : atual.inscricoesFecham;

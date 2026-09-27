@@ -41,6 +41,10 @@ model Season {
   linguagens  String?   // uma por linha
   regulamento String?   @db.Text // markdown
 
+  // Contexto das edicoes antigas, mostrado em /jogos: ano e tema da edicao.
+  ano  String? @db.VarChar(4)
+  tema String?
+
   // As inscricoes ficam abertas entre as duas datas. Antes era um liga/desliga
   // manual, que ficou ligado por esquecimento de uma edicao para a outra.
   inscricoesAbrem  DateTime?

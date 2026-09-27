@@ -36,6 +36,8 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
   const [abrem, setAbrem] = useState(paraCampoDataHora(d?.inscricoesAbrem))
   const [fecham, setFecham] = useState(paraCampoDataHora(d?.inscricoesFecham))
   const [regulamento, setRegulamento] = useState(d?.regulamento ?? "")
+  const [ano, setAno] = useState(d?.ano ?? "")
+  const [tema, setTema] = useState(d?.tema ?? "")
   const [salvando, setSalvando] = useState(false)
 
   async function salvar(e: React.FormEvent) {
@@ -48,6 +50,8 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
       inscricoesAbrem: abrem ? `${abrem}:00${FUSO}` : null,
       inscricoesFecham: fecham ? `${fecham}:00${FUSO}` : null,
       regulamento: regulamento.trim() || null,
+      ano: ano.trim() || null,
+      tema: tema.trim() || null,
     }
     setSalvando(true)
     const ok = await season.editar(dados)
@@ -103,6 +107,19 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
             </span>
             <textarea rows={12} value={regulamento} onChange={e => setRegulamento(e.target.value)} className={`${CAMPO} font-mono text-sm`} />
           </label>
+
+          {/* Aparecem em /jogos, ao lado do nome da season. */}
+          <fieldset className="grid gap-4 sm:grid-cols-[8rem_1fr]">
+            <legend className="mb-1 font-bold">Na página de jogos</legend>
+            <label className="flex flex-col gap-1">
+              <span>Ano</span>
+              <input inputMode="numeric" maxLength={4} pattern="\d{4}" placeholder="2025" value={ano} onChange={e => setAno(e.target.value)} className={CAMPO} />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span>Tema</span>
+              <input maxLength={191} value={tema} onChange={e => setTema(e.target.value)} className={CAMPO} />
+            </label>
+          </fieldset>
 
           <button type="submit" disabled={salvando} className="rounded-md bg-blue-950 p-3 font-bold text-white duration-300 hover:bg-blue-900 disabled:opacity-60">
             {salvando ? "Salvando..." : "Salvar"}

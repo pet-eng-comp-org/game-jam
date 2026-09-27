@@ -298,6 +298,7 @@ describe("inscricao", () => {
     assert.equal((await ruim({ inscricoesAbrem: "ontem" })).status, 400);
     assert.equal((await ruim({ inscricoesAbrem: new Date(Date.now() + 2 * dia).toISOString(), inscricoesFecham: new Date(Date.now() + dia).toISOString() })).status, 400);
     assert.equal((await ruim({ numParticipantesPorEquipe: 0 })).status, 400);
+    assert.equal((await ruim({ ano: "23" })).status, 400);
     assert.equal((await api("PUT", "/seasons?id=nao-existe", { token, corpo: {} })).status, 404);
   });
 
@@ -469,6 +470,7 @@ describe("jogos", () => {
     assert.equal(separados.equipe, "void 0");
     assert.match(separados.integrantes, /Rafael Ferraço/);
     assert.equal(seasons.filter((s) => s.numero === "3").length, 1, "nao duplica a season 3");
+    assert.deepEqual([s2.ano, s2.tema], ["2023", "Não pare de mexer"]);
   });
 
   it("cadastro sem capa e recusado", async () => {

@@ -13,6 +13,9 @@ export interface SeasonJson {
     dataEvento: string | null
     linguagens: string | null
     regulamento: string | null
+    // Contexto das edicoes antigas, mostrado em /jogos.
+    ano: string | null
+    tema: string | null
 }
 
 export interface JogoJson {

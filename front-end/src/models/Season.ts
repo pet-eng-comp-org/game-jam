@@ -11,6 +11,8 @@ export interface EdicaoSeason {
     dataEvento?: string | null
     linguagens?: string | null
     regulamento?: string | null
+    ano?: string | null
+    tema?: string | null
     inscricoesAbrem?: string | null
     inscricoesFecham?: string | null
 }
