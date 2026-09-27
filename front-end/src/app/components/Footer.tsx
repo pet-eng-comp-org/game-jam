@@ -33,10 +33,19 @@ export default function Footer() {
       <div className="mx-auto grid max-w-[1154px] gap-8 px-9 py-10 md:grid-cols-[1.4fr_1fr_1fr] md:gap-8 md:px-0 md:w-[80%]">
 
         <div>
-          {/* A logo e do PET: leva ao site do PET, e nao ao inicio do Game Jam. */}
-          <a href="https://pet.inf.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site do PET Engenharia de Computação" className="inline-block transition-opacity hover:opacity-80">
-            <img src="/marca/logo-pet.svg" alt="PET Engenharia de Computação — Ufes" className="w-[150px]" />
-          </a>
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            {/* A logo e do PET: leva ao site do PET, e nao ao inicio do Game Jam. */}
+            <a href="https://pet.inf.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site do PET Engenharia de Computação" className="inline-block transition-opacity hover:opacity-80">
+              <img src="/marca/logo-pet.svg" alt="PET Engenharia de Computação — Ufes" className="w-[120px] sm:w-[150px]" />
+            </a>
+            {/* Marca oficial da Ufes, tirada em vetor do manual de marca da
+                Secom (comunicacao.ufes.br/manual-de-marca). As letras sao
+                pretas, entao ela vai sobre branco, com a folga em volta que o
+                manual pede e acima do minimo de 2 cm de largura. */}
+            <a href="https://www.ufes.br" target="_blank" rel="noopener noreferrer" aria-label="Site da Ufes" className="inline-block rounded-md bg-white p-2.5 transition-opacity hover:opacity-90">
+              <img src="/marca/ufes.svg" alt="Ufes, Universidade Federal do Espírito Santo" className="w-[84px] sm:w-[96px]" />
+            </a>
+          </div>
           <p className="mt-4 max-w-[320px] text-sm leading-6 text-destaque-claro/80">
             O Game Jam é organizado pelo PET Engenharia de Computação da Ufes.
           </p>
