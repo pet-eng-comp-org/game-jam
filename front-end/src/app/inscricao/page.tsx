@@ -42,7 +42,7 @@ export default function Inscricao() {
               Season {estado.season.getNumero}
             </p>
           )}
-          <h1 className="mb-10 lg:mb-[74px] text-center font-titulo text-4xl text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
+          <h1 className="mb-10 lg:mb-[74px] text-center font-titulo text-[min(36px,11vw)] text-[#FFD935] sm:text-5xl md:text-[64px] md:leading-[80px]">
             inscrições
           </h1>
 

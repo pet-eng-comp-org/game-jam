@@ -49,7 +49,7 @@ async function main() {
         numero: "4", capa: "capa.png", numParticipantesPorEquipe: "3", atual: true,
         // Inscricoes abertas: de ontem a daqui a 30 dias.
         inscricoesAbrem: new Date(Date.now() - 86400000), inscricoesFecham: new Date(Date.now() + 30 * 86400000),
-        dataEvento: new Date("2026-11-15T12:00:00Z"), local: "CT 9 da Ufes", linguagens: "C\nC++\nPython",
+        dataEvento: new Date("2026-11-15T12:00:00Z"), local: "CT 9, Ufes Goiabeiras", linguagens: "C\nC++\nPython",
         regulamento: "## O formato\n\n1. A competição acontece em um único dia.\n2. Cada equipe recebe um jogo preparado para o evento.",
       },
     });

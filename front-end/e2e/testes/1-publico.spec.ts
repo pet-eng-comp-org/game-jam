@@ -56,8 +56,8 @@ test("o inicio mostra a contagem ate a competicao", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1, name: "A Season 4 começa em" })).toBeVisible();
   await expect(page.getByText("dias", { exact: true })).toBeVisible();
-  await expect(page.getByText("Domingo, 15 de novembro, às 09:00", { exact: true })).toBeVisible();
-  await expect(page.getByText("CT 9 da Ufes", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Domingo, 15 de novembro · 9h", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "CT 9, Ufes Goiabeiras" })).toBeVisible();
 });
 
 test("o inicio marca a competicao como evento para o Google", async ({ page }) => {
@@ -67,7 +67,27 @@ test("o inicio marca a competicao como evento para o Google", async ({ page }) =
   expect(evento["@type"]).toBe("Event");
   expect(evento.name).toBe("PET Game Jam · Season 4");
   expect(evento.startDate).toBe("2026-11-15T12:00:00.000Z");
-  expect(evento.location.name).toBe("CT 9 da Ufes");
+  expect(evento.location.name).toBe("CT 9, Ufes Goiabeiras");
   expect(evento.location.address.addressLocality).toBe("Vitória");
   expect(evento.offers.price).toBe("0");
+});
+
+test("nenhuma pagina passa da tela no celular mais estreito (280px)", async ({ page }) => {
+  // Galaxy Fold dobrado. Ja existiu uma largura minima de 320px no body, que
+  // cortava a direita da pagina (e o botao do menu) em telas menores.
+  await page.setViewportSize({ width: 280, height: 653 });
+  for (const caminho of ["/", "/jogos", "/regras", "/materiais", "/inscricao", "/privacidade", "/apoio"]) {
+    await page.goto(caminho);
+    await page.waitForLoadState("networkidle");
+    const fora = await page.evaluate(() => {
+      const w = window.innerWidth;
+      const vazando = [...document.querySelectorAll("body *")].filter((e) => {
+        const b = e.getBoundingClientRect();
+        return b.width > 0 && (b.right > w + 1 || b.left < -1) && getComputedStyle(e).visibility !== "hidden";
+      });
+      return { largura: document.documentElement.scrollWidth, w, vazando: vazando.slice(0, 3).map((e) => e.tagName + "." + String(e.className).slice(0, 50)) };
+    });
+    expect(fora.largura, `${caminho} mais larga que a tela`).toBeLessThanOrEqual(fora.w);
+    expect(fora.vazando, `${caminho} com elemento fora da tela`).toEqual([]);
+  }
 });

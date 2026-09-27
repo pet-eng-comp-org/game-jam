@@ -43,7 +43,9 @@ body {
   /* O corpo do texto no mockup e o amarelo palido, nao branco. O branco fica
      so no rodape. */
   color: var(--color-destaque-claro);
-  min-width: 320px;
+  /* Sem largura minima: com min-width de 320px, numa tela menor (Galaxy Fold
+     dobrado, 280px) a pagina ficava mais larga que a tela e cortava a direita,
+     inclusive o botao do menu. */
 }
 
 button { cursor: pointer; }

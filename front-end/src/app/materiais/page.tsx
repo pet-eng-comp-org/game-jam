@@ -109,12 +109,12 @@ export default async function Materiais() {
             <div className="mt-[54px] flex flex-col gap-[53px]">
               {videos.map(m => {
                 return (
-                  <article key={m.id} className="grid items-center gap-8 md:ml-[7px] md:grid-cols-[538px_528px] md:gap-[72px]">
+                  <article key={m.id} className="grid items-center gap-8 lg:ml-[7px] lg:grid-cols-[538px_528px] lg:gap-[72px]">
                     <a href={m.link} target="_blank" rel="noopener noreferrer" aria-label={`Assistir: ${m.nome}`}>
                       <img
                         src={m.miniatura!}
                         alt=""
-                        className="aspect-[538/421] w-full rounded-[10px] object-cover md:h-[421px] md:w-[538px]"
+                        className="aspect-[538/421] w-full rounded-[10px] object-cover lg:h-[421px] lg:w-[538px]"
                       />
                     </a>
 

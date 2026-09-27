@@ -93,7 +93,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
                     {t.jogos.map((j) => {
                       const integrantes = listaDeIntegrantes(j.integrantes)
                       return (
-                      <li key={j.id} className="grid gap-[72px] md:grid-cols-[538px_528px] md:items-center">
+                      <li key={j.id} className="grid gap-8 lg:grid-cols-[538px_528px] lg:items-center lg:gap-[72px]">
 
                         <a
                           href={j.link}
@@ -107,7 +107,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
                           <img
                             src={capaDoJogo(j.capa)}
                             alt={`Jogar ${j.nome ?? j.equipe}`}
-                            className="w-full rounded-xl border border-destaque-claro/20 transition duration-200 group-hover:border-destaque group-hover:brightness-110 md:h-[421px] md:object-cover"
+                            className="w-full rounded-xl border border-destaque-claro/20 transition duration-200 group-hover:border-destaque group-hover:brightness-110 lg:h-[421px] lg:object-cover"
                             loading="lazy"
                           />
                         </a>

@@ -21,11 +21,13 @@ const DIGITOS: Record<string, string[]> = {
   "-": ["00000", "00000", "00000", "11111", "00000", "00000", "00000"],
 }
 
-function NumeroPixel({ valor, px }: { valor: string; px: number }) {
+// Tamanho pela altura (classe CSS), para acompanhar a tela: 3px por pixel em
+// telas estreitas, 4px no celular comum e 7px a partir do tablet.
+function NumeroPixel({ valor }: { valor: string }) {
   return (
-    <span className="inline-flex" style={{ gap: px }} aria-hidden>
+    <span className="inline-flex h-[21px] gap-[3px] min-[360px]:h-[28px] min-[360px]:gap-[4px] md:h-[49px] md:gap-[7px]" aria-hidden>
       {valor.split("").map((d, i) => (
-        <svg key={i} width={5 * px} height={7 * px} viewBox="0 0 5 7" shapeRendering="crispEdges">
+        <svg key={i} viewBox="0 0 5 7" className="h-full w-auto" shapeRendering="crispEdges">
           {DIGITOS[d].flatMap((linha, y) =>
             linha.split("").map((b, x) => (b === "1" ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill="#FFCF00" /> : null)),
           )}
@@ -76,13 +78,13 @@ export default function Contagem({ inicio, rotuloData }: Props) {
   return (
     <div>
       <p className="sr-only">A competição começa em {rotuloData}.</p>
-      {/* No celular os digitos encolhem para as quatro casas caberem numa linha. */}
-      <div className="flex justify-center gap-2 md:gap-6">
+      {/* No celular os digitos encolhem para as quatro casas caberem numa linha,
+          ate em tela de 280px. */}
+      <div className="flex justify-center gap-1.5 min-[360px]:gap-2 md:gap-6">
         {casas.map(([rotulo, valor]) => (
-          <div key={rotulo} className="flex min-w-[68px] flex-col items-center gap-2 rounded-lg border-2 border-destaque/60 bg-barra px-2 py-3 md:min-w-[130px] md:gap-3 md:rounded-xl md:px-6 md:py-4">
-            <span className="md:hidden"><NumeroPixel valor={valor} px={4} /></span>
-            <span className="hidden md:inline"><NumeroPixel valor={valor} px={7} /></span>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-destaque-claro/80 md:text-xs">{rotulo}</span>
+          <div key={rotulo} className="flex min-w-[52px] flex-col items-center gap-2 rounded-lg border-2 border-destaque/60 bg-barra px-1.5 py-2.5 min-[360px]:min-w-[68px] min-[360px]:px-2 min-[360px]:py-3 md:min-w-[130px] md:gap-3 md:rounded-xl md:px-6 md:py-4">
+            <NumeroPixel valor={valor} />
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-destaque-claro/80 min-[360px]:text-[10px] min-[360px]:tracking-[0.2em] md:text-xs">{rotulo}</span>
           </div>
         ))}
       </div>

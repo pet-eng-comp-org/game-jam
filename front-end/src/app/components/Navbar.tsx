@@ -98,10 +98,13 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
       {/* Celular */}
       <div className="md:hidden">
         <div className="flex h-[60px] items-center justify-between gap-3 px-4">
-          <Link href="/" aria-label="PET Game Jam — início" onClick={() => setMenuAberto(false)}>
-            <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-9 w-auto" />
+          {/* A logo encolhe quando falta espaco (telas de 280px, como o Galaxy
+              Fold dobrado); os botoes nunca: antes a logo empurrava o
+              "Inscreva-se" para cima do botao de menu. */}
+          <Link href="/" aria-label="PET Game Jam — início" onClick={() => setMenuAberto(false)} className="min-w-0 flex-1">
+            <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-auto w-full max-w-[178px]" />
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <Link href="/inscricao" onClick={() => setMenuAberto(false)}
               className="rounded-full bg-destaque px-4 py-2 text-sm font-bold text-barra transition-opacity hover:opacity-90">
               Inscreva-se

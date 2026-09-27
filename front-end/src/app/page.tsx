@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Titulo from "./components/Titulo";
 import Contagem from "./components/Contagem";
 import EventoParaBusca from "./components/EventoParaBusca";
+import IconePixel from "./components/IconePixel";
 import { dataEHora, dataPorExtenso, listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
 
 export default async function Home() {
@@ -13,14 +14,15 @@ export default async function Home() {
   const periodo = season?.inscricoesAbrem && season?.inscricoesFecham
     ? `de ${dataEHora(season.inscricoesAbrem)} a ${dataEHora(season.inscricoesFecham)}`
     : "em breve";
-  // "sábado, 28 de novembro, às 12:00": dia e hora do inicio, sem o ano (e o
-  // da edicao).
+  // "sábado, 28 de novembro · 12h": dia e hora do inicio, sem o ano (e o da
+  // edicao).
   const inicioDoEvento = season?.dataEvento
     ? (() => {
         const d = new Date(season.dataEvento);
         const dia = d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Sao_Paulo" });
-        const hora = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
-        return `${dia}, às ${hora}`;
+        const [h, m] = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }).split(":");
+        // Espacos inseparaveis: a hora nao quebra sozinha para a linha de baixo.
+        return `${dia}\u00a0·\u00a0${Number(h)}h${m === "00" ? "" : m}`;
       })()
     : null;
 
@@ -36,7 +38,7 @@ export default async function Home() {
             a competicao. A data e a hora vem do painel; sem elas, so o formato.
             A inscricao fica no botao da barra, sempre visivel. */}
         <section className="text-center">
-          <h1 className="font-secao text-5xl uppercase leading-none text-destaque md:text-7xl">
+          <h1 className="text-balance font-secao text-5xl uppercase leading-none text-destaque md:text-7xl">
             {inicioDoEvento ? `A Season ${season?.numero ?? "4"} começa em` : `Season ${season?.numero ?? "4"}`}
           </h1>
           {season?.dataEvento && inicioDoEvento ? (
@@ -44,8 +46,25 @@ export default async function Home() {
               <div className="mt-8">
                 <Contagem inicio={season.dataEvento} rotuloData={inicioDoEvento} />
               </div>
-              <p className="mt-6 text-lg">{inicioDoEvento.charAt(0).toUpperCase() + inicioDoEvento.slice(1)}</p>
-              {season.local && <p className="text-lg">{season.local}</p>}
+              {/* Quando e onde numa linha, como informacao do evento. Tocar no
+                  local abre o mapa: quem vem de fora nao sabe onde fica o CT. */}
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-lg">
+                <span className="flex items-center gap-2">
+                  <IconePixel qual="calendario" className="h-4 w-4 text-destaque" />
+                  {inicioDoEvento.charAt(0).toUpperCase() + inicioDoEvento.slice(1)}
+                </span>
+                {season.local && (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${season.local}, Vitória - ES`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 underline decoration-destaque/50 underline-offset-4 hover:text-destaque"
+                  >
+                    <IconePixel qual="local" className="h-[18px] w-[14px] text-destaque" />
+                    {season.local}
+                  </a>
+                )}
+              </div>
             </>
           ) : (
             <p className="mt-4 text-xl text-destaque-claro">Competição de programação em equipes, em um único dia. Data em breve.</p>
