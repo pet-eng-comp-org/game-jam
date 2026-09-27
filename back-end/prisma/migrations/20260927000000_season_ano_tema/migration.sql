@@ -4,9 +4,10 @@
 ALTER TABLE `seasons` ADD COLUMN `ano` VARCHAR(4) NULL,
     ADD COLUMN `tema` VARCHAR(191) NULL;
 
--- Season 2: edicao de 2023, tema "Nao pare de mexer" (pagina da Season 2 no
--- Notion do PET; bate com os jogos: Tarantella, Fire Escape).
-UPDATE `seasons` SET `ano` = '2023', `tema` = 'Não pare de mexer'
+-- Season 2: edicao de 2023 (pagina da Season 2 no Notion do PET), tema "Nao
+-- pare de se mexer" (confirmado pela organizacao; o Notion escreve "Nao pare
+-- de mexer"). Bate com os jogos: Tarantella, Fire Escape.
+UPDATE `seasons` SET `ano` = '2023', `tema` = 'Não pare de se mexer'
   WHERE `numero` = '2' AND `ano` IS NULL AND `tema` IS NULL;
 
 -- Season 3: tema "Plataformas" (confirmado pela organizacao; era o titulo da
