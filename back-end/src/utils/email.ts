@@ -33,26 +33,43 @@ const linha = (texto: string, max = 80) => texto.replace(/\s+/g, " ").trim().sli
 
 interface Confirmacao {
   equipe: string;
-  season: { numero: string; dataEvento: Date | null };
+  season: { numero: string; dataEvento: Date | null; local?: string | null };
   participantes: { nome: string; email: string }[];
 }
 
+const SITE = "https://gamejam.pet.inf.ufes.br";
+const fuso = "America/Sao_Paulo";
+
+// "sábado, 28 de novembro, às 12h" (ou "às 9h30"), como o site escreve.
+function diaEHora(d: Date) {
+  const dia = d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: fuso });
+  const [h, m] = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso }).split(":");
+  return `${dia}, às ${Number(h)}h${m === "00" ? "" : m}`;
+}
+
+// "Ana, Bia e Caio".
+const emFrase = (nomes: string[]) =>
+  nomes.length < 2 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`;
+
+// O mesmo que a tela de inscricao recebida diz: quando, onde e o que levar.
 export function textoDaConfirmacao({ equipe, season, participantes }: Confirmacao) {
   const nomes = participantes.map((p) => linha(p.nome));
-  const dia = season.dataEvento
-    ? season.dataEvento.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Sao_Paulo" })
-    : null;
+  const local = season.local ? linha(season.local, 120) : null;
   return {
     assunto: `Inscrição recebida: ${linha(equipe)} (Game Jam Season ${season.numero})`,
     texto: [
-      `Olá, ${nomes.join(", ")}!`,
+      `Olá, ${emFrase(nomes)}!`,
       "",
       `Recebemos a inscrição da equipe "${linha(equipe)}" na Season ${season.numero} do Game Jam.`,
       "",
       "Participantes:",
       ...nomes.map((n) => `- ${n}`),
       "",
-      ...(dia ? [`A competição é no dia ${dia}.`] : []),
+      ...(season.dataEvento ? [`Quando: ${diaEHora(season.dataEvento)}.`] : []),
+      ...(local ? [`Onde: ${local}.`] : []),
+      "A competição é presencial, num laboratório com computadores: não precisa levar notebook.",
+      "",
+      `Regras e materiais para se preparar: ${SITE}/regras`,
       "Os próximos avisos saem no Instagram @petengcomp.",
       "",
       "Se você não fez esta inscrição, responda este e-mail.",
