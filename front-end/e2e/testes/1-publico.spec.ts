@@ -31,6 +31,10 @@ test("/jogos mostra os jogos de todas as seasons, com link para jogar", async ({
   const jogo = page.getByRole("link", { name: /^A Lenda de Gabe/ });
   await expect(jogo).toBeVisible();
   await expect(jogo).toHaveAttribute("target", "_blank");
+  // Capa antiga (public/jogos) otimizada: WebP no tamanho da tela, nao o JPG
+  // de 800x600.
+  const capa = page.getByRole("listitem").filter({ has: jogo }).locator("img");
+  await expect(capa).toHaveAttribute("srcset", /_next\/image\?url=%2Fjogos%2F/);
   confere();
 });
 

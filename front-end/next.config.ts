@@ -24,6 +24,13 @@ const nextConfig: NextConfig = {
   // Os testes de ponta a ponta compilam em outra pasta (e2e/sobe-front.sh), para
   // nao sobrescrever o .next de quem roda o site na maquina.
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  // Otimizador de imagens (next/image) so para as capas dos jogos antigos, que
+  // ficam em public/jogos: sao JPGs de 800x600 exibidos com 130 a 350 px, e
+  // saem em WebP no tamanho da tela. Nada de query string nem outra pasta.
+  images: {
+    localPatterns: [{ pathname: "/jogos/**", search: "" }],
+    qualities: [75],
+  },
   // O `next dev` so atende o proprio localhost: aberto por outro endereco (o
   // celular, por uma VPN ou tunel), a pagina vem sem JavaScript. Quem precisa
   // lista os hostnames em NEXT_DEV_ORIGENS, separados por virgula. Em producao

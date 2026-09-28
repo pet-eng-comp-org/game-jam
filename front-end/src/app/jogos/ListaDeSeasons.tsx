@@ -1,6 +1,7 @@
 // Os jogos das edicoes antigas, todos a vista: uma secao por season, da mais
 // nova para a mais antiga, e os jogos em grade. Antes cada season era uma
 // sanfona fechada, e quem chegava via tres linhas em vez dos jogos.
+import Image from "next/image"
 import Link from "next/link"
 import Titulo from "../components/Titulo"
 import TituloSecao from "../components/TituloSecao"
@@ -15,6 +16,16 @@ const emFrase = (nomes: string[]) =>
 
 // No celular a descricao para na quarta linha; o jogo e o que conta.
 const DESCRICAO = "mt-2 line-clamp-4 text-sm leading-snug sm:mt-3 sm:line-clamp-none sm:text-base sm:leading-relaxed"
+
+// As capas dos jogos antigos (public/jogos) passam pelo otimizador: saem em
+// WebP na largura em que aparecem. As enviadas pelo painel vem da API e vao
+// como estao.
+const CLASSE_CAPA = "aspect-[4/3] w-full rounded-xl border-2 border-destaque-claro/20 object-cover transition-colors duration-200 group-hover:border-destaque"
+function Capa({ src }: { src: string }) {
+  return src.startsWith("/jogos/")
+    ? <Image src={src} alt="" width={800} height={600} sizes="(min-width: 1024px) 350px, (min-width: 640px) 45vw, 40vw" className={CLASSE_CAPA} />
+    : <img src={src} alt="" loading="lazy" className={CLASSE_CAPA} />
+}
 
 export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJogosJson[] }) {
   return (
@@ -50,12 +61,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
                   key={j.id}
                   className="group relative grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start gap-x-4 rounded-xl outline-offset-8 has-[a:focus-visible]:outline has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-destaque sm:block"
                 >
-                  <img
-                    src={capaDoJogo(j.capa)}
-                    alt=""
-                    loading="lazy"
-                    className="aspect-[4/3] w-full rounded-xl border-2 border-destaque-claro/20 object-cover transition-colors duration-200 group-hover:border-destaque"
-                  />
+                  <Capa src={capaDoJogo(j.capa)} />
                   {/* No celular, capa a esquerda e texto a direita: em coluna unica
                       cada jogo ocupava uma tela inteira. */}
                   <div>
