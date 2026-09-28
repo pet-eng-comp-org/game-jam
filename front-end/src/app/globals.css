@@ -40,6 +40,24 @@ body {
 
 button { cursor: pointer; }
 
+/* Foco de teclado igual em todo navegador: anel amarelo do site, com folga.
+   No painel (fundo cinza) o amarelo some, entao la ele e azul-escuro. So
+   :focus-visible: quem clica com mouse nao ve o anel. Na camada base, para
+   classes como outline-none (campos com borda de foco propria) valerem. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-destaque);
+    outline-offset: 3px;
+  }
+  .painel :focus-visible {
+    outline-color: #172554;
+  }
+  .painel aside :focus-visible {
+    outline-color: var(--color-destaque);
+    outline-offset: -3px; /* dentro do item: o menu encosta na borda da tela */
+  }
+}
+
 @keyframes flutua {
   0% { transform: translateY(0); }
   50% { transform: translateY(calc(var(--u) * -2)); }

@@ -14,7 +14,7 @@ export default function Layout({ titulo, form, children }: LayoutProps) {
 
         // text-blue-950: o body do site usa texto amarelo claro (visual da Season
         // 4), e sem isto o painel, de fundo cinza, herdava essa cor e ficava ilegivel.
-        <div className="flex flex-col text-blue-950 md:flex-row">
+        <div className="painel flex flex-col text-blue-950 md:flex-row">
             <Menu />
 
             {form}
