@@ -101,9 +101,8 @@ test("organizador edita a season e o site mostra na hora", async ({ page }, info
 
   // As paginas publicas sao geradas no servidor e ficam em cache; salvar no
   // painel precisa refaze-las sem esperar os 5 minutos.
-  await page.goto("/");
-  await expect(page.getByText(`Rust, ${linguagem}`)).toBeVisible();
   await page.goto("/regras");
+  await expect(page.getByText(`Linguagens permitidas: Rust, ${linguagem}.`)).toBeVisible();
   await expect(page.getByRole("heading", { name: "Premiação" })).toBeVisible();
   await expect(page.getByText("Medalhas para o pódio.")).toBeVisible();
 });

@@ -41,21 +41,6 @@ export const patrocinadores = async () =>
 export const seasonsComJogos = async () => (await busca<SeasonComJogosJson[]>("/seasonsComJogos")) ?? [];
 export type { JogoJson };
 
-const fuso = "America/Sao_Paulo";
-
-// "15 de novembro de 2026", no fuso de Vitoria.
-export function dataPorExtenso(iso: string | null | undefined) {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric", timeZone: fuso });
-}
-
-// "10/10/2026 às 09:00".
-export function dataEHora(iso: string | null | undefined) {
-  if (!iso) return null;
-  const d = new Date(iso);
-  return `${d.toLocaleDateString("pt-BR", { timeZone: fuso })} às ${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso })}`;
-}
-
 export function listaDeLinguagens(texto: string | null | undefined) {
   const lista = (texto ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
   return lista.length ? lista.join(", ") : null;

@@ -4,11 +4,12 @@ import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 import { LISTA, PAGINA, SECAO, TEXTO } from "../components/estilo";
 import Markdown, { type Components } from "react-markdown";
-import { dataEHora, dataPorExtenso, listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
+import { listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
+import { dia, diaEHora } from "@/lib/datas";
 
 export const metadata: Metadata = {
   title: "Regras",
-  description: "Formato, equipes, inscrição e data do Game Jam, a competição de programação do PET Engenharia de Computação da Ufes.",
+  description: "Formato, equipes, inscrição e linguagens do Game Jam, a competição de programação do PET Engenharia de Computação da Ufes.",
 };
 
 // Numerada so onde a ordem importa (o regulamento escrito no painel decide);
@@ -50,11 +51,7 @@ export default async function Regras() {
           <>
             <p className={`mt-10 ${TEXTO}`}>
               O regulamento completo da Season {season?.numero ?? "4"}, com horários e premiação,
-              será divulgado em breve aqui e no Instagram{" "}
-              <a href="https://www.instagram.com/petengcomp/" target="_blank" rel="noopener noreferrer" className="text-destaque underline">
-                @petengcomp
-              </a>
-              . Por enquanto, o que já está definido:
+              será divulgado aqui em breve. Por enquanto, o que já está definido:
             </p>
 
             <TituloSecao valor="O formato" className={SECAO_REGRAS} />
@@ -73,20 +70,21 @@ export default async function Regras() {
           <li>
             A inscrição é feita aqui no site,{" "}
             {season?.inscricoesAbrem && season?.inscricoesFecham
-              ? <>de {dataEHora(season.inscricoesAbrem)} a {dataEHora(season.inscricoesFecham)},</>
+              ? <>de {dia(season.inscricoesAbrem)} até {diaEHora(season.inscricoesFecham)},</>
               : "durante o período de inscrições,"}{" "}
             e cada equipe precisa de um nome.
           </li>
-          <li>Todos os participantes recebem certificado de participação, emitido pela Pró-Reitoria de Extensão (Proex) da Ufes. Por isso o CPF é pedido na inscrição.</li>
+          <li>Todos os participantes recebem certificado de participação, emitido pela Pró-Reitoria de Extensão (Proex) da Ufes.</li>
         </ul>
 
-        {/* Rotulo e valor, no mesmo formato do Inicio. */}
-        <TituloSecao valor="Data, local e linguagens" className={SECAO_REGRAS} />
-        <dl className={`space-y-2 ${TEXTO}`}>
-          <div><dt className="inline font-bold">Data: </dt><dd className="inline">{dataPorExtenso(season?.dataEvento) ?? "em breve"}</dd></div>
-          <div><dt className="inline font-bold">Local: </dt><dd className="inline">{season?.local ?? "em breve"}</dd></div>
-          <div><dt className="inline font-bold">Linguagens permitidas: </dt><dd className="inline">{listaDeLinguagens(season?.linguagens) ?? "em breve"}</dd></div>
-        </dl>
+        {/* A linguagem e regra, entao mora aqui, e so aqui: data e local ficam
+            na abertura do Inicio. */}
+        <TituloSecao valor="Linguagens" className={SECAO_REGRAS} />
+        <p className={TEXTO}>
+          {listaDeLinguagens(season?.linguagens)
+            ? <>Linguagens permitidas: {listaDeLinguagens(season?.linguagens)}.</>
+            : "As linguagens permitidas serão divulgadas junto com o regulamento."}
+        </p>
 
         <TituloSecao valor="Dúvidas" className={SECAO_REGRAS} />
         <p className={TEXTO}>

@@ -30,9 +30,8 @@ export default async function Materiais() {
             implementa parte da logica. O que ajuda a se preparar vem primeiro;
             os materiais de Phaser das edicoes anteriores ficam depois, como extra. */}
         <p className={`mt-6 ${TEXTO}`}>
-          Na Season 4, ninguém precisa criar um jogo do zero: cada equipe recebe um jogo
-          pronto e implementa parte da lógica dele. Então a melhor preparação é de
-          programação, não de desenvolvimento de jogos.
+          Como o jogo já vem pronto e a equipe implementa parte da lógica dele, a melhor
+          preparação é de programação, não de desenvolvimento de jogos.
         </p>
 
         <section className={SECAO}>
@@ -40,7 +39,8 @@ export default async function Materiais() {
           <ul className={`${APOS_TITULO} ${LISTA} space-y-4`}>
             <li>
               <strong>Pratique lógica e a linguagem da competição.</strong>{" "}
-              {linguagens ? <>As linguagens permitidas são: {linguagens}.</> : <>As linguagens permitidas serão divulgadas em breve.</>}{" "}
+              {/* Sem lista definida, nao repete o "em breve" das Regras. */}
+              {linguagens && <>As linguagens permitidas são: {linguagens}.{" "}</>}
               Resolver exercícios curtos, com tempo contado, é o treino mais parecido com o dia.
             </li>
             <li>

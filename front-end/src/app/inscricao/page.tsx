@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Season } from "@/models/Season"
 import FormInscricao from "../components/FormInscricao"
+import { diaEHora } from "@/lib/datas"
 
 // Tela "Inscricoes" do mockup (Figma, Season 4, pagina Site, frame 220:51):
 // logo com os fantasmas a esquerda, titulo e formulario a direita, sobre o
@@ -67,18 +68,12 @@ export default function Inscricao() {
   )
 }
 
-function dataEHora(iso: string) {
-  const d = new Date(iso)
-  const fuso = "America/Sao_Paulo"
-  return `${d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: fuso })} às ${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso })}`
-}
-
 // Fechada por que? Ainda nao abriu, ja encerrou, ou sem periodo definido.
 function avisoFechada(season: Season | null) {
   const d = season?.getDados
   const agora = Date.now()
   if (d?.inscricoesAbrem && new Date(d.inscricoesAbrem).getTime() > agora) {
-    return { titulo: `As inscrições abrem em ${dataEHora(d.inscricoesAbrem)}.`, texto: "Monte sua equipe e volte aqui nesse dia!" }
+    return { titulo: `As inscrições abrem em ${diaEHora(d.inscricoesAbrem)}.`, texto: "Monte sua equipe e volte aqui nesse dia!" }
   }
   if (d?.inscricoesFecham && new Date(d.inscricoesFecham).getTime() <= agora) {
     return { titulo: "As inscrições desta edição foram encerradas.", texto: "Acompanhe o Instagram @petengcomp para saber da próxima." }

@@ -5,28 +5,28 @@ import { APOS_TITULO, PAGINA, SECAO, TEXTO } from "./components/estilo";
 import Contagem from "./components/Contagem";
 import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
-import { dataEHora, dataPorExtenso, listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
+import { seasonAtual } from "@/lib/conteudo";
+import { dia, diaEHora } from "@/lib/datas";
 
 export default async function Home() {
 
   const season = await seasonAtual();
   const pessoas = season ? Number(season.numParticipantesPorEquipe) || 3 : 3;
   const extenso = ["", "uma", "duas", "três", "quatro", "cinco", "seis"][pessoas] ?? String(pessoas);
-  const periodo = season?.inscricoesAbrem && season?.inscricoesFecham
-    ? `de ${dataEHora(season.inscricoesAbrem)} a ${dataEHora(season.inscricoesFecham)}`
-    : "em breve";
-  // "sábado, 28 de novembro, às 12h": dia e hora do inicio, sem o ano (e o da
-  // edicao).
-  const inicioDoEvento = season?.dataEvento
-    ? (() => {
-        const d = new Date(season.dataEvento);
-        const dia = d.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Sao_Paulo" });
-        const [h, m] = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }).split(":");
-        // Frase, e nao "dia · hora". O espaco inseparavel antes da hora impede
-        // que ela quebre sozinha para a linha de baixo.
-        return `${dia}, às\u00a0${Number(h)}h${m === "00" ? "" : m}`;
-      })()
-    : null;
+  // "sábado, 28 de novembro, às 12h": dia e hora do inicio.
+  const inicioDoEvento = season?.dataEvento ? diaEHora(season.dataEvento, true) : null;
+
+  // A frase acompanha a situacao das inscricoes: antes dizia "quando as
+  // inscricoes abrirem" mesmo com elas abertas.
+  const equipe = `Monte uma equipe de até ${extenso} ${pessoas === 1 ? "pessoa" : "pessoas"}`;
+  const inscricao = (() => {
+    switch (season?.situacaoInscricoes) {
+      case "abertas": return `${equipe} e faça a inscrição aqui no site até ${diaEHora(season.inscricoesFecham!)}.`;
+      case "antes": return `${equipe} e faça a inscrição aqui no site a partir de ${dia(season.inscricoesAbrem!)}.`;
+      case "encerradas": return `As inscrições da Season ${season.numero} foram encerradas.`;
+      default: return `${equipe} e faça a inscrição aqui no site quando as inscrições abrirem.`;
+    }
+  })();
 
   return (
 
@@ -72,12 +72,17 @@ export default async function Home() {
           )}
         </section>
 
+        {/* Aqui fica o convite; o regulamento (formato, equipes, linguagens) e
+            da pagina Regras. Antes as duas repetiam o formato e a lista de
+            data, local e linguagens, que a abertura ja mostra. */}
         <section className={SECAO}>
           <TituloSecao valor="O que é o Game Jam" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
             É uma competição de programação em equipes do PET Engenharia de Computação da
             Ufes. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
-            evento e usa programação para implementar parte da lógica dele.
+            evento e usa programação para implementar parte da lógica dele. O desafio só é
+            revelado no dia: mais do que escrever código, ele põe à prova interpretação de
+            problemas, raciocínio lógico, trabalho em equipe e adaptação ao inesperado.
           </p>
           {/* A Season 4 e a primeira neste formato: sem este aviso, os jogos das
               outras edicoes (em /jogos) pareciam o que se faz na competicao. */}
@@ -90,30 +95,15 @@ export default async function Home() {
         </section>
 
         <section className={SECAO}>
-          <TituloSecao valor="Como funciona" />
-          <p className={`${APOS_TITULO} ${TEXTO}`}>
-            Nem tudo é revelado antes da competição: no início do dia são apresentadas as
-            regras completas, o ambiente e o que é preciso para começar. A partir daí, cada
-            equipe interpreta o problema, discute a estratégia e transforma ideias em código,
-            contra o tempo. Mais do que escrever código, o desafio põe à prova interpretação de
-            problemas, raciocínio lógico, trabalho em equipe e adaptação ao inesperado.
-          </p>
-        </section>
-
-        <section className={SECAO}>
           <TituloSecao valor="Como participar" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
-            Monte uma equipe de até {extenso} {pessoas === 1 ? "pessoa" : "pessoas"} e faça a inscrição aqui no site quando as
-            inscrições abrirem. Cada equipe precisa de um nome, então escolham um bom!
+            {inscricao}
+            {season?.situacaoInscricoes !== "encerradas" && " Cada equipe precisa de um nome, então escolham um bom!"}
           </p>
-          {/* So o que o texto acima nao diz: formato, duracao e desafio ja estao
-              nas secoes anteriores. */}
-          <dl className={`mt-6 space-y-2 ${TEXTO}`}>
-            <div><dt className="inline font-bold">Data: </dt><dd className="inline">{dataPorExtenso(season?.dataEvento) ?? "em breve"}</dd></div>
-            <div><dt className="inline font-bold">Local: </dt><dd className="inline">{season?.local ?? "em breve"}</dd></div>
-            <div><dt className="inline font-bold">Inscrições: </dt><dd className="inline">{periodo}</dd></div>
-            <div><dt className="inline font-bold">Linguagens permitidas: </dt><dd className="inline">{listaDeLinguagens(season?.linguagens) ?? "em breve"}</dd></div>
-          </dl>
+          <p className={`mt-4 ${TEXTO}`}>
+            Formato, equipes e linguagens permitidas estão nas{" "}
+            <Link href="/regras" className="text-destaque underline">Regras</Link>.
+          </p>
         </section>
       </div>
     </Layout>
