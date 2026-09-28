@@ -193,7 +193,9 @@ export default function JogoPet() {
           </div>
         )}
         {mensagem && hud.fase !== "fim" && (
-          <p className="pointer-events-none absolute inset-x-0 top-[64%] text-center font-secao text-3xl uppercase leading-none text-destaque md:text-5xl">
+          // Na linha do meio (o corredor entre GAME e JAM), como o READY! do
+          // arcade num corredor livre: mais embaixo caia em cima da casa.
+          <p className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center font-secao text-2xl uppercase leading-none text-destaque md:text-4xl">
             {mensagem}
           </p>
         )}

@@ -62,9 +62,12 @@ test("a curva pedida acontece no cruzamento, e parede nao deixa passar", () => {
   vira(e, "cima");
   roda(e, 2.05);
   roda(e, 0.3);
-  // Em cima do comeco e parede: vira no primeiro corredor para cima, a esquerda.
+  // Vira no primeiro corredor para cima que encontra (o do comeco, se houver,
+  // senao o proximo a esquerda, para onde ele anda sozinho).
+  let esperado = INICIO.pacman.x;
+  while (!".o_".includes(LABIRINTO[INICIO.pacman.y - 1][esperado])) esperado--;
   assert.ok(e.pacman.y < INICIO.pacman.y, "subiu pelo primeiro corredor");
-  assert.equal(Math.round(e.pacman.x), INICIO.pacman.x - 1);
+  assert.equal(Math.round(e.pacman.x), esperado);
 });
 
 test("em um minuto de teclas ao acaso, ninguem atravessa parede", () => {

@@ -34,6 +34,8 @@ const MODOS: { modo: "dispersao" | "perseguicao"; dura: number }[] = [
 ];
 // Quando cada um sai da casa, em segundos de jogo.
 const SOLTURA: Record<NomeFantasma, number> = { vermelho: 0, rosa: 1, ciano: 4, laranja: 7 };
+// Para que lado fica a saida da casa (no A do JAM, para baixo).
+const PARA_FORA: Direcao = INICIO.foraDaPorta.y < INICIO.porta.y ? "cima" : "baixo";
 const PAUSA = { pronto: 2, comendo: 0.5, morrendo: 1.8, venceu: 2.2 };
 export const VIDAS = 3;
 
@@ -248,7 +250,7 @@ function come(e: Estado, x: number, y: number) {
 }
 
 function alvo(e: Estado, f: Fantasma): { x: number; y: number } {
-  if (f.estado === "olhos") return INICIO.acimaDaPorta;
+  if (f.estado === "olhos") return INICIO.foraDaPorta;
   if (MODOS[e.modo].modo === "dispersao") return CANTOS[f.nome];
   const p = { x: Math.round(e.pacman.x), y: Math.round(e.pacman.y) };
   const [dx, dy] = VETOR[e.pacman.dir];
@@ -280,7 +282,8 @@ function andaFantasma(e: Estado, f: Fantasma, dt: number) {
     if (e.jogo >= SOLTURA[f.nome]) f.estado = "saindo";
     else return;
   }
-  // Sair da casa: ate a coluna da porta, e subir ate em cima dela.
+  // Sair da casa: ate a coluna da porta, e atravessar ate o lado de fora
+  // (para cima ou para baixo, conforme o mapa).
   if (f.estado === "saindo") {
     const alvoX = INICIO.porta.x;
     if (Math.abs(f.x - alvoX) > 1e-6) {
@@ -290,25 +293,25 @@ function andaFantasma(e: Estado, f: Fantasma, dt: number) {
       resta -= d;
     }
     if (resta > 0 && Math.abs(f.x - alvoX) < 1e-6) {
-      f.dir = "cima";
-      const d = Math.min(resta, f.y - INICIO.acimaDaPorta.y);
-      f.y -= d;
+      const fora = INICIO.foraDaPorta.y;
+      f.dir = PARA_FORA;
+      const d = Math.min(resta, Math.abs(fora - f.y));
+      f.y += Math.sign(fora - f.y) * d;
       resta -= d;
-      if (f.y - INICIO.acimaDaPorta.y < 1e-6) {
-        f.y = INICIO.acimaDaPorta.y;
+      if (Math.abs(f.y - fora) < 1e-6) {
+        f.y = fora;
         f.estado = "normal";
-        f.dir = "esquerda";
       }
     }
     if (f.estado !== "normal") return;
   }
-  // Olhos entrando: descem pela porta ate o meio da casa e saem de novo.
+  // Olhos entrando: atravessam a porta ate o meio da casa e saem de novo.
   if (f.estado === "entrando") {
-    f.dir = "baixo";
-    const fundo = INICIO.rosa.y;
-    const d = Math.min(resta, fundo - f.y);
-    f.y += d;
-    if (fundo - f.y < 1e-6) { f.y = fundo; f.estado = "saindo"; f.assustado = false; }
+    f.dir = OPOSTA[PARA_FORA];
+    const dentro = INICIO.rosa.y;
+    const d = Math.min(resta, Math.abs(dentro - f.y));
+    f.y += Math.sign(dentro - f.y) * d;
+    if (Math.abs(dentro - f.y) < 1e-6) { f.y = dentro; f.estado = "saindo"; f.assustado = false; }
     return;
   }
 
@@ -317,7 +320,7 @@ function andaFantasma(e: Estado, f: Fantasma, dt: number) {
     const cx = Math.round(f.x), cy = Math.round(f.y);
     if (Math.abs(f.x - cx) < 1e-6 && Math.abs(f.y - cy) < 1e-6) {
       f.x = cx; f.y = cy;
-      if (f.estado === "olhos" && cx === INICIO.acimaDaPorta.x && cy === INICIO.acimaDaPorta.y) {
+      if (f.estado === "olhos" && cx === INICIO.foraDaPorta.x && cy === INICIO.foraDaPorta.y) {
         f.estado = "entrando";
         return;
       }
