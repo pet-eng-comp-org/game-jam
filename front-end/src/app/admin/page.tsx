@@ -21,13 +21,20 @@ export default function Admin() {
     const [exibeFormAlterarSenha, setExibeFormAlterarSenha] = useState<boolean>(false)
     const [season, setSeason] = useState<Season | null | undefined>(undefined)
     const [equipes, setEquipes] = useState<EquipeInscrita[]>([])
+    // Falha ao buscar a season (API fora do ar) e diferente de nao haver season
+    // atual: antes as duas diziam "escolha uma em Season".
+    const [falhou, setFalhou] = useState(false)
 
     useEffect(() => {
         (async () => {
             setUsuario(await Usuario.detalhesUsuarioLogado())
-            const atual = await Season.obtemAtual().catch(() => null)
-            setSeason(atual)
-            if (atual) setEquipes(await obtemEquipes(String(atual.getId)))
+            try {
+                const atual = await Season.obtemAtual()
+                setSeason(atual)
+                if (atual) setEquipes(await obtemEquipes(String(atual.getId)))
+            } catch {
+                setFalhou(true)
+            }
         })()
     }, [])
 
@@ -66,6 +73,10 @@ export default function Admin() {
         <Layout titulo={`Olá, ${usuario ? usuario.getUsername : ''}!`}
         form={exibeFormAlterarSenha ? <FormAlterarSenha alterarSenha={alterarSenha} fechar={() => setExibeFormAlterarSenha(false)}/> : false}
         >
+            {falhou && (
+                <p role="alert" className="mb-6">Não foi possível falar com a API agora, então o resumo da season não aparece. Tente recarregar a página em alguns minutos.</p>
+            )}
+
             {season === null && (
                 <p className="mb-6">Nenhuma season está marcada como atual. <Link href="/admin/seasons" className="font-bold underline">Escolha uma em Season</Link>.</p>
             )}

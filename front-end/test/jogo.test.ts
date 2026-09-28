@@ -141,3 +141,59 @@ test("limpar o labirinto passa de nivel, com as bolinhas de volta", () => {
   assert.equal(e.nivel, 2);
   assert.ok(e.restantes > 100);
 });
+
+// Achados do code review (reproduzidos antes da correcao).
+test("comer a ultima bolinha no mesmo quadro de uma colisao ainda passa de nivel", () => {
+  for (const assustado of [false, true]) {
+    const e = jogando();
+    for (const linha of e.grade) for (let x = 0; x < linha.length; x++) if (linha[x] === "." || linha[x] === "o") linha[x] = "_";
+    e.grade[9][14] = ".";
+    e.restantes = 1;
+    e.pacman.x = 14.3; e.pacman.y = 9; e.pacman.dir = "esquerda";
+    const f = e.fantasmas[0];
+    e.fantasmas = [f];
+    // Perto o bastante para encostar no mesmo quadro em que a bolinha some.
+    f.estado = "normal"; f.x = 13.6; f.y = 9; f.dir = "direita"; f.assustado = assustado;
+    passo(e, 1 / 60);
+    assert.equal(e.fase, "venceu", assustado ? "fantasma azul" : "fantasma normal");
+    roda(e, 2.5);
+    assert.equal(e.nivel, 2);
+  }
+});
+
+const tiles = () => {
+  const lista: { x: number; y: number }[] = [];
+  LABIRINTO.forEach((linha, y) => linha.split("").forEach((c, x) => { if (".o".includes(c)) lista.push({ x, y }); }));
+  return lista;
+};
+
+test("os olhos do fantasma comido chegam em casa saindo de qualquer ponto", () => {
+  for (const t of tiles()) {
+    const e = jogando();
+    const f = e.fantasmas[1];
+    e.fantasmas = [f];
+    f.estado = "olhos"; f.x = t.x; f.y = t.y; f.dir = "esquerda";
+    e.pacman.x = 28; e.pacman.y = 9; e.pacman.dir = "cima"; // parado, sem bolinha grande
+    let chegou = false;
+    for (let i = 0; i < 60 * 8 && !chegou; i++) { passo(e, 1 / 60); chegou = f.estado !== "olhos"; }
+    assert.ok(chegou, `olhos presos saindo de ${t.x},${t.y}`);
+  }
+});
+
+test("perseguindo, o Blinky alcanca o Pac-Man parado em qualquer ponto", () => {
+  for (const t of tiles()) {
+    const e = jogando();
+    const f = e.fantasmas[0];
+    e.fantasmas = [f];
+    e.modo = 5; // perseguicao para sempre
+    e.pacman.x = t.x; e.pacman.y = t.y; e.pacman.quer = null;
+    // Parado de verdade: sem direcao livre na frente dele.
+    e.pacman.dir = (["cima", "esquerda", "baixo", "direita"] as const).find((d) => {
+      const [dx, dy] = { cima: [0, -1], esquerda: [-1, 0], baixo: [0, 1], direita: [1, 0] }[d];
+      return !".o_".includes(LABIRINTO[t.y + dy]?.[t.x + dx] ?? "#");
+    }) ?? "cima";
+    let pegou = false;
+    for (let i = 0; i < 60 * 15 && !pegou; i++) { passo(e, 1 / 60); pegou = e.fase === "morrendo"; }
+    assert.ok(pegou, `Blinky nao alcancou o Pac-Man em ${t.x},${t.y}`);
+  }
+});

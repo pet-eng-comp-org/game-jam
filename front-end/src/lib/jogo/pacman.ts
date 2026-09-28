@@ -170,6 +170,10 @@ export function passo(e: Estado, dt: number) {
   }
 
   andaPacman(e, dt);
+  // Comeu a ultima bolinha: o quadro para aqui. Antes os fantasmas ainda
+  // andavam e uma colisao no mesmo quadro trocava "venceu" por "morrendo",
+  // e o nivel ficava vazio para sempre.
+  if (e.fase !== "jogando") return;
   for (const f of e.fantasmas) andaFantasma(e, f, dt);
   colisoes(e);
 }
@@ -321,21 +325,57 @@ function andaFantasma(e: Estado, f: Fantasma, dt: number) {
 
 // Nos cruzamentos: nunca meia-volta, a nao ser que seja a unica saida.
 function escolhe(e: Estado, f: Fantasma, cx: number, cy: number, quem: "fantasma" | "olhos"): Direcao {
-  // Os olhos passam pela porta; os outros, nao (a porta e so de entrada).
-  const abertas = ORDEM.filter((d) => d !== OPOSTA[f.dir] && pode(e, cx + VETOR[d][0], cy + VETOR[d][1], quem));
+  const olhos = f.estado === "olhos";
+  // Os olhos passam pela porta; os outros, nao (a porta e so de entrada). Os
+  // olhos tambem podem dar meia-volta: o que importa e chegar em casa.
+  const abertas = ORDEM.filter((d) => (olhos || d !== OPOSTA[f.dir]) && pode(e, cx + VETOR[d][0], cy + VETOR[d][1], quem));
   if (abertas.length === 0) return OPOSTA[f.dir];
   if (f.assustado && f.estado === "normal") return abertas[Math.floor(e.rng() * abertas.length)];
   const t = alvo(e, f);
+
+  // Distancia ate o alvo. Na dispersao, em linha reta, como no arcade (dar
+  // voltas no canto e o comportamento original). Perseguindo e voltando para
+  // casa, pelos corredores: com linha reta, os espacos abertos de 2x2 do
+  // labirinto do PET prendiam fantasma e olhos girando em circulo.
+  const pelosCorredores = olhos || MODOS[e.modo].modo === "perseguicao";
+  const mapa = pelosCorredores ? distancias(e, t, quem) : null;
   let melhor = abertas[0], menor = Infinity;
   for (const d of abertas) {
     const nx = cx + VETOR[d][0], ny = cy + VETOR[d][1];
-    const dist = (nx - t.x) ** 2 + (ny - t.y) ** 2;
+    const dist = mapa ? mapa[ny * LARGURA + nx] : (nx - t.x) ** 2 + (ny - t.y) ** 2;
     if (dist < menor) { menor = dist; melhor = d; }
   }
   return melhor;
 }
 
+// Distancia pelos corredores de cada tile ate o alvo (busca em largura a
+// partir do tile andavel mais perto dele: o alvo do Pinky, 4 casas a frente,
+// pode cair numa parede ou fora do labirinto). Tile inalcancavel: Infinity.
+function distancias(e: Estado, alvo: { x: number; y: number }, quem: "fantasma" | "olhos") {
+  const d = new Float64Array(LARGURA * ALTURA).fill(Infinity);
+  let origem = -1, perto = Infinity;
+  for (let y = 0; y < ALTURA; y++) {
+    for (let x = 0; x < LARGURA; x++) {
+      if (!pode(e, x, y, quem)) continue;
+      const q = (x - alvo.x) ** 2 + (y - alvo.y) ** 2;
+      if (q < perto) { perto = q; origem = y * LARGURA + x; }
+    }
+  }
+  if (origem < 0) return d;
+  const fila = [origem];
+  d[origem] = 0;
+  for (let i = 0; i < fila.length; i++) {
+    const atual = fila[i], x = atual % LARGURA, y = (atual - x) / LARGURA;
+    for (const [dx, dy] of Object.values(VETOR)) {
+      const nx = x + dx, ny = y + dy, n = ny * LARGURA + nx;
+      if (pode(e, nx, ny, quem) && d[n] === Infinity) { d[n] = d[atual] + 1; fila.push(n); }
+    }
+  }
+  return d;
+}
+
 function colisoes(e: Estado) {
+  if (e.fase !== "jogando") return;
   const p = e.pacman;
   for (const f of e.fantasmas) {
     if (f.estado !== "normal") continue;
