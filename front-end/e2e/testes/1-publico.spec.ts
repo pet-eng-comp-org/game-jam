@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { semErroDePagina } from "./ajuda";
 
 // Cada pagina publica abre sem erro e mostra o que vem da API. Materiais e
@@ -140,4 +141,16 @@ test("o jogo do Inicio comeca, anda e conta pontos, e as setas nao rolam a pagin
   await expect(pontos).not.toHaveText("0");
   expect(await page.evaluate(() => scrollY), "a seta virou o Pac-Man, e nao rolou a pagina").toBe(rolagem);
   confere();
+});
+
+test("nenhuma pagina publica tem problema de acessibilidade que o axe acha", async ({ page }) => {
+  // axe-core: contraste, rotulos, nomes de botao e link, hierarquia de
+  // titulos, landmarks. Zerado em 28/09/2026; um teste quebrando aqui e uma
+  // regressao.
+  for (const caminho of ["/", "/jogos", "/regras", "/materiais", "/inscricao", "/apoio", "/privacidade", "/nao-existe"]) {
+    await page.goto(caminho);
+    await page.waitForLoadState("networkidle");
+    const r = await new AxeBuilder({ page }).analyze();
+    expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`), caminho).toEqual([]);
+  }
 });
