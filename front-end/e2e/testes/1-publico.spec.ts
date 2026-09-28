@@ -175,3 +175,23 @@ test("salvar na agenda: link do Google Agenda e arquivo .ics do evento", async (
   expect(ics.headers()["content-type"]).toContain("text/calendar");
   expect(await ics.text()).toMatch(/BEGIN:VEVENT[\s\S]*DTSTART:\d{8}T\d{6}Z/);
 });
+
+test("no celular, deitar o aparelho com o jogo na tela abre a tela cheia, e Sair volta", async ({ page }, info) => {
+  test.skip(info.project.name !== "celular", "so em aparelho de toque");
+  await page.goto("/");
+  await page.getByRole("heading", { name: "Enquanto a Season não começa" }).scrollIntoViewIfNeeded();
+  await page.getByRole("img", { name: /labirinto do Pac-Man/ }).scrollIntoViewIfNeeded();
+  // Em pe: a dica de virar o celular.
+  await expect(page.getByText("Vire o celular para jogar em tela cheia")).toBeVisible();
+  await page.getByRole("button", { name: "Para cima" }).tap();
+  const tamanho = page.viewportSize()!;
+  await page.setViewportSize({ width: tamanho.height, height: tamanho.width });
+  const cheia = page.getByRole("dialog", { name: "Jogo em tela cheia" });
+  await expect(cheia).toBeVisible();
+  // O labirinto cresce e cabe na altura da tela.
+  const caixa = (await page.getByRole("img", { name: /labirinto do Pac-Man/ }).boundingBox())!;
+  expect(caixa.height).toBeLessThanOrEqual(tamanho.width);
+  expect(caixa.width).toBeGreaterThan(tamanho.width);
+  await page.getByRole("button", { name: "Sair" }).tap();
+  await expect(cheia).toHaveCount(0);
+});

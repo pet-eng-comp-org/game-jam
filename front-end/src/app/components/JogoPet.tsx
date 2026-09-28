@@ -6,6 +6,13 @@
 //
 // So roda quando esta na tela: fora dela (ou com a aba escondida) o laco para,
 // e a partida fica congelada ate a pessoa voltar.
+//
+// Celular deitado: se o jogo estava na tela quando a pessoa virou o aparelho,
+// ele ocupa a tela inteira, como um videogame portatil (direcional a esquerda,
+// labirinto no meio, placar a direita). Nao obriga ninguem a virar: em pe
+// continua funcionando, com uma dica e, onde o navegador deixa (Android), um
+// botao que entra em tela cheia e trava na horizontal. O canvas e o mesmo
+// elemento nos dois jeitos (so o CSS muda), para a partida nao recomecar.
 import { useCallback, useEffect, useRef, useState } from "react"
 import { comeca, novoJogo, passo, vira, VIDAS, type Direcao, type Estado, type Fantasma } from "@/lib/jogo/pacman"
 import { ALTURA, LABIRINTO, LARGURA } from "@/lib/jogo/labirinto"
@@ -41,6 +48,13 @@ export default function JogoPet() {
   const paredesRef = useRef<HTMLCanvasElement | null>(null)
   const tileRef = useRef(16)
   const visivelRef = useRef(true)
+  const cheiaRef = useRef(false)
+  const [cheia, setCheia] = useState(false)
+  // Tela cheia de verdade (Fullscreen API) com trava de orientacao: o Safari
+  // do iPhone nao tem, e la so da para pedir que a pessoa vire.
+  const [podeTravar] = useState(() =>
+    typeof document !== "undefined" && !!document.fullscreenEnabled &&
+    typeof screen !== "undefined" && "orientation" in screen && typeof (screen.orientation as ScreenOrientation & { lock?: unknown }).lock === "function")
 
   // O que aparece fora do canvas (placar, vidas, mensagens) e so atualizado
   // quando muda, e nao a cada quadro.
@@ -57,10 +71,13 @@ export default function JogoPet() {
   }, [])
 
   // Tamanho: o tile acompanha a largura da caixa (e da tela do aparelho).
+  // Deitado, o maior que couber entre o direcional e o placar.
   const mede = useCallback(() => {
     const c = telaRef.current, box = caixaRef.current
     if (!c || !box) return
-    const t = Math.max(8, Math.min(26, Math.floor(box.clientWidth / LARGURA)))
+    const t = cheiaRef.current
+      ? Math.max(6, Math.min(Math.floor((innerWidth - 300) / LARGURA), Math.floor((innerHeight - 16) / ALTURA)))
+      : Math.max(8, Math.min(26, Math.floor(box.clientWidth / LARGURA)))
     tileRef.current = t
     const dpr = window.devicePixelRatio || 1
     c.width = LARGURA * t * dpr
@@ -126,6 +143,41 @@ export default function JogoPet() {
     return () => window.removeEventListener("keydown", tecla)
   }, [inicia])
 
+  // Deitou o celular com o jogo na tela: tela cheia. Levantou: volta.
+  useEffect(() => {
+    const mq = matchMedia("(orientation: landscape) and (pointer: coarse)")
+    const muda = () => {
+      if (mq.matches && visivelRef.current) setCheia(true)
+      else if (!mq.matches) setCheia(false)
+    }
+    mq.addEventListener("change", muda)
+    return () => mq.removeEventListener("change", muda)
+  }, [])
+
+  useEffect(() => {
+    cheiaRef.current = cheia
+    mede()
+    if (!cheia) return
+    // A pagina nao rola por baixo, e o tamanho acompanha a barra do navegador
+    // aparecendo e sumindo.
+    const antes = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    window.addEventListener("resize", mede)
+    return () => { document.body.style.overflow = antes; window.removeEventListener("resize", mede) }
+  }, [cheia, mede])
+
+  const entraTelaCheia = async () => {
+    try {
+      await caixaRef.current?.requestFullscreen()
+      await (screen.orientation as ScreenOrientation & { lock: (o: string) => Promise<void> }).lock("landscape")
+    } catch { /* sem permissao: fica a dica de virar o celular */ }
+    setCheia(true)
+  }
+  const sai = () => {
+    setCheia(false)
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
+  }
+
   // Toque: deslizar o dedo sobre o labirinto vira o Pac-Man; tocar comeca.
   const toqueRef = useRef<{ x: number; y: number } | null>(null)
   const onPointerDown = (ev: React.PointerEvent) => { toqueRef.current = { x: ev.clientX, y: ev.clientY } }
@@ -149,10 +201,21 @@ export default function JogoPet() {
     hud.fase === "fim" ? "Fim de jogo" : null
 
   return (
-    <div ref={caixaRef} className="w-full">
-      {/* Placar e labirinto na mesma largura (a do canvas). */}
-      <div className="mx-auto w-fit max-w-full">
-      <div className="mb-3 flex items-end justify-between gap-4 px-6 font-bold sm:px-0">
+    <div
+      ref={caixaRef}
+      role={cheia ? "dialog" : undefined}
+      aria-label={cheia ? "Jogo em tela cheia" : undefined}
+      className={cheia
+        ? "fixed inset-0 z-[60] flex items-center justify-center gap-3 bg-fundo px-[max(12px,env(safe-area-inset-left))]"
+        : "w-full"}
+    >
+      {/* Em pe: placar, labirinto e direcional empilhados na largura do canvas.
+          Deitado ("contents"): os tres viram colunas da tela cheia, na ordem
+          direcional, labirinto, placar. */}
+      <div className={cheia ? "contents" : "mx-auto w-fit max-w-full"}>
+      <div className={cheia
+        ? "order-3 flex w-[110px] shrink-0 flex-col items-center gap-4 text-center font-bold"
+        : "mb-3 flex items-end justify-between gap-4 px-6 font-bold sm:px-0"}>
         <div>
           <p className="text-sm text-destaque-claro/80">Pontos</p>
           <p className="font-secao text-4xl leading-none text-white" aria-live="off">{hud.pontos}</p>
@@ -162,13 +225,18 @@ export default function JogoPet() {
             <Personagem key={i} qual="pacman" className="h-5 w-5 -scale-x-100" />
           ))}
         </div>
-        <div className="text-right">
+        <div className={cheia ? "" : "text-right"}>
           <p className="text-sm text-destaque-claro/80">Recorde</p>
           <p className="font-secao text-4xl leading-none text-white">{Math.max(recorde, hud.pontos)}</p>
         </div>
+        {cheia && (
+          <button type="button" onClick={sai} className="rounded-full border-2 border-destaque-claro/60 px-4 py-1.5 text-sm text-destaque-claro">
+            Sair
+          </button>
+        )}
       </div>
 
-      <div className="relative">
+      <div className={cheia ? "relative order-2" : "relative"}>
         <canvas
           ref={telaRef}
           tabIndex={0}
@@ -201,9 +269,9 @@ export default function JogoPet() {
         )}
       </div>
 
-      {/* Direcional na tela, so em aparelho de toque: no celular o labirinto
-          tem uns 110px de altura, e deslizar o dedo nele era dificil. */}
-      <div className="mt-5 hidden justify-center pointer-coarse:flex">
+      {/* Direcional na tela, so em aparelho de toque: deslizar o dedo no
+          labirinto e dificil. Deitado, fica a esquerda, sob o polegar. */}
+      <div className={cheia ? "order-1 flex shrink-0 justify-center" : "mt-5 hidden justify-center pointer-coarse:flex"}>
         <div className="grid grid-cols-3 gap-2">
           {([["cima", "col-start-2", "Para cima"], ["esquerda", "col-start-1", "Para a esquerda"], ["direita", "col-start-3", "Para a direita"], ["baixo", "col-start-2", "Para baixo"]] as const).map(([dir, col, rotulo]) => (
             <button
@@ -226,6 +294,25 @@ export default function JogoPet() {
           ))}
         </div>
       </div>
+
+      {/* Em pe, no celular: a dica de deitar, com o aparelho girando, e o
+          botao de tela cheia onde o navegador deixa travar a orientacao. */}
+      {!cheia && (
+        <div className="mt-5 hidden flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6 text-sm text-destaque-claro pointer-coarse:portrait:flex">
+          <span className="flex items-center gap-2">
+            <svg viewBox="0 0 24 24" aria-hidden className="h-6 w-6 motion-safe:animate-vira-celular">
+              <rect x="7" y="2" width="10" height="20" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path d="M11 18h2" stroke="currentColor" strokeWidth="2" />
+            </svg>
+            Vire o celular para jogar em tela cheia
+          </span>
+          {podeTravar && (
+            <button type="button" onClick={entraTelaCheia} className="rounded-full border-2 border-destaque px-4 py-1 font-bold text-destaque">
+              Tela cheia
+            </button>
+          )}
+        </div>
+      )}
       </div>
       <p className="sr-only" aria-live="polite">
         {hud.fase === "fim" ? `Fim de jogo: ${hud.pontos} pontos.` : hud.fase === "venceu" ? `Labirinto limpo! Nível ${hud.nivel + 1}.` : ""}
