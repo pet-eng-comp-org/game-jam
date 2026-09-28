@@ -69,6 +69,9 @@ export default function JogoPet() {
     // de 280px), o CSS encolhe (max-w-full, altura proporcional).
     c.style.width = `${LARGURA * t}px`
     paredesRef.current = desenhaParedes(t, dpr)
+    // Mudar o tamanho limpa o canvas: redesenha ja, mesmo com o laco parado
+    // (celular girando com o jogo fora da tela).
+    if (estadoRef.current) desenha(c, estadoRef.current, t, paredesRef.current)
   }, [])
 
   useEffect(() => {

@@ -9,10 +9,17 @@ import { useEffect, useRef, useState } from "react"
 
 const JogoPet = dynamic(() => import("./JogoPet"), { ssr: false, loading: () => <Espaco /> })
 
-// Guarda o espaco do labirinto (32x11 tiles, mais o placar) para a pagina
-// nao pular quando o jogo aparece.
+// Guarda o espaco do jogo com a mesma estrutura dele (placar, labirinto de
+// 32x11 tiles e, em aparelho de toque, o direcional), para o resto da pagina
+// nao pular quando ele carrega.
 function Espaco() {
-  return <div className="mx-auto aspect-[32/15] w-full max-w-[832px] rounded-md bg-black/40" aria-hidden />
+  return (
+    <div aria-hidden className="mx-auto w-full max-w-[832px]">
+      <div className="h-[52px]" />
+      <div className="aspect-[32/11] w-full rounded-md bg-black/40" />
+      <div className="mt-5 hidden h-[120px] pointer-coarse:block" />
+    </div>
+  )
 }
 
 export default function JogoNaPagina() {
