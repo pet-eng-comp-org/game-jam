@@ -3,7 +3,8 @@
 // GAME em cima e JAM embaixo, com a casa dos fantasmas ao lado do JAM. Mais
 // alto que largo, como o do arcade, para ter corredores e cruzamentos e caber
 // maior na tela do celular. O bloquinho solto a esquerda do J quebra a sala
-// que sobrava ali.
+// que sobrava ali. A linha do meio e o tunel: sai por um lado e entra pelo
+// outro.
 //
 //   #  parede          .  bolinha        o  pastilha grande
 //   x  miolo de letra (fora do jogo)     -  porta da casa
@@ -18,7 +19,7 @@ export const LABIRINTO = [
   "#.##...##.#######.##...##.##......#",
   "#.#######.##...##.##...##.#######.#",
   "#..#####..##...##.##...##.#######.#",
-  "#.................................#",
+  "_................................._",
   "#.....##..#####..##...##.###--###.#",
   "#.###.##.#######.###.###.#hhhhhh#.#",
   "#.....##.##xxx##.#######.#hhhhhh#.#",

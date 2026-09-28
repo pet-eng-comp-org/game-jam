@@ -27,7 +27,16 @@ function jogando(rng = semente(1)) {
   return e;
 }
 
-const andavel = (x: number, y: number) => ".o_".includes(LABIRINTO[Math.round(y)][Math.round(x)]);
+// A coluna da a volta (tunel da linha do meio).
+const andavel = (x: number, y: number) => {
+  const L = LABIRINTO[0].length;
+  return ".o_".includes(LABIRINTO[Math.round(y)][((Math.round(x) % L) + L) % L]);
+};
+
+test("o labirinto e um retangulo: toda linha com a mesma largura", () => {
+  const larguras = new Set(LABIRINTO.map((l) => l.length));
+  assert.equal(larguras.size, 1, `larguras: ${[...larguras].join(", ")}`);
+});
 
 test("comeca parado, esperando a pessoa apertar para jogar", () => {
   const e = novoJogo();
@@ -197,4 +206,18 @@ test("perseguindo, o Blinky alcanca o Pac-Man parado em qualquer ponto", () => {
     for (let i = 0; i < 60 * 15 && !pegou; i++) { passo(e, 1 / 60); pegou = e.fase === "morrendo"; }
     assert.ok(pegou, `Blinky nao alcancou o Pac-Man em ${t.x},${t.y}`);
   }
+});
+
+test("o tunel da linha do meio leva de um lado ao outro", () => {
+  const e = jogando();
+  const meio = LABIRINTO.findIndex((l) => l.startsWith("_"));
+  const L = LABIRINTO[0].length;
+  e.fantasmas = [];
+  e.pacman.x = 1; e.pacman.y = meio; e.pacman.dir = "esquerda";
+  roda(e, 0.5);
+  assert.ok(e.pacman.x > L / 2, `saiu pela esquerda e voltou pela direita (x=${e.pacman.x})`);
+  assert.ok(andavel(e.pacman.x, e.pacman.y));
+  e.pacman.dir = "direita";
+  roda(e, 0.6);
+  assert.ok(e.pacman.x < L / 2, `e de volta (x=${e.pacman.x})`);
 });

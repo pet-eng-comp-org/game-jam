@@ -66,8 +66,15 @@ export interface Estado {
   rng: () => number;
 }
 
+// Coluna com volta: o tunel da linha do meio sai por um lado e entra pelo
+// outro, como no arcade.
+const volta = (x: number) => ((x % LARGURA) + LARGURA) % LARGURA;
+// Passou de meio tile para fora da borda: reaparece do outro lado.
+const atravessa = (x: number) => (x < -0.5 ? x + LARGURA : x > LARGURA - 0.5 ? x - LARGURA : x);
+
 const pode = (e: Estado, x: number, y: number, quem: "pacman" | "fantasma" | "olhos") => {
-  if (x < 0 || y < 0 || x >= LARGURA || y >= ALTURA) return false;
+  if (y < 0 || y >= ALTURA) return false;
+  x = volta(x);
   const c = e.grade[y][x];
   if (c === "." || c === "o" || c === "_") return true;
   // Os olhos passam pela porta para voltar a casa; ninguem mais passa.
@@ -206,6 +213,7 @@ function andaPacman(e: Estado, dt: number) {
     p.andou += d;
     resta -= d;
     if (d === falta) { p.x = Math.round(p.x); p.y = Math.round(p.y); }
+    p.x = atravessa(p.x);
   }
   come(e, Math.round(p.x), Math.round(p.y));
 }
@@ -220,6 +228,7 @@ function distanciaAteCentro(x: number, y: number, dir: Direcao) {
 }
 
 function come(e: Estado, x: number, y: number) {
+  x = volta(x);
   const c = e.grade[y]?.[x];
   if (c !== "." && c !== "o") return;
   e.grade[y][x] = "_";
@@ -320,6 +329,7 @@ function andaFantasma(e: Estado, f: Fantasma, dt: number) {
     f.y += VETOR[f.dir][1] * d;
     resta -= d;
     if (d === falta) { f.x = Math.round(f.x); f.y = Math.round(f.y); }
+    f.x = atravessa(f.x);
   }
 }
 
@@ -342,7 +352,7 @@ function escolhe(e: Estado, f: Fantasma, cx: number, cy: number, quem: "fantasma
   let melhor = abertas[0], menor = Infinity;
   for (const d of abertas) {
     const nx = cx + VETOR[d][0], ny = cy + VETOR[d][1];
-    const dist = mapa ? mapa[ny * LARGURA + nx] : (nx - t.x) ** 2 + (ny - t.y) ** 2;
+    const dist = mapa ? mapa[ny * LARGURA + volta(nx)] : (nx - t.x) ** 2 + (ny - t.y) ** 2;
     if (dist < menor) { menor = dist; melhor = d; }
   }
   return melhor;
@@ -367,7 +377,7 @@ function distancias(e: Estado, alvo: { x: number; y: number }, quem: "fantasma" 
   for (let i = 0; i < fila.length; i++) {
     const atual = fila[i], x = atual % LARGURA, y = (atual - x) / LARGURA;
     for (const [dx, dy] of Object.values(VETOR)) {
-      const nx = x + dx, ny = y + dy, n = ny * LARGURA + nx;
+      const nx = volta(x + dx), ny = y + dy, n = ny * LARGURA + nx;
       if (pode(e, nx, ny, quem) && d[n] === Infinity) { d[n] = d[atual] + 1; fila.push(n); }
     }
   }
