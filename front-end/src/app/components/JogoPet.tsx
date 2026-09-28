@@ -4,22 +4,33 @@
 // num canvas com os sprites do arcade (src/lib/sprites.ts). Teclado (setas ou
 // WASD) e, no celular, deslizar o dedo sobre o labirinto.
 //
+// Como o Doodle do Google: tudo dentro do quadro preto (placar em cima, vidas
+// embaixo, "PRONTO!" no corredor do meio, na letra da logo), e a partida
+// comeca sozinha quando o jogo aparece na tela, com a abertura do arcade. Com
+// animacao reduzida, espera a pessoa apertar Jogar.
+//
 // So roda quando esta na tela: fora dela (ou com a aba escondida) o laco para,
 // e a partida fica congelada ate a pessoa voltar.
 //
 // Celular deitado: se o jogo estava na tela quando a pessoa virou o aparelho,
-// ele ocupa a tela inteira (labirinto no meio, placar a direita). Nao obriga ninguem a virar: em pe
+// ele ocupa a tela inteira (labirinto no meio, Sair a direita). Nao obriga ninguem a virar: em pe
 // continua funcionando, com uma dica e, onde o navegador deixa (Android), um
 // botao que entra em tela cheia e trava na horizontal. O canvas e o mesmo
 // elemento nos dois jeitos (so o CSS muda), para a partida nao recomecar.
 import { useCallback, useEffect, useRef, useState } from "react"
-import { comeca, novoJogo, passo, vira, VIDAS, type Direcao, type Estado, type Fantasma } from "@/lib/jogo/pacman"
-import { ALTURA, LABIRINTO, LARGURA } from "@/lib/jogo/labirinto"
+import { ABERTURA, comeca, novoJogo, passo, vira, VIDAS, type Direcao, type Estado, type Fantasma } from "@/lib/jogo/pacman"
+import { ALTURA, LABIRINTO, LARGURA, LETRA, MEIO } from "@/lib/jogo/labirinto"
 import { CORES, FANTASMA, OLHOS, PACMAN_ABERTO, PACMAN_FECHADO, PACMAN_MEIO, ROSTO_ASSUSTADO } from "@/lib/sprites"
 import { FANTASMA_B, PACMAN_MORTE, PASTILHA, PONTOS_FANTASMA } from "@/lib/jogo/sprites-jogo"
-import Personagem from "./Personagem"
+import { FONTE, larguraDoTexto } from "@/lib/jogo/fonte"
 
 const CHAVE_RECORDE = "pet-game-jam-recorde"
+// Faixas do quadro, em tiles: placar em cima, vidas embaixo, como no arcade.
+const TOPO = 2, BASE = 2
+const ALTO = TOPO + ALTURA + BASE
+// Cores da logo: G, A, M e E de GAME; JAM em branco.
+const COR_DA_LETRA = ["#A40000", "#C88FC8", "#00AAAA", "#BF8A3D", "#FFFFFF", "#FFFFFF", "#FFFFFF"]
+const AMARELO = "#E9CB0A" // o PET da logo
 const TECLAS: Record<string, Direcao> = {
   ArrowUp: "cima", ArrowDown: "baixo", ArrowLeft: "esquerda", ArrowRight: "direita",
   w: "cima", s: "baixo", a: "esquerda", d: "direita", W: "cima", S: "baixo", A: "esquerda", D: "direita",
@@ -44,7 +55,7 @@ export default function JogoPet() {
   const caixaRef = useRef<HTMLDivElement>(null)
   const telaRef = useRef<HTMLCanvasElement>(null)
   const estadoRef = useRef<Estado | null>(null)
-  const paredesRef = useRef<HTMLCanvasElement | null>(null)
+  const paredesRef = useRef<Paredes | null>(null)
   const tileRef = useRef(16)
   const visivelRef = useRef(true)
   const cheiaRef = useRef(false)
@@ -55,12 +66,15 @@ export default function JogoPet() {
     typeof document !== "undefined" && !!document.fullscreenEnabled &&
     typeof screen !== "undefined" && "orientation" in screen && typeof (screen.orientation as ScreenOrientation & { lock?: unknown }).lock === "function")
 
-  // O que aparece fora do canvas (placar, vidas, mensagens) e so atualizado
-  // quando muda, e nao a cada quadro.
+  // O que o React precisa saber (botao Jogar, texto para leitor de tela) e
+  // so atualizado quando muda, e nao a cada quadro; o placar e desenhado.
   const [hud, setHud] = useState({ pontos: 0, vidas: VIDAS, fase: "espera" as Estado["fase"], nivel: 1 })
   // Carregado so no navegador (dynamic sem ssr, em JogoNaPagina.tsx), entao
   // da para ler o recorde ja na criacao do estado.
   const [recorde, setRecorde] = useState(leRecorde)
+  // O desenho le o recorde a cada quadro, sem depender de render.
+  const recordeRef = useRef(recorde)
+  useEffect(() => { recordeRef.current = recorde }, [recorde])
 
   const inicia = useCallback(() => {
     const e = estadoRef.current
@@ -75,19 +89,19 @@ export default function JogoPet() {
     const c = telaRef.current, box = caixaRef.current
     if (!c || !box) return
     const t = cheiaRef.current
-      ? Math.max(6, Math.min(Math.floor((innerWidth - 150) / LARGURA), Math.floor((innerHeight - 16) / ALTURA)))
+      ? Math.max(6, Math.min(Math.floor((innerWidth - 150) / LARGURA), Math.floor((innerHeight - 16) / ALTO)))
       : Math.max(8, Math.min(26, Math.floor(box.clientWidth / LARGURA)))
     tileRef.current = t
     const dpr = window.devicePixelRatio || 1
     c.width = LARGURA * t * dpr
-    c.height = ALTURA * t * dpr
+    c.height = ALTO * t * dpr
     // Largura em pixel inteiro por tile; se nem o tile minimo couber (telas
     // de 280px), o CSS encolhe (max-w-full, altura proporcional).
     c.style.width = `${LARGURA * t}px`
-    paredesRef.current = desenhaParedes(t, dpr)
+    paredesRef.current = { cor: desenhaParedes(t, dpr, false), branca: desenhaParedes(t, dpr, true) }
     // Mudar o tamanho limpa o canvas: redesenha ja, mesmo com o laco parado
     // (celular girando com o jogo fora da tela).
-    if (estadoRef.current) desenha(c, estadoRef.current, t, paredesRef.current)
+    if (estadoRef.current) desenha(c, estadoRef.current, t, paredesRef.current, recordeRef.current)
   }, [])
 
   useEffect(() => {
@@ -107,7 +121,7 @@ export default function JogoPet() {
       if (!e || !c || !visivelRef.current || document.hidden) { quadro = 0; return }
       quadro = requestAnimationFrame(laco)
       passo(e, dt)
-      desenha(c, e, tileRef.current, paredesRef.current)
+      desenha(c, e, tileRef.current, paredesRef.current, recordeRef.current)
       if (e.pontos !== anterior.pontos || e.vidas !== anterior.vidas || e.fase !== anterior.fase || e.nivel !== anterior.nivel) {
         anterior = { pontos: e.pontos, vidas: e.vidas, fase: e.fase, nivel: e.nivel }
         setHud(anterior as typeof hud)
@@ -119,7 +133,16 @@ export default function JogoPet() {
       ultimo = performance.now()
       quadro = requestAnimationFrame(laco)
     }
-    const vis = new IntersectionObserver(([ent]) => { visivelRef.current = ent.isIntersecting; liga() }, { threshold: 0.2 })
+    // Como o Doodle, a partida comeca sozinha, uma vez, quando o jogo aparece
+    // quase inteiro na tela. Com animacao reduzida, nao: fica o botao Jogar.
+    let comecou = false
+    const reduzida = matchMedia("(prefers-reduced-motion: reduce)").matches
+    const vis = new IntersectionObserver(([ent]) => {
+      visivelRef.current = ent.intersectionRatio >= 0.2
+      const e = estadoRef.current
+      if (!comecou && !reduzida && ent.intersectionRatio >= 0.6 && e?.fase === "espera") { comecou = true; comeca(e) }
+      liga()
+    }, { threshold: [0, 0.2, 0.6] })
     if (telaRef.current) vis.observe(telaRef.current)
     document.addEventListener("visibilitychange", liga)
     liga()
@@ -206,17 +229,12 @@ export default function JogoPet() {
     if (!c || ev.target !== c) return
     const r = c.getBoundingClientRect()
     const tx = ((ev.clientX - r.left) / r.width) * LARGURA - 0.5
-    const ty = ((ev.clientY - r.top) / r.height) * ALTURA - 0.5
+    const ty = ((ev.clientY - r.top) / r.height) * ALTO - TOPO - 0.5
     const dx = tx - e.pacman.x, dy = ty - e.pacman.y
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 0.5) return
     vira(e, Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "direita" : "esquerda") : (dy > 0 ? "baixo" : "cima"))
   }
   const emPartida = hud.fase !== "espera" && hud.fase !== "fim"
-
-  const mensagem =
-    hud.fase === "pronto" ? "Pronto!" :
-    hud.fase === "venceu" ? "Labirinto limpo!" :
-    hud.fase === "fim" ? "Fim de jogo" : null
 
   return (
     <div
@@ -232,31 +250,16 @@ export default function JogoPet() {
         ? "fixed inset-0 z-[60] flex items-center justify-center gap-3 bg-fundo px-[max(12px,env(safe-area-inset-left))]"
         : "w-full"}
     >
-      {/* Em pe: placar e labirinto empilhados na largura do canvas. Deitado
-          ("contents"): viram colunas da tela cheia, labirinto e placar. */}
+      {/* Em pe: o quadro na largura da caixa. Deitado ("contents"): o quadro
+          no meio da tela cheia e o Sair ao lado. */}
       <div className={cheia ? "contents" : "mx-auto w-fit max-w-full"}>
-      <div className={cheia
-        ? "order-3 flex w-[110px] shrink-0 flex-col items-center gap-4 text-center font-bold"
-        : "mb-3 flex items-end justify-between gap-4 px-6 font-bold sm:px-0"}>
-        <div>
-          <p className="text-sm text-destaque-claro/80">Pontos</p>
-          <p className="font-secao text-4xl leading-none text-white" aria-live="off">{hud.pontos}</p>
-        </div>
-        <div className="flex items-center gap-1.5" aria-label={`${hud.vidas} vidas`} role="img">
-          {Array.from({ length: Math.max(0, hud.vidas - (hud.fase === "espera" ? 0 : 1)) }, (_, i) => (
-            <Personagem key={i} qual="pacman" className="h-5 w-5 -scale-x-100" />
-          ))}
-        </div>
-        <div className={cheia ? "" : "text-right"}>
-          <p className="text-sm text-destaque-claro/80">Recorde</p>
-          <p className="font-secao text-4xl leading-none text-white">{Math.max(recorde, hud.pontos)}</p>
-        </div>
-        {cheia && (
-          <button type="button" onClick={sai} className="rounded-full border-2 border-destaque-claro/60 px-4 py-1.5 text-sm text-destaque-claro">
+      {cheia && (
+        <div className="order-3 flex w-[110px] shrink-0 justify-center">
+          <button type="button" onClick={sai} className="rounded-full border-2 border-destaque-claro/60 px-4 py-1.5 text-sm font-bold text-destaque-claro">
             Sair
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className={cheia ? "relative order-2" : "relative"}>
         <canvas
@@ -264,26 +267,20 @@ export default function JogoPet() {
           tabIndex={0}
           role="img"
           aria-label="Jogo: labirinto do Pac-Man com GAME JAM escrito nas paredes. Enter para jogar, setas para mover."
+          data-fase={hud.fase}
           className="block h-auto max-w-full touch-none select-none rounded-md bg-black outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-destaque"
         />
         {(hud.fase === "espera" || hud.fase === "fim") && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/55">
-            {hud.fase === "fim" && <p className="font-secao text-2xl uppercase leading-none text-[#FF0000] sm:text-4xl md:text-5xl">{mensagem}</p>}
-            <button
-              type="button"
-              onClick={inicia}
-              className="rounded-full bg-destaque px-5 py-1.5 text-sm font-bold text-barra transition-opacity hover:opacity-90 sm:px-7 sm:py-2.5 sm:text-base md:text-lg"
-            >
-              {hud.fase === "fim" ? "Jogar de novo" : "Jogar"}
-            </button>
-          </div>
-        )}
-        {mensagem && hud.fase !== "fim" && (
-          // Na linha do meio (o corredor entre GAME e JAM), como o READY! do
-          // arcade num corredor livre: mais embaixo caia em cima da casa.
-          <p className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-center font-secao text-2xl uppercase leading-none text-destaque md:text-4xl">
-            {mensagem}
-          </p>
+          // O "Insert Coin" do Doodle: um botao de verdade, por cima do quadro.
+          // Na espera, no corredor do meio; no fim, embaixo do "FIM DE JOGO".
+          <button
+            type="button"
+            onClick={inicia}
+            style={{ top: `${((TOPO + MEIO + (hud.fase === "fim" ? 2.5 : 0.5)) / ALTO) * 100}%` }}
+            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-destaque px-5 py-1.5 text-sm font-bold text-barra transition-opacity hover:opacity-90 sm:px-7 sm:py-2.5 sm:text-base md:text-lg"
+          >
+            {hud.fase === "fim" ? "Jogar de novo" : "Jogar"}
+          </button>
         )}
       </div>
 
@@ -306,6 +303,7 @@ export default function JogoPet() {
         </div>
       )}
       </div>
+      <p className="sr-only">Pontos: {hud.pontos}. Recorde: {Math.max(recorde, hud.pontos)}.</p>
       <p className="sr-only" aria-live="polite">
         {hud.fase === "fim" ? `Fim de jogo: ${hud.pontos} pontos.` : hud.fase === "venceu" ? `Labirinto limpo! Nível ${hud.nivel + 1}.` : ""}
       </p>
@@ -316,13 +314,15 @@ export default function JogoPet() {
 // Paredes: fixas, desenhadas uma vez num canvas fora da tela. Cada tile de
 // parede ganha linha nos lados que dao para um corredor, recuada para dentro
 // dele; com o traco das letras de 2 tiles, sai o contorno duplo do arcade.
-function desenhaParedes(t: number, dpr: number) {
+// Cada letra na cor dela na logo, a borda no azul do arcade; a versao branca
+// e a do labirinto piscando quando ele fica limpo.
+type Paredes = { cor: HTMLCanvasElement; branca: HTMLCanvasElement }
+function desenhaParedes(t: number, dpr: number, branca: boolean) {
   const c = document.createElement("canvas")
   c.width = LARGURA * t * dpr
   c.height = ALTURA * t * dpr
   const g = c.getContext("2d")!
   g.scale(dpr, dpr)
-  g.strokeStyle = CORES.parede
   g.lineWidth = Math.max(1.5, t / 10)
   g.lineCap = "square"
   const k = t * 0.35
@@ -335,6 +335,8 @@ function desenhaParedes(t: number, dpr: number) {
         g.fillRect(x * t, y * t + t / 2 - t / 10, t, t / 5)
       }
       if (!parede(x, y)) continue
+      const letra = LETRA[y][x] ?? -1
+      g.strokeStyle = branca ? "#FFFFFF" : letra < 0 ? CORES.parede : COR_DA_LETRA[letra]
       const X = x * t, Y = y * t
       const cima = parede(x, y - 1), baixo = parede(x, y + 1), esq = parede(x - 1, y), dir = parede(x + 1, y)
       if (!cima) linha(X + (esq ? 0 : k), Y + k, X + t - (dir ? 0 : k), Y + k)
@@ -360,16 +362,79 @@ function sprite(g: CanvasRenderingContext2D, d: string, cor: string, cx: number,
   g.restore()
 }
 
-function desenha(c: HTMLCanvasElement, e: Estado, t: number, paredes: HTMLCanvasElement | null) {
+// Texto na letra da logo (src/lib/jogo/fonte.ts), com altura em px; cada
+// letra e um Path2D so, para nao abrir fresta entre os pixels.
+const letras = new Map<string, Path2D>()
+function letra(ch: string) {
+  let p = letras.get(ch)
+  if (!p) {
+    p = new Path2D()
+    const f = FONTE[ch] ?? FONTE[" "]
+    f.forEach((linha, y) => [...linha].forEach((c, x) => { if (c === "#") p!.rect(x, y, 1, 1) }))
+    letras.set(ch, p)
+  }
+  return p
+}
+function escreve(g: CanvasRenderingContext2D, texto: string, x: number, y: number, altura: number, cor: string, alinha: "esquerda" | "centro" | "direita" = "esquerda") {
+  const p = altura / 7
+  const w = larguraDoTexto(texto) * p
+  g.save()
+  g.fillStyle = cor
+  g.translate(alinha === "centro" ? x - w / 2 : alinha === "direita" ? x - w : x, y)
+  g.scale(p, p)
+  for (const ch of texto) {
+    g.fill(letra(ch))
+    g.translate((FONTE[ch] ?? FONTE[" "])[0].length + 1, 0)
+  }
+  g.restore()
+}
+
+function desenha(c: HTMLCanvasElement, e: Estado, t: number, paredes: Paredes | null, recorde: number) {
   const g = c.getContext("2d")!
   const dpr = c.width / (LARGURA * t)
   g.setTransform(dpr, 0, 0, dpr, 0, 0)
   g.fillStyle = "#000"
-  g.fillRect(0, 0, LARGURA * t, ALTURA * t)
-  if (paredes) g.drawImage(paredes, 0, 0, LARGURA * t, ALTURA * t)
+  g.fillRect(0, 0, LARGURA * t, ALTO * t)
+
+  // Placar, em cima: "1UP" (pisca durante a partida, como no arcade) e os
+  // pontos a esquerda, o recorde a direita.
+  const h = Math.max(7, t * 1.1)
+  const yTexto = (TOPO * t - h) / 2
+  const pisca = e.fase === "jogando" && Math.floor(e.tempo * 3) % 2 === 1
+  if (!pisca) escreve(g, "1UP", t, yTexto, h, AMARELO)
+  escreve(g, String(e.pontos), t + (larguraDoTexto("1UP ") * h) / 7, yTexto, h, "#FFFFFF")
+  const valor = String(Math.max(recorde, e.pontos))
+  const fim = (LARGURA - 1) * t
+  escreve(g, valor, fim, yTexto, h, "#FFFFFF", "direita")
+  escreve(g, "RECORDE", fim - (larguraDoTexto(valor + " ") * h) / 7, yTexto, h, AMARELO, "direita")
 
   // Pixel do sprite: um sprite de 16 ocupa ~1,7 tile, como no arcade.
   const s = Math.max(1, Math.round((t * 1.7) / 16))
+
+  // Vidas, embaixo: as que sobram alem da que esta em jogo. Na abertura,
+  // antes do Pac-Man aparecer, contam todas; quando ele surge, uma sai dali.
+  const escondidos = e.fase === "pronto" && e.abertura && e.tempoFase < ABERTURA.aparecem
+  const vidas = Math.max(0, e.vidas - (e.fase === "espera" || escondidos ? 0 : 1))
+  for (let i = 0; i < vidas; i++) {
+    g.save()
+    g.translate(Math.round((1.5 + i * 2) * t + (13 * s) / 2), Math.round((TOPO + ALTURA + BASE / 2) * t - (13 * s) / 2))
+    g.scale(-s, s)
+    g.fillStyle = CORES.pacman
+    g.fill(caminho(PACMAN_MEIO))
+    g.restore()
+  }
+
+  // Daqui para baixo, o labirinto, entre as faixas.
+  g.translate(0, TOPO * t)
+  // Labirinto limpo: as paredes piscam em branco, e os fantasmas somem.
+  const limpo = e.fase === "venceu" && e.tempoFase >= 1
+  if (paredes) g.drawImage(limpo && Math.floor(e.tempoFase * 4) % 2 === 0 ? paredes.branca : paredes.cor, 0, 0, LARGURA * t, ALTURA * t)
+
+  // "PRONTO!" e "FIM DE JOGO" no corredor do meio, onde nao ha bolinhas.
+  const hm = Math.max(7, t * 0.9)
+  if (e.fase === "pronto") escreve(g, "PRONTO!", (LARGURA * t) / 2, (MEIO + 0.5) * t - hm / 2, hm, AMARELO, "centro")
+  if (e.fase === "fim") escreve(g, "FIM DE JOGO", (LARGURA * t) / 2, (MEIO + 0.5) * t - hm / 2, hm, CORES.vermelho, "centro")
+
   const centro = (v: number) => (v + 0.5) * t
 
   // Bolinhas; as grandes piscam.
@@ -383,9 +448,12 @@ function desenha(c: HTMLCanvasElement, e: Estado, t: number, paredes: HTMLCanvas
     }
   }
 
+  // Na abertura, so o labirinto e o "PRONTO!" ate a hora de aparecerem; no
+  // fim de jogo, so o "FIM DE JOGO", como no arcade.
+  if (escondidos || e.fase === "fim") return
   const morrendo = e.fase === "morrendo"
   // Fantasmas (somem enquanto o Pac-Man morre, como no arcade).
-  if (!morrendo || e.tempoFase < 0.5) {
+  if (!limpo && (!morrendo || e.tempoFase < 0.5)) {
     for (const f of e.fantasmas) desenhaFantasma(g, e, f, centro(f.x), centro(f.y), s)
   }
 

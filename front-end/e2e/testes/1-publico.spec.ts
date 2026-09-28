@@ -137,7 +137,7 @@ async function acimaDoPacman(canvas: import("@playwright/test").Locator) {
   return { x: c.width / 2, y: c.height * 0.3 };
 }
 
-test("o jogo do Inicio comeca, anda e conta pontos, e as setas nao rolam a pagina", async ({ page }, info) => {
+test("o jogo do Inicio comeca sozinho ao aparecer, anda e conta pontos, e as setas nao rolam a pagina", async ({ page }, info) => {
   const confere = semErroDePagina(page);
   await page.goto("/");
   // O jogo so carrega quando a pessoa rola ate perto dele.
@@ -145,20 +145,36 @@ test("o jogo do Inicio comeca, anda e conta pontos, e as setas nao rolam a pagin
   await page.getByRole("heading", { name: "Enquanto a Season não começa" }).scrollIntoViewIfNeeded();
   const jogo = page.getByRole("img", { name: /labirinto do Pac-Man/ });
   await jogo.scrollIntoViewIfNeeded();
-  await page.getByRole("button", { name: "Jogar" }).click();
-  await page.waitForTimeout(2300); // "Pronto!"
+  // Como o Doodle do Google: sem botao, a abertura ("PRONTO!") e a partida.
+  await expect(jogo).toHaveAttribute("data-fase", "pronto");
+  await expect(page.getByRole("button", { name: "Jogar" })).toHaveCount(0);
+  await expect(jogo).toHaveAttribute("data-fase", "jogando", { timeout: 8000 });
   const rolagem = await page.evaluate(() => scrollY);
   // No celular, sem direcional: toca no labirinto acima do Pac-Man (ele sai
   // do meio de baixo), e ele vai para cima.
   if (info.project.name === "celular") await jogo.tap({ position: await acimaDoPacman(jogo) });
   else await page.keyboard.press("ArrowUp");
   await page.waitForTimeout(800);
-  const pontos = page.getByText("Pontos").locator("xpath=following-sibling::p");
-  await expect(pontos).not.toHaveText("0");
+  // O placar e desenhado no quadro; o texto para leitor de tela acompanha.
+  await expect(page.getByText(/^Pontos: \d+\./)).not.toHaveText(/^Pontos: 0\./);
   // Setas do teclado (no celular o toque no direcional nao rola nada; quem
   // rola ali e o proprio Playwright, trazendo o botao para a tela).
   if (info.project.name !== "celular") expect(await page.evaluate(() => scrollY), "a seta virou o Pac-Man, e nao rolou a pagina").toBe(rolagem);
   confere();
+});
+
+test.describe("com animacao reduzida", () => {
+  test.use({ reducedMotion: "reduce" });
+  test("o jogo nao comeca sozinho: espera o Jogar", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("heading", { name: "Enquanto a Season não começa" }).scrollIntoViewIfNeeded();
+    const jogo = page.getByRole("img", { name: /labirinto do Pac-Man/ });
+    await jogo.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1000);
+    await expect(jogo).toHaveAttribute("data-fase", "espera");
+    await page.getByRole("button", { name: "Jogar" }).click();
+    await expect(jogo).toHaveAttribute("data-fase", "pronto");
+  });
 });
 
 test("nenhuma pagina publica tem problema de acessibilidade que o axe acha", async ({ page }) => {
@@ -192,7 +208,7 @@ test("no celular, deitar o aparelho com o jogo na tela abre a tela cheia, e Sair
   // Em pe: a dica de virar o celular.
   await expect(page.getByText("Vire o celular para jogar em tela cheia")).toBeVisible();
   const labirinto = page.getByRole("img", { name: /labirinto do Pac-Man/ });
-  await page.getByRole("button", { name: "Jogar" }).tap();
+  await expect(labirinto).toHaveAttribute("data-fase", /pronto|jogando/);
   await labirinto.tap({ position: await acimaDoPacman(labirinto) });
   const tamanho = page.viewportSize()!;
   await page.setViewportSize({ width: tamanho.height, height: tamanho.width });

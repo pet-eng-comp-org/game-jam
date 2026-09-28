@@ -37,6 +37,10 @@ const SOLTURA: Record<NomeFantasma, number> = { vermelho: 0, rosa: 1, ciano: 4, 
 // Para que lado fica a saida da casa (no A do JAM, para baixo).
 const PARA_FORA: Direcao = INICIO.foraDaPorta.y < INICIO.porta.y ? "cima" : "baixo";
 const PAUSA = { pronto: 2, comendo: 0.5, morrendo: 1.8, venceu: 2.2 };
+// Abertura da partida, como no arcade e no Doodle do Google: o "PRONTO!"
+// fica mais tempo (a musica de abertura), e os personagens so aparecem na
+// segunda metade.
+export const ABERTURA = { dura: 4.2, aparecem: 2.2 };
 export const VIDAS = 3;
 
 export interface Pacman { x: number; y: number; dir: Direcao; quer: Direcao | null; parado: boolean; andou: number }
@@ -55,6 +59,7 @@ export interface Estado {
   vidas: number;
   nivel: number;
   fase: Fase;
+  abertura: boolean;   // o "pronto" e o do comeco da partida
   tempoFase: number;   // segundos desde que a fase comecou
   tempo: number;       // segundos de relogio (animacoes)
   jogo: number;        // segundos jogando nesta vida (soltura dos fantasmas)
@@ -107,7 +112,7 @@ export function novoJogo(rng: () => number = Math.random): Estado {
   const grade = LABIRINTO.map((l) => l.split(""));
   const e = {
     grade, restantes: contaBolinhas(grade), pontos: 0, vidas: VIDAS, nivel: 1,
-    fase: "espera", tempoFase: 0, tempo: 0, combo: 200, rng,
+    fase: "espera", abertura: false, tempoFase: 0, tempo: 0, combo: 200, rng,
   } as Estado;
   posicoesIniciais(e);
   return e;
@@ -116,7 +121,7 @@ export function novoJogo(rng: () => number = Math.random): Estado {
 // Comeca (ou recomeca, depois do fim) a partida.
 export function comeca(e: Estado) {
   if (e.fase === "fim") Object.assign(e, novoJogo(e.rng));
-  if (e.fase === "espera" || e.fase === "fim") muda(e, "pronto");
+  if (e.fase === "espera" || e.fase === "fim") { muda(e, "pronto"); e.abertura = true; }
 }
 
 export function vira(e: Estado, dir: Direcao) {
@@ -137,7 +142,7 @@ export function passo(e: Estado, dt: number) {
     case "fim":
       return;
     case "pronto":
-      if (e.tempoFase >= PAUSA.pronto) muda(e, "jogando");
+      if (e.tempoFase >= (e.abertura ? ABERTURA.dura : PAUSA.pronto)) { muda(e, "jogando"); e.abertura = false; }
       return;
     case "comendo":
       if (e.tempoFase >= PAUSA.comendo) muda(e, "jogando");

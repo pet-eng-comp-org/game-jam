@@ -1,8 +1,8 @@
 // Regras do jogo do Inicio (src/lib/jogo/pacman.ts), sem navegador.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { comeca, novoJogo, passo, vira, VIDAS, type Estado } from "../src/lib/jogo/pacman.ts";
-import { INICIO, LABIRINTO } from "../src/lib/jogo/labirinto.ts";
+import { ABERTURA, comeca, novoJogo, passo, vira, VIDAS, type Estado } from "../src/lib/jogo/pacman.ts";
+import { INICIO, LABIRINTO, LETRA, MEIO } from "../src/lib/jogo/labirinto.ts";
 
 // Aleatorio com semente: os fantasmas assustados andam ao acaso, e o teste
 // precisa dar o mesmo resultado sempre.
@@ -15,6 +15,18 @@ function semente(s: number) {
   };
 }
 
+test("as paredes sao a borda e as 7 letras de GAME JAM, cada uma de uma peca", () => {
+  const vistas = new Set(LETRA.flat().filter((l) => l !== null));
+  assert.deepEqual([...vistas].sort((a, b) => a! - b!), [-1, 0, 1, 2, 3, 4, 5, 6]);
+  LETRA.forEach((linha, y) => linha.forEach((l, x) => {
+    assert.equal(l !== null, LABIRINTO[y][x] === "#", `tile ${x},${y}`);
+    if (l !== null && l >= 0) assert.equal(y < MEIO, l < 4, `${x},${y}: GAME em cima, JAM embaixo`);
+  }));
+  // O G e a letra mais a esquerda de cima; o J, a de baixo.
+  assert.equal(LETRA[4][2], 0);
+  assert.equal(LETRA[13][5], 4);
+});
+
 const roda = (e: Estado, segundos: number) => {
   for (let t = 0; t < segundos; t += 1 / 60) passo(e, 1 / 60);
 };
@@ -22,7 +34,7 @@ const roda = (e: Estado, segundos: number) => {
 function jogando(rng = semente(1)) {
   const e = novoJogo(rng);
   comeca(e);
-  roda(e, 2.05); // "PRONTO!"
+  roda(e, ABERTURA.dura + 0.05); // "PRONTO!" da abertura
   assert.equal(e.fase, "jogando");
   return e;
 }
@@ -60,7 +72,7 @@ test("a curva pedida acontece no cruzamento, e parede nao deixa passar", () => {
   const e = novoJogo(semente(1));
   comeca(e);
   vira(e, "cima");
-  roda(e, 2.05);
+  roda(e, ABERTURA.dura + 0.05);
   roda(e, 0.3);
   // Vira no primeiro corredor para cima que encontra (o do comeco, se houver,
   // senao o proximo a esquerda, para onde ele anda sozinho).
@@ -133,11 +145,14 @@ test("encostar num fantasma tira uma vida e recomeca; sem vidas, fim de jogo", (
     assert.equal(e.fase, "morrendo");
     roda(e, 2);
     assert.equal(e.vidas, vida - 1);
-    if (vida > 1) { assert.equal(e.fase, "pronto"); roda(e, 2.05); }
+    // Depois de morrer, o "PRONTO!" curto: a abertura longa e so no comeco.
+    if (vida > 1) { assert.equal(e.fase, "pronto"); roda(e, 2.05); assert.equal(e.fase, "jogando"); }
   }
   assert.equal(e.fase, "fim");
   comeca(e);
   assert.equal(e.fase, "pronto");
+  roda(e, 2.05);
+  assert.equal(e.fase, "pronto", "a nova partida tem a abertura longa de novo");
   assert.equal(e.vidas, VIDAS, "nova partida");
   assert.equal(e.pontos, 0);
 });
