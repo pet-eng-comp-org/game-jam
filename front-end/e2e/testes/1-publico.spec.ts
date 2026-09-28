@@ -129,6 +129,9 @@ test("endereco que nao existe mostra a 404 do site, com volta ao inicio", async 
 test("o jogo do Inicio comeca, anda e conta pontos, e as setas nao rolam a pagina", async ({ page }, info) => {
   const confere = semErroDePagina(page);
   await page.goto("/");
+  // O jogo so carrega quando a pessoa rola ate perto dele.
+  await expect(page.getByRole("img", { name: /labirinto do Pac-Man/ })).toHaveCount(0);
+  await page.getByRole("heading", { name: "Enquanto a Season não começa" }).scrollIntoViewIfNeeded();
   const jogo = page.getByRole("img", { name: /labirinto do Pac-Man/ });
   await jogo.scrollIntoViewIfNeeded();
   await page.getByRole("button", { name: "Jogar" }).click();
@@ -139,7 +142,9 @@ test("o jogo do Inicio comeca, anda e conta pontos, e as setas nao rolam a pagin
   await page.waitForTimeout(800);
   const pontos = page.getByText("Pontos").locator("xpath=following-sibling::p");
   await expect(pontos).not.toHaveText("0");
-  expect(await page.evaluate(() => scrollY), "a seta virou o Pac-Man, e nao rolou a pagina").toBe(rolagem);
+  // Setas do teclado (no celular o toque no direcional nao rola nada; quem
+  // rola ali e o proprio Playwright, trazendo o botao para a tela).
+  if (info.project.name !== "celular") expect(await page.evaluate(() => scrollY), "a seta virou o Pac-Man, e nao rolou a pagina").toBe(rolagem);
   confere();
 });
 

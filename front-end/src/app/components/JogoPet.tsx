@@ -9,10 +9,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { comeca, novoJogo, passo, vira, VIDAS, type Direcao, type Estado, type Fantasma } from "@/lib/jogo/pacman"
 import { ALTURA, LABIRINTO, LARGURA } from "@/lib/jogo/labirinto"
-import {
-  CORES, FANTASMA, FANTASMA_B, OLHOS, PACMAN_ABERTO, PACMAN_FECHADO, PACMAN_MEIO, PACMAN_MORTE, PASTILHA,
-  PONTOS_FANTASMA, ROSTO_ASSUSTADO,
-} from "@/lib/sprites"
+import { CORES, FANTASMA, OLHOS, PACMAN_ABERTO, PACMAN_FECHADO, PACMAN_MEIO, ROSTO_ASSUSTADO } from "@/lib/sprites"
+import { FANTASMA_B, PACMAN_MORTE, PASTILHA, PONTOS_FANTASMA } from "@/lib/jogo/sprites-jogo"
 import Personagem from "./Personagem"
 
 const CHAVE_RECORDE = "pet-game-jam-recorde"
@@ -79,17 +77,16 @@ export default function JogoPet() {
     const obs = new ResizeObserver(mede)
     if (caixaRef.current) obs.observe(caixaRef.current)
 
-    const vis = new IntersectionObserver(([ent]) => { visivelRef.current = ent.isIntersecting }, { threshold: 0.2 })
-    if (telaRef.current) vis.observe(telaRef.current)
 
+    // O laco so gira enquanto o jogo esta na tela e a aba esta a vista.
     let quadro = 0, ultimo = performance.now()
     let anterior = { pontos: -1, vidas: -1, fase: "", nivel: -1 }
     const laco = (agora: number) => {
-      quadro = requestAnimationFrame(laco)
       const dt = (agora - ultimo) / 1000
       ultimo = agora
       const e = estadoRef.current, c = telaRef.current
-      if (!e || !c || !visivelRef.current || document.hidden) return
+      if (!e || !c || !visivelRef.current || document.hidden) { quadro = 0; return }
+      quadro = requestAnimationFrame(laco)
       passo(e, dt)
       desenha(c, e, tileRef.current, paredesRef.current)
       if (e.pontos !== anterior.pontos || e.vidas !== anterior.vidas || e.fase !== anterior.fase || e.nivel !== anterior.nivel) {
@@ -98,8 +95,16 @@ export default function JogoPet() {
         if (e.fase === "fim" && e.pontos > leRecorde()) { gravaRecorde(e.pontos); setRecorde(e.pontos) }
       }
     }
-    quadro = requestAnimationFrame(laco)
-    return () => { cancelAnimationFrame(quadro); obs.disconnect(); vis.disconnect() }
+    const liga = () => {
+      if (quadro || !visivelRef.current || document.hidden) return
+      ultimo = performance.now()
+      quadro = requestAnimationFrame(laco)
+    }
+    const vis = new IntersectionObserver(([ent]) => { visivelRef.current = ent.isIntersecting; liga() }, { threshold: 0.2 })
+    if (telaRef.current) vis.observe(telaRef.current)
+    document.addEventListener("visibilitychange", liga)
+    liga()
+    return () => { cancelAnimationFrame(quadro); obs.disconnect(); vis.disconnect(); document.removeEventListener("visibilitychange", liga) }
   }, [mede])
 
   // Teclado: so segura as setas (sem rolar a pagina) durante a partida.
