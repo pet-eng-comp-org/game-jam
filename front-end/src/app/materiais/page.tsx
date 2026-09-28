@@ -121,7 +121,6 @@ export default async function Materiais() {
 
                       <div>
                         <h4 className="text-2xl font-bold text-destaque">{m.nome}</h4>
-                        <p className="mt-1 text-base font-bold text-destaque-claro/80">por PET Eng Comp</p>
                         <p className={`mt-3 whitespace-pre-wrap ${TEXTO}`}>{m.descricao}</p>
                       </div>
                     </article>
