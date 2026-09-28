@@ -70,15 +70,18 @@ export default function Seasons() {
 
             <tr key={season.getId}>
 
-                <td className={`text-center w-[200px] p-2 text-lg ${((i+1) % 2) ? 'bg-gray-300' : 'bg-gray-200'}`}>
+                <td className={`text-center w-16 p-2 text-lg md:w-[120px] ${((i+1) % 2) ? 'bg-gray-300' : 'bg-gray-200'}`}>
                     {season.getNumero}
                 </td>
 
-                <td className={`text-center w-[200px] p-2 text-lg ${((i) % 2) ? 'bg-gray-300' : 'bg-gray-200'}`}>
+                <td className={`text-center w-20 p-2 text-lg md:w-[140px] ${((i+1) % 2) ? 'bg-gray-300' : 'bg-gray-200'}`}>
                     {season.getNumParticipantesPorEquipe}
                 </td>
 
-                <td className={`flex items-center justify-center gap-3 p-2 text-lg ${((i+1) % 2) ? 'bg-gray-300' : 'bg-gray-200'} `}>
+                {/* O flex fica num div: numa <td> ele tirava a celula do layout de
+                    tabela e desalinhava a linha. Os botoes quebram linha no celular. */}
+                <td className={`p-2 text-lg ${((i+1) % 2) ? 'bg-gray-300' : 'bg-gray-200'} `}>
+                    <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
 
                         <Botao nome="Editar" onClick={() => setEditando(season)} className="text-sm" />
 
@@ -91,7 +94,7 @@ export default function Seasons() {
                                     <Botao nome="Tornar Season Atual" onClick={() => tornaSeasonAtual(season)} 
                                     className="text-sm bg-green-500 hover:bg-green-400"/>
 
-                                    <button onClick={() => deletaSeason(season)}
+                                    <button type="button" onClick={() => deletaSeason(season)} aria-label={`Apagar a season ${season.getNumero}`}
                                     className="text-red-500 hover:bg-red-500 hover:text-white p-2 rounded-full">
                                         {IconeLixeira}
                                     </button>
@@ -103,7 +106,7 @@ export default function Seasons() {
                                 </span>
                             )
                         }
-                        
+                    </div>
                 </td>
             </tr>
 
@@ -135,9 +138,9 @@ export default function Seasons() {
             <table className="w-full rounded-xl lg:w-auto">
                 <thead className="font-bold bg-blue-950 text-white">
                     <tr>
-                        <th className="rounded-tl-xl p-2 border-r border-r-white">season</th>
-                        <th className="p-2 border-r border-r-white">número máximo de integrantes por equipe</th>
-                        <th className="rounded-tr-xl p-2">ações</th>
+                        <th className="rounded-tl-xl p-2 border-r border-r-white">Season</th>
+                        <th className="p-2 border-r border-r-white">Pessoas por equipe</th>
+                        <th className="rounded-tr-xl p-2">Ações</th>
                     </tr>
                 </thead>
                 <tbody>

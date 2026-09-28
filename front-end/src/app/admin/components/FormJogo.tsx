@@ -52,7 +52,7 @@ export default function FormJogo({ jogo, cadastrar, fechar, salvo }: Props) {
 
         <button type="button" onClick={fechar} aria-label="Fechar" className="absolute right-4 top-2 text-xl font-bold hover:text-red-500">x</button>
 
-        <Titulo valor={jogo ? "Editar Jogo" : "Cadastrar Jogo"} />
+        <Titulo valor={jogo ? "Editar Jogo" : "Cadastrar Jogo"} nivel={2} />
 
         <form onSubmit={salvar} className="flex flex-col gap-4">
 

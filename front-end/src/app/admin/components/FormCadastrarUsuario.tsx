@@ -20,7 +20,7 @@ export default function FormCadastrarUsuario({fechar, cadastrarUsuario}: FormPro
 
                 <button onClick={fechar} className="absolute right-4 top-2 text-xl font-bold hover:text-red-500">x</button>
 
-                <Titulo valor="Cadastrar Usuário" />
+                <Titulo valor="Cadastrar Usuário" nivel={2} />
 
                 <form action="" className="flex flex-col gap-4 mt-10">
 

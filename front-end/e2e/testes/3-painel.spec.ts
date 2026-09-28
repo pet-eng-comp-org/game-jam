@@ -10,27 +10,28 @@ test("painel sem login manda para o login", async ({ page }) => {
 
 test("senha errada nao entra", async ({ page }) => {
   await page.goto("/login");
-  await page.getByPlaceholder("username").fill(ORGANIZADOR.usuario);
-  await page.getByPlaceholder("senha").fill("senha-errada");
-  await page.getByRole("button", { name: "Acessar" }).click();
-  await expect(page).toHaveURL(/\/login$/);
+  await page.getByLabel("Usuário").fill(ORGANIZADOR.usuario);
+  await page.getByLabel("Senha").fill("senha-errada");
+  await page.getByRole("button", { name: "Entrar" }).click();
+  // Diz o motivo, em vez de so recarregar a tela.
+  await expect(page.getByText("Usuário ou senha incorretos.")).toBeVisible();
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/login$/);
 });
 
 test("organizador entra no painel", async ({ page }) => {
   await page.goto("/login");
-  await page.getByPlaceholder("username").fill(ORGANIZADOR.usuario);
-  await page.getByPlaceholder("senha").fill(ORGANIZADOR.senha);
-  await page.getByRole("button", { name: "Acessar" }).click();
+  await page.getByLabel("Usuário").fill(ORGANIZADOR.usuario);
+  await page.getByLabel("Senha").fill(ORGANIZADOR.senha);
+  await page.getByRole("button", { name: "Entrar" }).click();
   await expect(page).toHaveURL(/\/admin$/);
 });
 
 async function entra(page: import("@playwright/test").Page) {
   await page.goto("/login");
-  await page.getByPlaceholder("username").fill(ORGANIZADOR.usuario);
-  await page.getByPlaceholder("senha").fill(ORGANIZADOR.senha);
-  await page.getByRole("button", { name: "Acessar" }).click();
+  await page.getByLabel("Usuário").fill(ORGANIZADOR.usuario);
+  await page.getByLabel("Senha").fill(ORGANIZADOR.senha);
+  await page.getByRole("button", { name: "Entrar" }).click();
   await expect(page).toHaveURL(/\/admin$/);
 }
 
@@ -46,7 +47,7 @@ test("organizador ve os inscritos, baixa a planilha e apaga uma equipe", async (
   });
 
   await entra(page);
-  await page.getByRole("link", { name: "Equipes" }).click();
+  await page.getByRole("link", { name: "Equipes", exact: true }).click();
   await expect(page.getByRole("heading", { name: nome })).toBeVisible();
   await expect(page.getByText("052.998.224-72")).toBeVisible();
 
@@ -162,4 +163,32 @@ test("a sessao fica num cookie que o JavaScript da pagina nao le", async ({ page
   expect((await context.cookies()).some((c) => c.name === "sessao")).toBe(false);
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/login$/);
+});
+
+test("o inicio do painel resume a season atual e o que falta preencher", async ({ page }) => {
+  await entra(page);
+  await expect(page.getByRole("heading", { name: "Season 4" })).toBeVisible();
+  await expect(page.getByText("Inscrições:")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Inscritos" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Antes do evento" })).toBeVisible();
+});
+
+test("organizador edita um material, e o site mostra na hora", async ({ page }, info) => {
+  // Um material so deste teste: o "Material E2E" semeado e conferido em outros.
+  const marca = `${info.project.name}${Date.now() % 100000}`;
+  await banco.material.create({ data: { nome: `Antigo ${marca}`, descricao: "d", link: "https://exemplo.com/antigo" } });
+  await entra(page);
+  await page.goto("/admin/materiais");
+  await page.getByRole("button", { name: `Editar o material Antigo ${marca}` }).click();
+  await expect(page.getByRole("heading", { name: "Editar Material" })).toBeVisible();
+  // Link sem http e recusado pela API, com o motivo.
+  await page.getByLabel("Link:").fill("exemplo.com");
+  await page.getByRole("button", { name: "Salvar" }).click();
+  await expect(page.getByText("O link precisa começar com http:// ou https://.")).toBeVisible();
+  await page.getByLabel("Link:").fill("https://exemplo.com/novo");
+  await page.getByLabel("Nome:").fill(`Novo ${marca}`);
+  await page.getByRole("button", { name: "Salvar" }).click();
+  await expect(page.getByText("Material salvo!")).toBeVisible();
+  await page.goto("/materiais");
+  await expect(page.getByRole("link", { name: `Novo ${marca}` })).toHaveAttribute("href", "https://exemplo.com/novo");
 });

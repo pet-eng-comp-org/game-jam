@@ -64,7 +64,7 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
 
         <button type="button" onClick={fechar} aria-label="Fechar" className="absolute right-4 top-2 text-xl font-bold hover:text-red-500">x</button>
 
-        <Titulo valor={`Season ${season.getNumero}`} />
+        <Titulo valor={`Season ${season.getNumero}`} nivel={2} />
 
         <form onSubmit={salvar} className="flex flex-col gap-4">
 

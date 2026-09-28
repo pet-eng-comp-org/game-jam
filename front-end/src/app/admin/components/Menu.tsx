@@ -19,30 +19,28 @@ export default function Menu() {
 
     return (
 
-        // No celular o menu vira uma faixa no topo, com rolagem lateral; a partir
-        // de md, a coluna lateral de sempre.
+        // No celular o menu vira uma faixa no topo: os itens rolam para o lado e
+        // o Sair fica fixo a direita (antes ele ficava fora da tela). A partir
+        // de md, a coluna lateral de sempre. A ordem vai do mais usado (equipes,
+        // na epoca de inscricao) ao menos usado.
         <aside className={`
-            sticky top-0 z-40 flex overflow-x-auto bg-blue-950 text-white
-            md:h-screen md:flex-col md:overflow-visible
+            sticky top-0 z-40 flex bg-blue-950 text-white
+            md:h-screen md:flex-col
         `}>
 
             <div className="hidden h-16 p-3 md:flex justify-center items-center">
                 <Image src={logoPET} alt="Logo do PET Engenharia de Computação" height={50}/>
             </div>
-            <ul className="flex md:grow md:flex-col">
-                <MenuItem url="/admin/usuarios" texto="Usuários" icone={IconeUsuarios}/>
+            <ul className="flex min-w-0 flex-1 overflow-x-auto md:grow md:flex-col md:overflow-visible">
+                <MenuItem url="/admin" texto="Início" icone={IconePerfil}/>
+                <MenuItem url="/admin/equipes" texto="Equipes" icone={IconeEquipe}/>
                 <MenuItem url="/admin/seasons" texto="Season" icone={IconeComputador}/>
                 <MenuItem url="/admin/jogos" texto="Jogos" icone={IconeComputador}/>
-                <MenuItem url="/admin/equipes" texto="Equipes" icone={IconeEquipe}/>
                 <MenuItem url="/admin/materiais" texto="Materiais" icone={IconeMaterial}/>
                 <MenuItem url="/admin/patrocinadores" texto="Patrocínio" icone={IconeDinheiro}/>
+                <MenuItem url="/admin/usuarios" texto="Usuários" icone={IconeUsuarios}/>
             </ul>
-            <ul className="flex md:flex-col">
-                <MenuItem
-                    url="/admin"
-                    texto="Perfil"
-                    icone={IconePerfil}
-                />
+            <ul className="flex shrink-0 border-l border-white/15 md:flex-col md:border-l-0">
                 <MenuItem 
                     onClick={logout} 
                     texto="Sair" 

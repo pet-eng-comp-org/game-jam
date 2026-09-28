@@ -35,7 +35,7 @@ export default function FormCadastrarSeason({fechar, cadastrarSeason}: FormProps
 
                 <button onClick={fechar} className="absolute right-4 top-2 text-xl font-bold hover:text-red-500">x</button>
 
-                <Titulo valor="Cadastrar Season" />
+                <Titulo valor="Cadastrar Season" nivel={2} />
 
                 <form action="" className="flex flex-col gap-4 w-full">
 

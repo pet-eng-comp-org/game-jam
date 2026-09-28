@@ -29,7 +29,7 @@ export default function FormCadastrarPatrocinador({ fechar, cadastrarPatrocinado
                 
                 <button onClick={fechar} className="absolute right-4 top-2 text-xl font-bold hover:text-red-500">x</button>
 
-                <Titulo valor="Cadastrar Patrocinador" />
+                <Titulo valor="Cadastrar Patrocinador" nivel={2} />
 
                 <form className="flex flex-col gap-4 w-full" onSubmit={e => e.preventDefault()}>
                     

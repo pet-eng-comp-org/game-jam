@@ -13,7 +13,7 @@ export default function MenuItem(props: MenuItemProps) {
     const conteudo = (
         <span className={`
             flex flex-col justify-center items-center
-            h-20 w-20 text-gray-200 hover:text-gray-700
+            h-16 w-16 text-gray-200 hover:text-gray-700 md:h-20 md:w-20
             ${props.className ?? ""}
         `}>
             {props.icone}

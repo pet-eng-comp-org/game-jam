@@ -156,7 +156,7 @@ test("nenhuma pagina publica tem problema de acessibilidade que o axe acha", asy
   // axe-core: contraste, rotulos, nomes de botao e link, hierarquia de
   // titulos, landmarks. Zerado em 28/09/2026; um teste quebrando aqui e uma
   // regressao.
-  for (const caminho of ["/", "/jogos", "/regras", "/materiais", "/inscricao", "/apoio", "/privacidade", "/nao-existe"]) {
+  for (const caminho of ["/", "/jogos", "/regras", "/materiais", "/inscricao", "/apoio", "/privacidade", "/nao-existe", "/login"]) {
     await page.goto(caminho);
     await page.waitForLoadState("networkidle");
     const r = await new AxeBuilder({ page }).analyze();
