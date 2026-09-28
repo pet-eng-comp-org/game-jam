@@ -20,9 +20,9 @@
   /* Fantasma assustado da tela de erro: comeca a piscar depois de 1s, pisca
      seis vezes, como no fim do efeito da pastilha, e fica azul. */
   --animate-pisca: pisca 0.4s steps(1, end) 1s 6;
-  /* Pac-Man abrindo e fechando a boca: a mesma alternancia, mais rapida e sem
-     parar. */
-  --animate-mastiga: pisca 0.28s steps(1, end) infinite;
+  /* Pac-Man mastigando: aberto, meio, fechado, meio (Personagem.tsx). */
+  --animate-boca-meio: boca-meio 0.32s steps(1, end) infinite;
+  --animate-boca-fechada: boca-fechada 0.32s steps(1, end) infinite;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
@@ -38,22 +38,36 @@ body {
 
 button { cursor: pointer; }
 
+@keyframes boca-meio {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  50% { opacity: 0; }
+  75% { opacity: 1; }
+}
+@keyframes boca-fechada {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  75% { opacity: 0; }
+}
+
 @keyframes pisca {
   0% { opacity: 0; }
   50% { opacity: 1; }
 }
 
-/* Tela de inscricao recebida (InscricaoRecebida.tsx): o Pac-Man atravessa, as
-   bolinhas somem quando ele passa (atraso por bolinha, no componente) e o
-   fantasma do fim vira o assustado quando ele come a pastilha grande. Com
-   animacao reduzida nada disso roda, e a cena fica parada no comeco. */
-@keyframes anda { to { left: calc(100% - 80px); } }
+/* Tela de inscricao recebida (InscricaoRecebida.tsx): o Pac-Man atravessa e
+   sai, as bolinhas e o fantasma somem quando ele passa (atraso no
+   componente), o fantasma vira o assustado na pastilha grande e o 200 fica
+   no lugar dele, como o placar da jogada. Com animacao reduzida nada disso roda, e a cena fica parada. */
+@keyframes anda { to { left: calc(100% + 8px); } }
 @keyframes some { to { opacity: 0; } }
 @keyframes aparece { from { opacity: 0; } to { opacity: 1; } }
-.fantasma-vira-entra { opacity: 0; }
+@keyframes pontos { from { opacity: 1; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.fantasma-vira-entra, .pontos { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  .pacman-anda { animation: anda 1.8s linear forwards; }
+  .pacman-anda { animation: anda 2.6s linear forwards; }
   .bolinha-comida { animation: some 0.01s linear forwards; }
   .fantasma-vira-entra { animation: aparece 0.01s linear forwards; }
   .fantasma-vira-sai { animation: some 0.01s linear forwards; }
+  .pontos { animation: pontos 0.3s steps(2, end) forwards; }
 }

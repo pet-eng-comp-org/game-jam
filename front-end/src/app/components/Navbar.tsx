@@ -24,6 +24,7 @@ const paginas = [
 export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
 
   const caminho = usePathname()
+  const naInscricao = caminho === "/inscricao"
   const [menuAberto, setMenuAberto] = useState(false)
 
   // Esc fecha o menu do celular.
@@ -79,7 +80,7 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
                   <Personagem
                     qual={pagina.personagem}
                     pendurado
-                    className={`absolute left-1/2 top-[-34px] h-[26px] w-[26px] -translate-x-1/2 ${pagina.personagem === "pacman" ? "" : "-scale-y-100"}`}
+                    className={`absolute left-1/2 top-[-30px] h-[26px] w-[26px] -translate-x-1/2 ${pagina.personagem === "pacman" ? "" : "-scale-y-100"}`}
                   />
                 )}
                 {pagina.label}
@@ -88,11 +89,15 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
           })}
         </div>
 
-        <Link href="/inscricao" className="absolute right-[17px] top-[13px]">
-          <span className="block rounded-full bg-destaque px-[25px] py-[14px] text-center text-base font-bold leading-[25px] text-barra transition-opacity hover:opacity-90">
-            Inscreva-se
-          </span>
-        </Link>
+        {/* Na propria pagina de inscricao o botao so levaria para onde a
+            pessoa ja esta. */}
+        {!naInscricao && (
+          <Link href="/inscricao" className="absolute right-[17px] top-[13px]">
+            <span className="block rounded-full bg-destaque px-[25px] py-[14px] text-center text-base font-bold leading-[25px] text-barra transition-opacity hover:opacity-90">
+              Inscreva-se
+            </span>
+          </Link>
+        )}
       </div>
 
       {/* Celular */}
@@ -105,10 +110,12 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
             <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-auto w-full max-w-[178px]" />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
-            <Link href="/inscricao" onClick={() => setMenuAberto(false)}
-              className="rounded-full bg-destaque px-4 py-2 text-sm font-bold text-barra transition-opacity hover:opacity-90">
-              Inscreva-se
-            </Link>
+            {!naInscricao && (
+              <Link href="/inscricao" onClick={() => setMenuAberto(false)}
+                className="rounded-full bg-destaque px-4 py-2 text-sm font-bold text-barra transition-opacity hover:opacity-90">
+                Inscreva-se
+              </Link>
+            )}
             <button type="button" onClick={() => setMenuAberto((a) => !a)}
               aria-expanded={menuAberto} aria-controls="menu-celular"
               aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}

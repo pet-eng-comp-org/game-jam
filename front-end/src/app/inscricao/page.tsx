@@ -7,8 +7,10 @@ import FormInscricao from "../components/FormInscricao"
 import { diaEHora } from "@/lib/datas"
 
 // Tela "Inscricoes" do mockup (Figma, Season 4, pagina Site, frame 220:51):
-// logo com os fantasmas a esquerda, titulo e formulario a direita, sobre o
-// fundo de labirinto. Sem barra de navegacao, como no desenho.
+// logo com os fantasmas a esquerda, titulo e formulario a direita. O mockup a
+// desenhou sem a barra do site e sobre um fundo de labirinto, e ela parecia
+// outro site: quem chegava pelo "Inscreva-se" perdia a navegacao. Agora usa a
+// barra, o rodape e o fundo das outras paginas (em layout.tsx).
 type Estado = { tipo: "carregando" } | { tipo: "erro" } | { tipo: "pronto"; season: Season | null }
 
 export default function Inscricao() {
@@ -22,26 +24,20 @@ export default function Inscricao() {
       .catch(() => setEstado({ tipo: "erro" }))
   }, [])
 
-  // Fundo preso a janela, como no mockup: com cover sobre a pagina inteira, o
-  // labirinto ampliava e os pontos caiam em cima do titulo.
   return (
-    <div className="min-h-screen bg-fundo bg-[url('/background-inscricao.webp')] bg-cover bg-fixed bg-center">
-      {/* <main>: a regiao principal, que o leitor de tela usa para pular direto
-          ao conteudo. Esta pagina nao usa o Layout, que ja tem uma. */}
-      <main className="mx-auto flex min-h-screen max-w-[1440px] flex-col items-center gap-10 px-4 py-12 lg:flex-row lg:items-start lg:justify-center lg:gap-[90px] lg:px-16">
+    <div className="mx-auto flex max-w-[1440px] flex-col items-center gap-10 px-6 pb-24 pt-14 lg:flex-row lg:items-start lg:justify-center lg:gap-[90px] lg:px-16 lg:pt-[98px]">
 
-        {/* No desktop o logo acompanha a rolagem do formulario. */}
-        <div className="flex shrink-0 justify-center lg:sticky lg:top-[calc(50vh-215px)] lg:w-[497px]">
+        {/* So no computador, acompanhando a rolagem do formulario: no celular
+            a barra ja tem a logo, e o quadro empurrava o formulario para baixo. */}
+        <div className="hidden shrink-0 justify-center lg:sticky lg:top-[calc(50vh-175px)] lg:flex lg:w-[497px]">
           <Link href="/" aria-label="Voltar ao início do Game Jam">
             {/* Sem a faixa "Season IV" do Figma: ela prendia a logo a uma edicao.
                 O numero da season fica no titulo, ao lado. */}
-            {/* Menor no celular: com 256px, o formulario so aparecia depois de
-                rolar. */}
-            <img src="/marca/quadro-game-jam.svg" alt="PET Game Jam" className="h-40 sm:h-64 md:h-96 lg:h-[431px]" />
+            <img src="/marca/quadro-game-jam.svg" alt="PET Game Jam" className="h-[431px]" />
           </Link>
         </div>
 
-        <div className="flex w-full max-w-[555px] flex-col lg:pt-[148px]">
+        <div className="flex w-full max-w-[555px] flex-col lg:pt-[60px]">
           <h1 className="text-center font-secao text-5xl uppercase leading-none text-[#FFD935] md:text-7xl lg:text-8xl">
             inscrições
           </h1>
@@ -68,7 +64,6 @@ export default function Inscricao() {
             )
           )}
         </div>
-      </main>
     </div>
   )
 }

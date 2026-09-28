@@ -8,18 +8,20 @@ import { diaEHora } from "@/lib/datas"
 // sumia em segundos sobre o formulario vazio, e parecia que nada tinha
 // acontecido (e convidava a mandar de novo).
 //
-// A animacao e a do jogo: o Pac-Man atravessa comendo as bolinhas e, ao comer
-// a pastilha grande, o fantasma do fim vira o assustado. Classes em
-// globals.css (pacman-anda, bolinha-comida, fantasma-vira); com animacao
-// reduzida, a cena fica parada.
+// A animacao e a do jogo: o Pac-Man atravessa comendo as bolinhas, come a
+// pastilha grande, o fantasma vira o assustado, o Pac-Man come o fantasma
+// (aparece o 200, os pontos do primeiro fantasma no arcade) e sai pela
+// direita. Classes em globals.css; com animacao reduzida, a cena fica parada.
 
-const DURACAO = 1.8 // segundos para o Pac-Man chegar ao fim
-const BOLINHAS = [6, 14, 22, 30, 38, 46, 54, 62, 70] // posicao, em % da largura
-const PASTILHA = 79
+const DURACAO = 2.6 // segundos para o Pac-Man atravessar e sair
+const BOLINHAS = [8, 16, 24, 32, 40, 48, 56, 64] // posicao, em % da largura
+const PASTILHA = 73
 
-// Quando o Pac-Man passa por uma posicao: ele anda de 0 a (100% - 80px), entao
-// a conta e aproximada, e de proposito um pouco adiantada.
-const atraso = (posicao: number) => `${(DURACAO * Math.min(1, posicao / 88)).toFixed(2)}s`
+// Quando a boca do Pac-Man chega a uma posicao. Ele anda de 0 ate sair da
+// faixa (100% + 8px); a conta supoe a faixa com uns 360px, e o erro em outras
+// larguras e de uma fracao de segundo.
+const chega = (posicao: number) => `${Math.max(0, (DURACAO * (3.6 * posicao - 28)) / 368).toFixed(2)}s`
+const COME_FANTASMA = `${(DURACAO * 0.87).toFixed(2)}s`
 
 interface Props {
   equipe: string
@@ -28,32 +30,45 @@ interface Props {
 }
 
 export default function InscricaoRecebida({ equipe, season, outra }: Props) {
+  const caixa = useRef<HTMLDivElement>(null)
   const titulo = useRef<HTMLHeadingElement>(null)
 
-  // Quem usa leitor de tela ou teclado vai direto para a confirmacao.
-  useEffect(() => titulo.current?.focus(), [])
+  // Mostra a caixa inteira, com a animacao, abaixo da barra fixa (scroll-mt),
+  // e so entao leva o foco ao titulo: focar direto rolava so ate o titulo, e a
+  // animacao ficava escondida atras da barra.
+  useEffect(() => {
+    caixa.current?.scrollIntoView({ block: "start" })
+    titulo.current?.focus({ preventScroll: true })
+  }, [])
 
   return (
-    <div role="status" className="rounded-[21px] bg-barra/90 px-6 py-10 text-center sm:px-10">
-      <div aria-hidden className="relative mx-auto h-8 w-full max-w-[420px]">
+    <div ref={caixa} role="status" className="scroll-mt-28 rounded-[21px] bg-barra/90 px-6 py-10 text-center sm:px-10">
+      <div aria-hidden className="relative mx-auto h-8 w-full max-w-[420px] overflow-hidden">
         {BOLINHAS.map((x) => (
           <span
             key={x}
-            className="bolinha-comida absolute top-1/2 h-[6px] w-[6px] -translate-y-1/2 bg-[#FFB8AE]"
-            style={{ left: `${x}%`, animationDelay: atraso(x) }}
+            className="bolinha-comida absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 bg-[#FFB7AE]"
+            style={{ left: `${x}%`, animationDelay: chega(x) }}
           />
         ))}
-        <span
-          className="bolinha-comida absolute top-1/2 h-[14px] w-[14px] -translate-y-1/2 rounded-full bg-[#FFB8AE]"
-          style={{ left: `${PASTILHA}%`, animationDelay: atraso(PASTILHA) }}
-        />
-        <span className="absolute right-0 top-0 h-8 w-8">
-          <span className="fantasma-vira-sai absolute inset-0" style={{ animationDelay: atraso(PASTILHA) }}>
+        <svg
+          viewBox="0 0 8 8"
+          shapeRendering="crispEdges"
+          className="bolinha-comida absolute top-1/2 h-5 w-5 -translate-y-1/2"
+          style={{ left: `${PASTILHA}%`, animationDelay: chega(PASTILHA) }}
+        >
+          <path fill="#FFB7AE" d="M2 0h4v1h-4zM1 1h6v1h-6zM0 2h8v4h-8zM1 6h6v1h-6zM2 7h4v1h-4z" />
+        </svg>
+        <span className="bolinha-comida absolute right-0 top-0 h-8 w-8" style={{ animationDelay: COME_FANTASMA }}>
+          <span className="fantasma-vira-sai absolute inset-0" style={{ animationDelay: chega(PASTILHA) }}>
             <Personagem qual="vermelho" className="h-8 w-8" />
           </span>
-          <span className="fantasma-vira-entra absolute inset-0" style={{ animationDelay: atraso(PASTILHA) }}>
+          <span className="fantasma-vira-entra absolute inset-0" style={{ animationDelay: chega(PASTILHA) }}>
             <Personagem qual="assustado" className="h-8 w-8" />
           </span>
+        </span>
+        <span className="pontos absolute right-0 top-0 flex h-8 w-8 items-center justify-center" style={{ animationDelay: COME_FANTASMA }}>
+          <Personagem qual="duzentos" className="h-[15px] w-8" />
         </span>
         <span className="pacman-anda absolute left-0 top-0 h-8 w-8" style={{ animationDuration: `${DURACAO}s` }}>
           <Personagem qual="pacman" mastigando className="h-8 w-8" />
