@@ -1,6 +1,6 @@
 # PET Game Jam
 
-Site e API do Game Jam do PET Engenharia de Computação da UFES — o torneio de
+Site e API do Game Jam do PET Engenharia de Computação da Ufes — o torneio de
 programação de jogos organizado pelo grupo.
 
 | | endereço | onde roda |

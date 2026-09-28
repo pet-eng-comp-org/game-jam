@@ -1,6 +1,6 @@
 # API do PET Game Jam
 
-Back-end do Game Jam do PET Engenharia de Computação da UFES: temporadas,
+Back-end do Game Jam do PET Engenharia de Computação da Ufes: temporadas,
 inscrição de equipes, jogos publicados, patrocinadores e materiais de apoio.
 
 | | |
@@ -77,12 +77,13 @@ GET    /seasons/atual              temporada em cartaz
 GET    /seasonsComJogos            temporadas com os jogos de cada uma
 GET    /seasons                                          (autenticado)
 POST   /seasons                    cria, com upload de capa (autenticado)
-DELETE /seasons                                          (autenticado)
+PUT    /seasons                    edita datas, local, linguagens, regulamento (autenticado)
 PUT    /seasons/atual              define a temporada atual (autenticado)
-PUT    /seasons/abreInscricao                            (autenticado)
-PUT    /seasons/fechaInscricao                           (autenticado)
+PUT    /seasons/apagaCpfs          apaga os CPFs dos inscritos da temporada (autenticado)
+DELETE /seasons                                          (autenticado)
 
 POST   /jogos                      cria, com upload de capa (autenticado)
+PUT    /jogos                      edita os textos       (autenticado)
 DELETE /jogos                                            (autenticado)
 
 GET    /patrocinador               lista
@@ -90,11 +91,14 @@ POST   /patrocinador               cria, com upload do logo (autenticado)
 DELETE /patrocinador/remove                              (autenticado)
 
 GET    /material                   lista
-POST   /material                                         (autenticado)
+POST   /material                   cria                  (autenticado)
+PUT    /material                   edita                 (autenticado)
 DELETE /material                                         (autenticado)
 
-POST   /equipe                     inscrição de equipe
-POST   /participante               inscrição de participante
+POST   /inscricao                  equipe e participantes, numa transação
+GET    /equipes                    inscritos da temporada, com CPF (autenticado)
+PUT    /equipe/aprovada            aprova ou desaprova   (autenticado)
+DELETE /equipe                                           (autenticado)
 
 GET    /files/:arquivo             imagens enviadas
 ```
