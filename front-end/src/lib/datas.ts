@@ -23,3 +23,6 @@ export function diaEHora(iso: string, comSemana = false) {
     .split(":");
   return `${dia(iso, comSemana)}, às\u00a0${Number(h)}h${m === "00" ? "" : m}`;
 }
+
+// Se o momento ja passou (no relogio do servidor, na hora de gerar a pagina).
+export const jaPassou = (iso: string) => Date.now() >= new Date(iso).getTime();

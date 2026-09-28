@@ -27,6 +27,7 @@ export default function EventoParaBusca({ season }: { season: SeasonJson | null 
     startDate: season.dataEvento,
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    isAccessibleForFree: true,
     ...(season.local && {
       location: {
         "@type": "Place",
@@ -42,7 +43,13 @@ export default function EventoParaBusca({ season }: { season: SeasonJson | null 
       price: "0",
       priceCurrency: "BRL",
       url: `${BASE}/inscricao`,
-      availability: season.inscricoesAbertas ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+      // Antes de abrir e "em pre-venda", nao "esgotado".
+      availability: {
+        abertas: "https://schema.org/InStock",
+        antes: "https://schema.org/PreOrder",
+        encerradas: "https://schema.org/SoldOut",
+        "sem-data": "https://schema.org/PreOrder",
+      }[season.situacaoInscricoes],
       ...(season.inscricoesAbrem && { validFrom: season.inscricoesAbrem }),
     },
   }

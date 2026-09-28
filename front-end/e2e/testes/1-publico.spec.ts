@@ -77,6 +77,7 @@ test("o inicio marca a competicao como evento para o Google", async ({ page }) =
   expect(evento.location.name).toBe("CT 9, Ufes Goiabeiras");
   expect(evento.location.address.addressLocality).toBe("Vitória");
   expect(evento.offers.price).toBe("0");
+  expect(evento.isAccessibleForFree).toBe(true);
 });
 
 test("nenhuma pagina passa da tela no celular mais estreito (280px)", async ({ page }) => {

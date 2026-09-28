@@ -8,7 +8,7 @@ import JogoNaPagina from "./components/JogoNaPagina";
 import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
 import { seasonAtual } from "@/lib/conteudo";
-import { dia, diaEHora } from "@/lib/datas";
+import { dia, diaEHora, jaPassou } from "@/lib/datas";
 
 export default async function Home() {
 
@@ -42,12 +42,14 @@ export default async function Home() {
             A inscricao fica no botao da barra, sempre visivel. */}
         <section className="text-center">
           <h1 className="text-balance font-secao text-5xl uppercase leading-none text-destaque md:text-7xl">
-            {inicioDoEvento ? `A Season ${season?.numero ?? "4"} começa em` : `Season ${season?.numero ?? "4"}`}
+            {inicioDoEvento && !jaPassou(season!.dataEvento!) ? `A Season ${season?.numero ?? "4"} começa em` : `Season ${season?.numero ?? "4"}`}
           </h1>
           {season?.dataEvento && inicioDoEvento ? (
             <>
               <div className="mt-8">
-                <CasaDosFantasmas>
+                {/* No dia, a porta abre e os fantasmas saem. A pagina e gerada de
+                    novo a cada poucos minutos, entao a abertura acompanha. */}
+                <CasaDosFantasmas aberta={jaPassou(season.dataEvento)}>
                   <Contagem inicio={season.dataEvento} rotuloData={inicioDoEvento} />
                 </CasaDosFantasmas>
               </div>
