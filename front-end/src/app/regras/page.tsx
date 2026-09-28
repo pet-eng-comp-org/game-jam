@@ -66,7 +66,11 @@ export default async function Regras() {
 
         <TituloSecao valor="Equipes e inscrição" className={SECAO_REGRAS} />
         <ul className={LISTA}>
-          <li>Cada equipe tem até {season?.numParticipantesPorEquipe ?? "3"} pessoas.</li>
+          <li>
+            Pode participar qualquer pessoa, de dentro ou de fora da Ufes. Quem tem menos de
+            18 anos se inscreve com o conhecimento de um responsável.
+          </li>
+          <li>Cada equipe tem de 1 a {season?.numParticipantesPorEquipe ?? "3"} pessoas.</li>
           <li>
             A inscrição é feita aqui no site,{" "}
             {season?.inscricoesAbrem && season?.inscricoesFecham
@@ -76,6 +80,14 @@ export default async function Regras() {
           </li>
           <li>Todos os participantes recebem certificado de participação, emitido pela Pró-Reitoria de Extensão (Proex) da Ufes.</li>
         </ul>
+
+        {/* O que a pessoa precisa saber para ir: fica fora do regulamento do
+            painel, que substitui so "O formato". */}
+        <TituloSecao valor="No dia" className={SECAO_REGRAS} />
+        <p className={TEXTO}>
+          A competição é presencial, num laboratório de informática da Ufes, e usa os
+          computadores de lá: não precisa levar notebook.
+        </p>
 
         {/* A linguagem e regra, entao mora aqui, e so aqui: data e local ficam
             na abertura do Inicio. */}

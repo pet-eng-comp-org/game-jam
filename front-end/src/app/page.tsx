@@ -98,7 +98,7 @@ export default async function Home() {
           <TituloSecao valor="Como participar" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
             {inscricao}
-            {season?.situacaoInscricoes !== "encerradas" && " Cada equipe precisa de um nome, então escolham um bom!"}
+            {season?.situacaoInscricoes !== "encerradas" && " A participação é gratuita e aberta ao público. Cada equipe precisa de um nome, então escolham um bom!"}
           </p>
           <p className={`mt-4 ${TEXTO}`}>
             Formato, equipes e linguagens permitidas estão nas{" "}
