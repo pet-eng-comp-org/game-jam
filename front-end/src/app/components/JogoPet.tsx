@@ -8,8 +8,7 @@
 // e a partida fica congelada ate a pessoa voltar.
 //
 // Celular deitado: se o jogo estava na tela quando a pessoa virou o aparelho,
-// ele ocupa a tela inteira, como um videogame portatil (direcional a esquerda,
-// labirinto no meio, placar a direita). Nao obriga ninguem a virar: em pe
+// ele ocupa a tela inteira (labirinto no meio, placar a direita). Nao obriga ninguem a virar: em pe
 // continua funcionando, com uma dica e, onde o navegador deixa (Android), um
 // botao que entra em tela cheia e trava na horizontal. O canvas e o mesmo
 // elemento nos dois jeitos (so o CSS muda), para a partida nao recomecar.
@@ -71,12 +70,12 @@ export default function JogoPet() {
   }, [])
 
   // Tamanho: o tile acompanha a largura da caixa (e da tela do aparelho).
-  // Deitado, o maior que couber entre o direcional e o placar.
+  // Deitado, o maior que couber ao lado do placar.
   const mede = useCallback(() => {
     const c = telaRef.current, box = caixaRef.current
     if (!c || !box) return
     const t = cheiaRef.current
-      ? Math.max(6, Math.min(Math.floor((innerWidth - 300) / LARGURA), Math.floor((innerHeight - 16) / ALTURA)))
+      ? Math.max(6, Math.min(Math.floor((innerWidth - 150) / LARGURA), Math.floor((innerHeight - 16) / ALTURA)))
       : Math.max(8, Math.min(26, Math.floor(box.clientWidth / LARGURA)))
     tileRef.current = t
     const dpr = window.devicePixelRatio || 1
@@ -178,22 +177,41 @@ export default function JogoPet() {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
   }
 
-  // Toque: deslizar o dedo sobre o labirinto vira o Pac-Man; tocar comeca.
-  const toqueRef = useRef<{ x: number; y: number } | null>(null)
-  const onPointerDown = (ev: React.PointerEvent) => { toqueRef.current = { x: ev.clientX, y: ev.clientY } }
+  // Toque, como no Doodle do Google (sem direcional na tela): deslizar o dedo
+  // na area do jogo vira o Pac-Man; tocar no labirinto leva ele na direcao
+  // do toque. Na partida a area nao rola a pagina (touch-action); fora dela,
+  // rola normal. Mesmas regras do codigo do Doodle: deslize de 15 px no eixo
+  // que domina; toque a mais de meio tile do Pac-Man.
+  const toqueRef = useRef<{ x: number; y: number; moveu: boolean } | null>(null)
+  const onPointerDown = (ev: React.PointerEvent) => {
+    if (ev.pointerType === "mouse" && ev.button !== 0) return
+    toqueRef.current = { x: ev.clientX, y: ev.clientY, moveu: false }
+  }
   const onPointerMove = (ev: React.PointerEvent) => {
     const t = toqueRef.current, e = estadoRef.current
     if (!t || !e) return
     const dx = ev.clientX - t.x, dy = ev.clientY - t.y
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return
-    vira(e, Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "direita" : "esquerda") : (dy > 0 ? "baixo" : "cima"))
-    toqueRef.current = { x: ev.clientX, y: ev.clientY }
+    const ax = Math.abs(dx), ay = Math.abs(dy)
+    if (ax > 15 && ay < (2 * ax) / 3) vira(e, dx > 0 ? "direita" : "esquerda")
+    else if (ay > 15 && ax < (2 * ay) / 3) vira(e, dy > 0 ? "baixo" : "cima")
+    else return
+    toqueRef.current = { x: ev.clientX, y: ev.clientY, moveu: true }
   }
-  const onPointerUp = () => {
-    const e = estadoRef.current
-    if (e && (e.fase === "espera" || e.fase === "fim") && toqueRef.current) inicia()
+  const onPointerUp = (ev: React.PointerEvent) => {
+    const t = toqueRef.current, e = estadoRef.current, c = telaRef.current
     toqueRef.current = null
+    if (!t || !e || t.moveu) return
+    if (e.fase === "espera" || e.fase === "fim") { inicia(); return }
+    // Toque sem arrastar, em cima do labirinto: vai na direcao do toque.
+    if (!c || ev.target !== c) return
+    const r = c.getBoundingClientRect()
+    const tx = ((ev.clientX - r.left) / r.width) * LARGURA - 0.5
+    const ty = ((ev.clientY - r.top) / r.height) * ALTURA - 0.5
+    const dx = tx - e.pacman.x, dy = ty - e.pacman.y
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 0.5) return
+    vira(e, Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "direita" : "esquerda") : (dy > 0 ? "baixo" : "cima"))
   }
+  const emPartida = hud.fase !== "espera" && hud.fase !== "fim"
 
   const mensagem =
     hud.fase === "pronto" ? "Pronto!" :
@@ -203,15 +221,19 @@ export default function JogoPet() {
   return (
     <div
       ref={caixaRef}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={() => { toqueRef.current = null }}
+      style={emPartida || cheia ? { touchAction: "none" } : undefined}
       role={cheia ? "dialog" : undefined}
       aria-label={cheia ? "Jogo em tela cheia" : undefined}
       className={cheia
         ? "fixed inset-0 z-[60] flex items-center justify-center gap-3 bg-fundo px-[max(12px,env(safe-area-inset-left))]"
         : "w-full"}
     >
-      {/* Em pe: placar, labirinto e direcional empilhados na largura do canvas.
-          Deitado ("contents"): os tres viram colunas da tela cheia, na ordem
-          direcional, labirinto, placar. */}
+      {/* Em pe: placar e labirinto empilhados na largura do canvas. Deitado
+          ("contents"): viram colunas da tela cheia, labirinto e placar. */}
       <div className={cheia ? "contents" : "mx-auto w-fit max-w-full"}>
       <div className={cheia
         ? "order-3 flex w-[110px] shrink-0 flex-col items-center gap-4 text-center font-bold"
@@ -243,10 +265,6 @@ export default function JogoPet() {
           role="img"
           aria-label="Jogo: labirinto do Pac-Man com GAME JAM escrito nas paredes. Enter para jogar, setas para mover."
           className="block h-auto max-w-full touch-none select-none rounded-md bg-black outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-destaque"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={() => { toqueRef.current = null }}
         />
         {(hud.fase === "espera" || hud.fase === "fim") && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/55">
@@ -267,32 +285,6 @@ export default function JogoPet() {
             {mensagem}
           </p>
         )}
-      </div>
-
-      {/* Direcional na tela, so em aparelho de toque: deslizar o dedo no
-          labirinto e dificil. Deitado, fica a esquerda, sob o polegar. */}
-      <div className={cheia ? "order-1 flex shrink-0 justify-center" : "mt-5 hidden justify-center pointer-coarse:flex"}>
-        <div className="grid grid-cols-3 gap-2">
-          {([["cima", "col-start-2", "Para cima"], ["esquerda", "col-start-1", "Para a esquerda"], ["direita", "col-start-3", "Para a direita"], ["baixo", "col-start-2", "Para baixo"]] as const).map(([dir, col, rotulo]) => (
-            <button
-              key={dir}
-              type="button"
-              aria-label={rotulo}
-              onPointerDown={(ev) => {
-                ev.preventDefault()
-                const e = estadoRef.current
-                if (!e) return
-                if (e.fase === "espera" || e.fase === "fim") inicia()
-                vira(e, dir)
-              }}
-              className={`${col} ${dir === "direita" ? "row-start-2" : ""} flex h-14 w-14 touch-none select-none items-center justify-center rounded-lg border-2 border-[#2121FF] bg-black active:bg-[#2121FF]/40`}
-            >
-              <svg viewBox="0 0 10 10" aria-hidden className={`h-5 w-5 fill-destaque ${{ cima: "", baixo: "rotate-180", esquerda: "-rotate-90", direita: "rotate-90" }[dir]}`}>
-                <path d="M5 1 9 8H1z" />
-              </svg>
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Em pe, no celular: a dica de deitar, com o aparelho girando, e o

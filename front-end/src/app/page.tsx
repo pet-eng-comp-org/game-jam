@@ -123,7 +123,7 @@ export default async function Home() {
           <TituloSecao valor="Enquanto a Season não começa" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
             Uma partida de Pac-Man no labirinto do Game Jam. No computador, use as setas ou
-            WASD; no celular, o direcional embaixo do labirinto.
+            WASD; no celular, deslize o dedo ou toque para onde quer ir.
           </p>
           <div className="mt-8">
             <JogoNaPagina />

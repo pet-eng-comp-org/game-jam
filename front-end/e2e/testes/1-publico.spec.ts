@@ -131,6 +131,12 @@ test("endereco que nao existe mostra a 404 do site, com volta ao inicio", async 
   await expect(page).toHaveURL(/\/$/);
 });
 
+// Um ponto do canvas bem acima do comeco do Pac-Man (meio de baixo).
+async function acimaDoPacman(canvas: import("@playwright/test").Locator) {
+  const c = (await canvas.boundingBox())!;
+  return { x: c.width / 2, y: c.height * 0.3 };
+}
+
 test("o jogo do Inicio comeca, anda e conta pontos, e as setas nao rolam a pagina", async ({ page }, info) => {
   const confere = semErroDePagina(page);
   await page.goto("/");
@@ -142,7 +148,9 @@ test("o jogo do Inicio comeca, anda e conta pontos, e as setas nao rolam a pagin
   await page.getByRole("button", { name: "Jogar" }).click();
   await page.waitForTimeout(2300); // "Pronto!"
   const rolagem = await page.evaluate(() => scrollY);
-  if (info.project.name === "celular") await page.getByRole("button", { name: "Para cima" }).tap();
+  // No celular, sem direcional: toca no labirinto acima do Pac-Man (ele sai
+  // do meio de baixo), e ele vai para cima.
+  if (info.project.name === "celular") await jogo.tap({ position: await acimaDoPacman(jogo) });
   else await page.keyboard.press("ArrowUp");
   await page.waitForTimeout(800);
   const pontos = page.getByText("Pontos").locator("xpath=following-sibling::p");
@@ -183,7 +191,9 @@ test("no celular, deitar o aparelho com o jogo na tela abre a tela cheia, e Sair
   await page.getByRole("img", { name: /labirinto do Pac-Man/ }).scrollIntoViewIfNeeded();
   // Em pe: a dica de virar o celular.
   await expect(page.getByText("Vire o celular para jogar em tela cheia")).toBeVisible();
-  await page.getByRole("button", { name: "Para cima" }).tap();
+  const labirinto = page.getByRole("img", { name: /labirinto do Pac-Man/ });
+  await page.getByRole("button", { name: "Jogar" }).tap();
+  await labirinto.tap({ position: await acimaDoPacman(labirinto) });
   const tamanho = page.viewportSize()!;
   await page.setViewportSize({ width: tamanho.height, height: tamanho.width });
   const cheia = page.getByRole("dialog", { name: "Jogo em tela cheia" });
