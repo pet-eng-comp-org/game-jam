@@ -109,6 +109,8 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
             <span className="text-sm">
               Aparece na página Regras. <code>## Título</code> vira um título de seção, e linhas
               começando com <code>1.</code> viram lista numerada. Vazio, a página mostra só o formato.
+              Tamanho da equipe, período de inscrição, certificado e linguagens já aparecem
+              embaixo do regulamento, com os campos desta tela: não precisa repetir.
             </span>
             <textarea rows={12} value={regulamento} onChange={e => setRegulamento(e.target.value)} className={`${CAMPO} font-mono text-sm`} />
           </label>

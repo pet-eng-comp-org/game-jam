@@ -226,6 +226,14 @@ describe("rotas publicas", () => {
     });
   }
 
+  it("/material vem em ordem de nome", async () => {
+    await prisma.material.create({ data: { nome: "Zeta", link: "https://exemplo.com/z", descricao: "d" } });
+    await prisma.material.create({ data: { nome: "Alfa", link: "https://exemplo.com/a", descricao: "d" } });
+    const nomes = (await (await api("GET", "/material")).json()).map((m) => m.nome);
+    assert.deepEqual(nomes, [...nomes].sort((a, b) => a.localeCompare(b)));
+    assert.ok(nomes.indexOf("Alfa") < nomes.indexOf("Zeta"));
+  });
+
   // cors() sem argumento aceitava qualquer origem: qualquer site conseguia chamar
   // a API pelo navegador de um visitante.
   it("CORS so libera as origens do site", async () => {
