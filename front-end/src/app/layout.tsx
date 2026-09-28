@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Jomhuria } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Toaster } from "sonner";
 
 // Inter e a fonte de corpo do mockup da Season 4, nos pesos 400/500/700. E a
 // 3.19, hospedada aqui, e nao a do Google Fonts: o mockup foi feito com ela, e
@@ -89,9 +88,8 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jomhuria.variable} font-sans antialiased`}
       >
-        <Toaster 
-          position="bottom-right"
-        />
+        {/* Os avisos (sonner) ficam so no painel e na inscricao, onde ha aviso
+            para mostrar: aqui ele carregava em toda pagina. */}
         {children}
       </body>
     </html>
