@@ -5,6 +5,7 @@ import { APOS_TITULO, PAGINA, SECAO, TEXTO } from "./components/estilo";
 import Contagem from "./components/Contagem";
 import CasaDosFantasmas from "./components/CasaDosFantasmas";
 import JogoNaPagina from "./components/JogoNaPagina";
+import SalvarNaAgenda from "./components/SalvarNaAgenda";
 import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
 import { seasonAtual } from "@/lib/conteudo";
@@ -72,6 +73,9 @@ export default async function Home() {
                   </a>
                 )}
               </div>
+              {!jaPassou(season.dataEvento) && (
+                <SalvarNaAgenda evento={{ numero: season.numero, dataEvento: season.dataEvento, local: season.local }} className="mt-4 text-sm md:text-base" />
+              )}
             </>
           ) : (
             <p className="mt-4 text-xl text-destaque-claro">Competição de programação em equipes, em um único dia. Data em breve.</p>

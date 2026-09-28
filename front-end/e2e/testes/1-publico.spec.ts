@@ -164,3 +164,14 @@ test("nenhuma pagina publica tem problema de acessibilidade que o axe acha", asy
     expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`), caminho).toEqual([]);
   }
 });
+
+test("salvar na agenda: link do Google Agenda e arquivo .ics do evento", async ({ page, request }) => {
+  await page.goto("/");
+  const google = page.getByRole("link", { name: "Google Agenda" });
+  await expect(google).toHaveAttribute("href", /^https:\/\/calendar\.google\.com\/calendar\/render\?action=TEMPLATE/);
+  await expect(page.getByRole("link", { name: "outros calendários" })).toHaveAttribute("href", "/agenda.ics");
+  const ics = await request.get("/agenda.ics");
+  expect(ics.status()).toBe(200);
+  expect(ics.headers()["content-type"]).toContain("text/calendar");
+  expect(await ics.text()).toMatch(/BEGIN:VEVENT[\s\S]*DTSTART:\d{8}T\d{6}Z/);
+});

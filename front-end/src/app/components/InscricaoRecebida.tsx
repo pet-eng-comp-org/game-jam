@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import Personagem from "./Personagem"
 import { diaEHora } from "@/lib/datas"
+import SalvarNaAgenda from "./SalvarNaAgenda"
 
 // Tela depois da inscricao, no lugar do formulario. Antes era so um aviso que
 // sumia em segundos sobre o formulario vazio, e parecia que nada tinha
@@ -83,9 +84,12 @@ export default function InscricaoRecebida({ equipe, season, outra }: Props) {
         {season ? ` da Season ${season.numero}` : ""}. A confirmação vai para o e-mail de cada participante.
       </p>
       {season?.dataEvento && (
-        <p className="mt-3 text-lg text-destaque-claro">
-          Nos vemos {diaEHora(season.dataEvento, true)}{season.local ? `, no ${season.local}` : ""}.
-        </p>
+        <>
+          <p className="mt-3 text-lg text-destaque-claro">
+            Nos vemos {diaEHora(season.dataEvento, true)}{season.local ? `, no ${season.local}` : ""}.
+          </p>
+          <SalvarNaAgenda evento={{ numero: season.numero, dataEvento: season.dataEvento, local: season.local }} className="mt-2" />
+        </>
       )}
       <p className="mt-3 text-lg text-destaque-claro">
         Os próximos avisos saem no Instagram{" "}
