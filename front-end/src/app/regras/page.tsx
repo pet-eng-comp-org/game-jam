@@ -103,8 +103,9 @@ export default async function Regras() {
             Qualquer dúvida pode ser tirada com o PET Engenharia de Computação pelo Instagram{" "}
             <a href="https://www.instagram.com/petengcomp/" target="_blank" rel="noopener noreferrer" className="text-destaque underline">
               @petengcomp
-            </a>
-            .
+            </a>{" "}
+            ou pelo e-mail{" "}
+            <a href="mailto:petengcomp@inf.ufes.br" className="text-destaque underline">petengcomp@inf.ufes.br</a>.
         </p>
       </div>
     </Layout>

@@ -35,7 +35,7 @@ async function entra(page: import("@playwright/test").Page) {
   await expect(page).toHaveURL(/\/admin$/);
 }
 
-test("organizador ve os inscritos, baixa a planilha e apaga uma equipe", async ({ page }, info) => {
+test("organizador ve os inscritos, baixa a planilha e apaga uma equipe", async ({ page, context }, info) => {
   const atual = await banco.season.findFirst({ where: { atual: true } });
   const nome = `Inscritos ${info.project.name} ${Date.now()}`;
   const equipe = await banco.equipe.create({
@@ -61,6 +61,14 @@ test("organizador ve os inscritos, baixa a planilha e apaga uma equipe", async (
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Baixar planilha" }).click()]);
   const csv = await (await import("node:fs/promises")).readFile(await download.path(), "utf8");
   expect(csv).toContain(`"${nome}";"Sim";"Joana Inscrita";"joana@exemplo.com";"052.998.224-72"`);
+
+  // Copiar e-mails: para o Cco de um aviso, sem repetir.
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.getByRole("button", { name: "Copiar e-mails" }).click();
+  await expect(page.getByText(/e-mail\(s\) copiado\(s\)/)).toBeVisible();
+  const copiados = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copiados.split(", ")).toContain("joana@exemplo.com");
+  expect(new Set(copiados.split(", ")).size).toBe(copiados.split(", ").length);
 
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: `Apagar a equipe ${nome}` }).click();

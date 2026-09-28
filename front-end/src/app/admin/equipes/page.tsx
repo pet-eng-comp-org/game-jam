@@ -5,6 +5,7 @@ import Layout from "../components/Layout"
 import Botao from "../components/Botao"
 import { IconeLixeira } from "../components/Icones"
 import { Season } from "@/models/Season"
+import { toast } from "sonner"
 import { aprovaEquipe, deletaEquipe, obtemEquipes } from "@/models/Equipes"
 import { cpfFormatado, planilhaDeInscritos, type EquipeInscrita } from "@/lib/planilha"
 
@@ -60,6 +61,18 @@ export default function Equipes() {
         URL.revokeObjectURL(url)
     }
 
+    // Para mandar um aviso a todos os inscritos: cola no Cco (copia oculta),
+    // sem repetir quem esta em mais de uma equipe.
+    async function copiaEmails() {
+        const emails = [...new Set(equipes.flatMap((e) => e.participantes.map((p) => p.email.trim().toLowerCase())))]
+        try {
+            await navigator.clipboard.writeText(emails.join(", "))
+            toast.success(`${emails.length} e-mail(s) copiado(s). Cole no campo Cco (cópia oculta).`)
+        } catch {
+            toast.warning("O navegador não deixou copiar. Use a planilha.")
+        }
+    }
+
     const participantes = equipes.reduce((total, e) => total + e.participantes.length, 0)
     const aprovadas = equipes.filter((e) => e.aprovada).length
 
@@ -88,6 +101,7 @@ export default function Equipes() {
                 <span>{equipes.length} equipe(s), {aprovadas} aprovada(s), {participantes} participante(s)</span>
 
                 {equipes.length > 0 && <Botao nome="Baixar planilha" onClick={baixaPlanilha} />}
+                {equipes.length > 0 && <Botao nome="Copiar e-mails" onClick={copiaEmails} className="bg-gray-600 hover:bg-gray-500" />}
             </div>
 
             <div className="flex flex-col gap-4">
