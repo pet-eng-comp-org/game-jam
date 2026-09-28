@@ -62,6 +62,12 @@ export default function Contagem({ inicio, rotuloData }: Props) {
   const agora = useAgora()
   const alvo = new Date(inicio).getTime()
 
+  // Sem hora de fim cadastrada: 12 horas depois do inicio a competicao ja
+  // acabou, e a mensagem para de dizer que esta acontecendo (senao ficaria
+  // assim ate alguem trocar a season no painel).
+  if (agora !== null && agora >= alvo + 12 * 3600 * 1000) {
+    return <p className="text-2xl font-bold text-destaque md:text-3xl">A competição terminou. Obrigado a todas as equipes!</p>
+  }
   if (agora !== null && agora >= alvo) {
     return <p className="text-2xl font-bold text-destaque md:text-3xl">A competição está acontecendo!</p>
   }
