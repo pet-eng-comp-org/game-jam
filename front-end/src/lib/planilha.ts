@@ -23,7 +23,7 @@ export interface EquipeInscrita {
 const GENEROS: { [valor: string]: string } = {
   feminino: "Feminino",
   masculino: "Masculino",
-  outros: "Outros",
+  outros: "Outro",
   "nao-informado": "Não informado",
 };
 

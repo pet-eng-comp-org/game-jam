@@ -125,7 +125,9 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
               value={valor("cpf" + index)} onChange={e => handleInputChange("cpf" + index, formataCpf(e.target.value))} />
           </Campo>
 
-          <Campo id={`curso${index}`} rotulo="Curso" leitor={`Curso do participante ${index}, se for universitário`}>
+          {/* Opcional a vista: so o leitor de tela sabia, e quem ainda nao esta
+              na faculdade ficava sem saber o que pôr. */}
+          <Campo id={`curso${index}`} rotulo="Curso (opcional)" leitor={`Curso do participante ${index}, opcional`}>
             <input {...marca("curso" + index)} type="text"
               value={valor("curso" + index)} onChange={e => handleInputChange("curso" + index, e.target.value)} />
           </Campo>
@@ -136,7 +138,7 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
               <option value="nao-informado">Prefiro não informar</option>
               <option value="feminino">Feminino</option>
               <option value="masculino">Masculino</option>
-              <option value="outros">Outros</option>
+              <option value="outros">Outro</option>
             </select>
           </Campo>
 
