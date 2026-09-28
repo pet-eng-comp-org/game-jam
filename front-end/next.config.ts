@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
   // Os testes de ponta a ponta compilam em outra pasta (e2e/sobe-front.sh), para
   // nao sobrescrever o .next de quem roda o site na maquina.
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  // O `next dev` so atende o proprio localhost: aberto por outro endereco (o
+  // celular, por uma VPN ou tunel), a pagina vem sem JavaScript. Quem precisa
+  // lista os hostnames em NEXT_DEV_ORIGENS, separados por virgula. Em producao
+  // nao tem efeito.
+  allowedDevOrigins: process.env.NEXT_DEV_ORIGENS?.split(",").map((o) => o.trim()).filter(Boolean),
 };
 
 export default nextConfig;
