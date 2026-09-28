@@ -5,9 +5,10 @@ interface MaterialProps {
 
     material: Material
     deletaMaterial: (material: Material) => void
+    editaMaterial: (material: Material) => void
 }
 
-export default function MaterialComponente({ material, deletaMaterial }: MaterialProps) {
+export default function MaterialComponente({ material, deletaMaterial, editaMaterial }: MaterialProps) {
 
     return (
         
@@ -37,13 +38,16 @@ export default function MaterialComponente({ material, deletaMaterial }: Materia
                     )}
                 </div>
 
-                <button 
-                
-                    onClick={() => deletaMaterial(material)}
-                    className="text-red-500 hover:bg-red-500 hover:text-white p-2 rounded-full transition ml-4"
-                >
-                    {IconeLixeira}
-                </button>
+                <div className="ml-4 flex shrink-0 items-center gap-1">
+                    <button type="button" onClick={() => editaMaterial(material)} aria-label={`Editar o material ${material.getNome}`}
+                        className="rounded-md px-2 py-1 text-sm font-bold text-blue-950 hover:bg-gray-100">
+                        Editar
+                    </button>
+                    <button type="button" onClick={() => deletaMaterial(material)} aria-label={`Apagar o material ${material.getNome}`}
+                        className="text-red-500 hover:bg-red-500 hover:text-white p-2 rounded-full transition">
+                        {IconeLixeira}
+                    </button>
+                </div>
             </div>
         </div>
     )

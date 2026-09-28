@@ -166,6 +166,7 @@ describe("login do painel", () => {
     ["POST", "/patrocinador"],
     ["DELETE", "/patrocinador/remove"],
     ["POST", "/material"],
+    ["PUT", "/material"],
     ["DELETE", "/material"],
   ];
 
@@ -510,6 +511,31 @@ describe("jogos", () => {
     assert.equal(salvo.equipe, "Equipe Nova");
     assert.equal(salvo.ordem, 5);
     assert.equal(salvo.capa, "j.png", "a capa nao muda na edicao");
+  });
+});
+
+describe("materiais", () => {
+  // O link vira href na pagina publica: so http(s).
+  it("cadastro valida nome e link", async () => {
+    const token = await entra();
+    const base = { nome: "Tutorial", descricao: "d", link: "https://exemplo.com/t" };
+    assert.equal((await api("POST", "/material", { token, corpo: { ...base, nome: "  " } })).status, 400);
+    assert.equal((await api("POST", "/material", { token, corpo: { ...base, link: "javascript:alert(1)" } })).status, 400);
+    const r = await api("POST", "/material", { token, corpo: { ...base, nome: "  Tutorial  " } });
+    assert.equal(r.status, 200);
+    assert.equal((await r.json()).nome, "Tutorial", "sem espacos nas pontas");
+  });
+
+  it("edita nome, descricao e link, com a mesma validacao", async () => {
+    const token = await entra();
+    const m = await prisma.material.create({ data: { nome: "Esse e uma playlist", link: "https://exemplo.com/p", descricao: "d" } });
+    const novo = { nome: "Playlist", descricao: "Essa é uma playlist", link: "https://exemplo.com/p2" };
+    assert.equal((await api("PUT", `/material?id=${m.id}`, { token, corpo: { ...novo, link: "ftp://x" } })).status, 400);
+    assert.equal((await api("PUT", "/material?id=nao-existe", { token, corpo: novo })).status, 404);
+    assert.equal((await api("PUT", `/material?id=${m.id}`, { corpo: novo })).status, 401, "sem login, nao");
+    assert.equal((await api("PUT", `/material?id=${m.id}`, { token, corpo: novo })).status, 200);
+    const salvo = await prisma.material.findUnique({ where: { id: m.id } });
+    assert.deepEqual([salvo.nome, salvo.descricao, salvo.link], [novo.nome, novo.descricao, novo.link]);
   });
 });
 

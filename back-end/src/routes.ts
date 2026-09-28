@@ -29,6 +29,7 @@ import { DeletaPatrocinadorController } from "./controllers/patrocinador/DeletaP
 import { CriaMaterialController } from "./controllers/material/CriaMaterialController";
 import { DeletaMaterialController } from "./controllers/material/DeletaMaterialController";
 import { ObtemMateriaisController } from "./controllers/material/ObtemMateriaisController";
+import { EditaMaterialController } from "./controllers/material/EditaMaterialController";
 import { ObtemPatrocinadoresController } from "./controllers/patrocinador/ObtemPatrocinadorController";
 
 import { CriaInscricaoController } from "./controllers/inscricao/CriaInscricaoController";
@@ -70,6 +71,7 @@ router.get('/patrocinador', new ObtemPatrocinadoresController().handle)
 // -- ROUTES MATERIAIS --
 // Mesmo criterio do patrocinador: leitura publica, escrita autenticada.
 router.post('/material', estaAutenticado, new CriaMaterialController().handle)
+router.put('/material', estaAutenticado, new EditaMaterialController().handle)
 router.delete('/material', estaAutenticado, new DeletaMaterialController().handle)
 router.get('/material', new ObtemMateriaisController().handle)
 
