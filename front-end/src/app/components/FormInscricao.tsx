@@ -6,12 +6,15 @@ import { useState } from "react";
 import { isAxiosError } from "axios";
 import { api } from "@/services/api";
 import { formataCpf, montaInscricao, type ErrosFormulario } from "@/lib/inscricao";
+import InscricaoRecebida from "./InscricaoRecebida";
 
 interface FormInscricaoProps {
   numParticipantesPorEquipe: number;
+  // Para a tela de inscricao recebida: numero, dia e local do evento.
+  season?: { numero: string; dataEvento: string | null; local: string | null };
 }
 
-export default function FormInscricao({ numParticipantesPorEquipe }: FormInscricaoProps) {
+export default function FormInscricao({ numParticipantesPorEquipe, season }: FormInscricaoProps) {
   const [formDataState, setFormDataState] = useState<{ [key: string]: string | boolean }>({});
   const [ufesStatus, setUfesStatus] = useState<{ [key: number]: boolean | undefined }>({});
   // O formulário começa com um participante; os outros entram pelo botão, até o
@@ -22,6 +25,10 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
   // Trava o botão enquanto a inscrição vai: um toque duplo no celular criava
   // a equipe duas vezes.
   const [enviando, setEnviando] = useState(false);
+
+  // Nome da equipe que acabou de se inscrever: troca o formulario pela tela
+  // de inscricao recebida.
+  const [recebida, setRecebida] = useState<string | null>(null);
 
   const handleInputChange = (name: string, value: string | boolean) => {
     setFormDataState(prev => ({ ...prev, [name]: value }));
@@ -54,7 +61,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
       // Uma requisição só: a API grava a equipe e os participantes juntos, ou nada.
       await api.post("/inscricao", { equipe: inscricao.equipe, participantes: inscricao.participantes });
 
-      toast.success("Inscrição solicitada com sucesso!");
+      setRecebida(inscricao.equipe);
       setFormDataState({});
       setUfesStatus({});
       setQuantos(1);
@@ -165,6 +172,8 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
       </fieldset>
     );
   }
+
+  if (recebida) return <InscricaoRecebida equipe={recebida} season={season} outra={() => setRecebida(null)} />;
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex w-full max-w-[555px] flex-col">

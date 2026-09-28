@@ -1,141 +1,91 @@
-"use client"
-
-// A lista de seasons com os jogos, que abre e fecha no navegador. Os dados vem
-// prontos da pagina (servidor).
-import { useState } from "react"
+// Os jogos das edicoes antigas, todos a vista: uma secao por season, da mais
+// nova para a mais antiga, e os jogos em grade. Antes cada season era uma
+// sanfona fechada, e quem chegava via tres linhas em vez dos jogos.
 import Link from "next/link"
 import Titulo from "../components/Titulo"
-import { TEXTO } from "../components/estilo"
+import TituloSecao from "../components/TituloSecao"
+import Personagem from "../components/Personagem"
+import { PAGINA, SECAO, TEXTO } from "../components/estilo"
+import { capaDoJogo, listaDeIntegrantes } from "@/lib/capa"
+import type { SeasonComJogosJson } from "@/models/api"
 
 // "Ana, Bia e Caio": a lista de integrantes escrita como frase.
 const emFrase = (nomes: string[]) =>
   nomes.length < 2 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`
-import { capaDoJogo, listaDeIntegrantes } from "@/lib/capa"
-import type { SeasonComJogosJson } from "@/models/api"
+
+// No celular a descricao para na quarta linha; o jogo e o que conta.
+const DESCRICAO = "mt-2 line-clamp-4 text-sm leading-snug sm:mt-3 sm:line-clamp-none sm:text-base sm:leading-relaxed"
 
 export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJogosJson[] }) {
-
-  // Um CONJUNTO, e nao uma season so: da para deixar varias abertas ao mesmo
-  // tempo e comparar edicoes sem ficar fechando uma para ver a outra. Todas
-  // comecam fechadas — quem chega escolhe, que e o que o titulo pede.
-  const [abertas, setAbertas] = useState<Set<string>>(new Set())
-
-  function alterna(numero: string) {
-
-    setAbertas((atual) => {
-
-      // Copia antes de mexer: mutar o Set existente nao troca a referencia e o
-      // React nao redesenha.
-      const proximo = new Set(atual)
-      if (proximo.has(numero)) proximo.delete(numero)
-      else proximo.add(numero)
-      return proximo
-    })
-  }
-
   return (
+    <div className={PAGINA}>
+      <Titulo valor="edições anteriores" />
+      <p className={`mt-6 ${TEXTO}`}>
+        Nas Seasons 1 a 3, cada equipe tinha algumas semanas para criar um jogo do zero,
+        sobre um tema. Todos rodam no navegador: é só escolher um. A Season 4 muda o
+        formato:{" "}
+        <Link href="/" className="text-destaque underline">veja como funciona</Link>.
+      </p>
 
-      <div className="mx-auto w-full max-w-[1340px] px-6 pb-10 pt-14 md:w-[93%] md:px-0 md:pt-[98px]">
+      {temporadas.map((t) => (
+        <section key={t.numero} aria-labelledby={`season-${t.numero}`} className={SECAO}>
+          <div id={`season-${t.numero}`}>
+            <TituloSecao valor={`Season ${t.numero}`} />
+          </div>
+          {/* Ano e tema, editaveis no painel: dizem de onde vem cada jogo. */}
+          {(t.ano || t.tema) && (
+            <p className="mt-2 text-lg text-destaque-claro">
+              {[t.ano, t.tema && `tema “${t.tema}”`].filter(Boolean).join(" · ")}
+            </p>
+          )}
 
-        {/* O titulo do mockup era "Selecione uma opcao". Troquei para dizer o que
-            a pagina e: os jogos das edicoes no formato antigo, que a Season 4
-            abandonou. */}
-        <div className="md:pl-[93px]">
-          <Titulo valor="edições anteriores" />
-          <p className={`mt-6 ${TEXTO}`}>
-            Nas Seasons 1 a 3, o Game Jam tinha outro formato: cada equipe tinha algumas
-            semanas para criar um jogo do zero, sobre um tema divulgado no início. Estes são
-            os jogos dessas edições, e todos rodam no navegador: é só clicar na capa. A Season 4 muda o formato:{" "}
-            <Link href="/" className="text-destaque underline">veja como funciona</Link>.
-          </p>
-        </div>
-
-        {/* Medido contra o mockup em pixels: letras de "SEASON" a cada 56px, a
-            primeira em y=318. */}
-        <div className="mt-[53px]">
-          {temporadas.map((t) => {
-
-            const estaAberta = abertas.has(t.numero)
-
-            return (
-              <div key={t.numero} className="border-b border-destaque-claro">
-
-                <h2>
-                  <button
-                    type="button"
-                    onClick={() => alterna(t.numero)}
-                    aria-expanded={estaAberta}
-                    aria-controls={`season-${t.numero}`}
-                    className="flex w-full flex-wrap items-center pt-[7px] pb-2 pl-2 text-left md:flex-nowrap md:pb-0 md:pl-[121px] font-secao text-4xl uppercase leading-none text-destaque transition-opacity hover:opacity-80 md:text-5xl"
-                  >
-                    <span className="whitespace-nowrap md:w-[129px]">Season {t.numero}</span>
-                    <span aria-hidden className={`flex w-[26px] shrink-0 items-center justify-center leading-[0] ${estaAberta ? "-translate-y-[2px]" : "-translate-y-[4.5px]"}`}>
-                    <svg
-                      viewBox="13.3 11.51 15.04 25.99"
-                      className={`h-[26px] w-[15px] transition-transform duration-200 ${estaAberta ? "rotate-90" : ""}`}
-                      fill="none"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M27.7372 25.9513L16.1875 37.501L13.3005 34.6141L23.4068 24.5078L13.3005 14.4016L16.1875 11.5146L27.7372 23.0644C28.1199 23.4472 28.3349 23.9664 28.3349 24.5078C28.3349 25.0492 28.1199 25.5684 27.7372 25.9513Z"
-                        fill="currentColor"
-                      />
-                    </svg>
+          <ul className="mt-8 grid gap-x-10 gap-y-8 sm:grid-cols-2 sm:gap-y-14 lg:grid-cols-3">
+            {t.jogos.map((j) => {
+              const nome = j.nome ?? j.equipe
+              const integrantes = listaDeIntegrantes(j.integrantes)
+              return (
+                // O cartao inteiro e clicavel pelo link do nome (after:inset-0),
+                // e o leitor de tela ouve so o nome e a acao, nao o cartao todo.
+                <li
+                  key={j.id}
+                  className="group relative grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start gap-x-4 rounded-xl outline-offset-8 has-[a:focus-visible]:outline has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-destaque sm:block"
+                >
+                  <img
+                    src={capaDoJogo(j.capa)}
+                    alt=""
+                    loading="lazy"
+                    className="aspect-[4/3] w-full rounded-xl border-2 border-destaque-claro/20 object-cover transition-colors duration-200 group-hover:border-destaque"
+                  />
+                  {/* No celular, capa a esquerda e texto a direita: em coluna unica
+                      cada jogo ocupava uma tela inteira. */}
+                  <div>
+                  {/* O Pac-Man e o cursor, como no menu de um fliperama: aparece
+                      mastigando ao lado do jogo escolhido. */}
+                  <h3 className="flex items-center text-lg font-bold leading-tight text-destaque sm:mt-5 sm:text-2xl">
+                    <span aria-hidden className="w-0 overflow-hidden opacity-0 transition-all duration-200 group-hover:mr-3 group-hover:w-6 group-hover:opacity-100 group-has-[a:focus-visible]:mr-3 group-has-[a:focus-visible]:w-6 group-has-[a:focus-visible]:opacity-100">
+                      <Personagem qual="pacman" mastigando className="h-6 w-6" />
                     </span>
-                    {/* Ano e tema da edicao, editaveis no painel: dizem de onde vem
-                        cada jogo, ja que o formato dessas edicoes era outro. */}
-                    {(t.ano || t.tema) && (
-                      <span className="basis-full font-sans text-base normal-case leading-snug text-destaque-claro md:ml-8 md:basis-auto md:text-xl">
-                        {[t.ano, t.tema && `tema “${t.tema}”`].filter(Boolean).join(" · ")}
-                      </span>
-                    )}
-                  </button>
-                </h2>
-
-                {estaAberta && (
-                  <ul id={`season-${t.numero}`} className="flex flex-col gap-12 pb-14 pt-10 pl-2 md:gap-[70px] md:pt-[68px] md:pl-[101px]">
-                    {t.jogos.map((j) => {
-                      const integrantes = listaDeIntegrantes(j.integrantes)
-                      return (
-                      <li key={j.id} className="grid gap-8 lg:grid-cols-[538px_528px] lg:items-center lg:gap-[72px]">
-
-                        <a
-                          href={j.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group block rounded-xl outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-destaque"
-                        >
-                          {/* O link e so a capa. O alt diz o que ele FAZ, e nao
-                              o que a imagem mostra: quem usa leitor de tela
-                              ouve "Jogar X", que e a acao. */}
-                          <img
-                            src={capaDoJogo(j.capa)}
-                            alt={`Jogar ${j.nome ?? j.equipe}`}
-                            className="w-full rounded-xl border border-destaque-claro/20 transition duration-200 group-hover:border-destaque group-hover:brightness-110 lg:h-[421px] lg:object-cover"
-                            loading="lazy"
-                          />
-                        </a>
-
-                        {/* No mockup o texto fica centrado na altura da capa. */}
-                        <div>
-                          {/* Na escala do resto do site: a capa ja e o destaque, e o
-                              texto de 29px do mockup competia com ela. */}
-                          <h3 className="text-2xl font-bold text-destaque md:text-3xl">{j.nome ?? j.equipe}</h3>
-                          {j.nome && j.equipe && <p className="mt-1 text-lg font-bold text-destaque-claro/90">por {j.equipe}</p>}
-                          {j.descricao
-                            ? <p className={`mt-4 ${TEXTO} md:text-xl`}>{j.descricao}</p>
-                            : integrantes.length > 0 && <p className={`mt-4 ${TEXTO} md:text-xl`}>{emFrase(integrantes)}</p>}
-                        </div>
-                      </li>
-                      )
-                    })}
-                  </ul>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </div>
+                    <a
+                      href={j.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="outline-none after:absolute after:inset-0 after:content-['']"
+                    >
+                      {nome}
+                      <span className="sr-only"> (jogar no navegador, abre em outra aba)</span>
+                    </a>
+                  </h3>
+                  {j.nome && j.equipe && <p className="mt-1 text-sm font-bold text-destaque-claro/90 sm:text-base">por {j.equipe}</p>}
+                  {j.descricao
+                    ? <p className={DESCRICAO}>{j.descricao}</p>
+                    : integrantes.length > 0 && <p className={DESCRICAO}>{emFrase(integrantes)}</p>}
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      ))}
+    </div>
   )
 }

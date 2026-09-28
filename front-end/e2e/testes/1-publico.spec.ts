@@ -23,11 +23,13 @@ for (const { caminho, mostra } of paginas) {
   });
 }
 
-test("/jogos abre a lista de uma season", async ({ page }) => {
+test("/jogos mostra os jogos de todas as seasons, com link para jogar", async ({ page }) => {
   const confere = semErroDePagina(page);
   await page.goto("/jogos");
-  await page.getByRole("button", { name: /Season 1/ }).click();
-  await expect(page.getByText("A Lenda de Gabe").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Season 1" })).toBeVisible();
+  const jogo = page.getByRole("link", { name: /^A Lenda de Gabe/ });
+  await expect(jogo).toBeVisible();
+  await expect(jogo).toHaveAttribute("target", "_blank");
   confere();
 });
 

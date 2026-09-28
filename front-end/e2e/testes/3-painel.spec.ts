@@ -130,9 +130,9 @@ test("organizador edita e cadastra jogo, e a pagina de jogos mostra", async ({ p
   await expect(page.getByText("Jogo cadastrado com sucesso!")).toBeVisible();
 
   await page.goto("/jogos");
-  await page.getByRole("button", { name: /Season 2/ }).click();
   await expect(page.getByText(`Dança italiana ${marca}.`)).toBeVisible();
-  const capa = page.getByRole("img", { name: `Jogar Novo ${marca}` });
+  const cartao = page.getByRole("listitem").filter({ has: page.getByRole("link", { name: new RegExp(`^Novo ${marca}`) }) });
+  const capa = cartao.locator("img");
   await expect(capa).toBeVisible();
   // A capa enviada vem da API e carrega de verdade.
   expect(await capa.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth > 0)).toBe(true);

@@ -35,7 +35,9 @@ export default function Inscricao() {
           <Link href="/" aria-label="Voltar ao início do Game Jam">
             {/* Sem a faixa "Season IV" do Figma: ela prendia a logo a uma edicao.
                 O numero da season fica no titulo, ao lado. */}
-            <img src="/marca/quadro-game-jam.svg" alt="PET Game Jam" className="h-64 md:h-96 lg:h-[431px]" />
+            {/* Menor no celular: com 256px, o formulario so aparecia depois de
+                rolar. */}
+            <img src="/marca/quadro-game-jam.svg" alt="PET Game Jam" className="h-40 sm:h-64 md:h-96 lg:h-[431px]" />
           </Link>
         </div>
 
@@ -45,8 +47,8 @@ export default function Inscricao() {
           </h1>
           {/* A edicao numa frase embaixo do titulo, e nao numa etiqueta em caixa
               alta em cima dele. Vem do painel. */}
-          <p className="mb-10 mt-2 text-center text-lg text-destaque-claro lg:mb-[64px]">
-            {estado.tipo === "pronto" && estado.season ? `Para a Season ${estado.season.getNumero} do Game Jam.` : "\u00a0"}
+          <p className="mb-10 mt-2 text-balance text-center text-lg text-destaque-claro lg:mb-[64px]">
+            {estado.tipo === "pronto" && estado.season ? subtitulo(estado.season) : "\u00a0"}
           </p>
 
           {estado.tipo === "carregando" && <Aviso titulo="Carregando..." />}
@@ -57,7 +59,10 @@ export default function Inscricao() {
 
           {estado.tipo === "pronto" && (
             estado.season?.getInscricoesAbertas ? (
-              <FormInscricao numParticipantesPorEquipe={estado.season.getNumParticipantesPorEquipe} />
+              <FormInscricao
+                numParticipantesPorEquipe={estado.season.getNumParticipantesPorEquipe}
+                season={{ numero: String(estado.season.getNumero), dataEvento: estado.season.getDados?.dataEvento ?? null, local: estado.season.getDados?.local ?? null }}
+              />
             ) : (
               <Aviso {...avisoFechada(estado.season)} />
             )
@@ -66,6 +71,15 @@ export default function Inscricao() {
       </main>
     </div>
   )
+}
+
+// Com as inscricoes abertas, o prazo e o tamanho da equipe: o que a pessoa
+// precisa saber antes de comecar. Fechadas, so a edicao.
+function subtitulo(season: Season) {
+  const d = season.getDados
+  const n = season.getNumParticipantesPorEquipe
+  if (!season.getInscricoesAbertas || !d?.inscricoesFecham) return `Para a Season ${season.getNumero} do Game Jam.`
+  return `Para a Season ${season.getNumero}, até ${diaEHora(d.inscricoesFecham)}. Equipes de 1 a ${n} pessoas.`
 }
 
 // Fechada por que? Ainda nao abriu, ja encerrou, ou sem periodo definido.

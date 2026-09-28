@@ -21,7 +21,9 @@ const COR_FANTASMA = {
 
 // pendurado: no desktop o fantasma fica de cabeca para baixo na barra, e as
 // pupilas vao para o lado que vira o de baixo.
-export default function Personagem({ qual, className, pendurado = false }: { qual: Personagem; className?: string; pendurado?: boolean }) {
+// mastigando: o Pac-Man abre e fecha a boca (animate-mastiga, em globals.css),
+// alternando com o quadro de boca fechada. Sem animacao, fica aberto.
+export default function Personagem({ qual, className, pendurado = false, mastigando = false }: { qual: Personagem; className?: string; pendurado?: boolean; mastigando?: boolean }) {
   if (qual === "assustado") {
     return (
       <svg viewBox="0 0 14 14" aria-hidden shapeRendering="crispEdges" className={className}>
@@ -48,6 +50,9 @@ export default function Personagem({ qual, className, pendurado = false }: { qua
     return (
       <svg viewBox="0 0 13 13" aria-hidden shapeRendering="crispEdges" className={className}>
         <path fill="#FFCF00" d="M4 0h5v1h-5zM2 1h9v1h-9zM1 2h11v1h-11zM0 3h10v1h-10zM0 4h8v1h-8zM0 5h6v1h-6zM0 6h4v1h-4zM0 7h6v1h-6zM0 8h8v1h-8zM0 9h10v1h-10zM1 10h11v1h-11zM2 11h9v1h-9zM4 12h5v1h-5z" />
+        {mastigando && (
+          <path className="opacity-0 motion-safe:animate-mastiga" fill="#FFCF00" d="M4 0h5v1h-5zM2 1h9v1h-9zM1 2h11v1h-11zM0 3h13v7h-13zM1 10h11v1h-11zM2 11h9v1h-9zM4 12h5v1h-5z" />
+        )}
       </svg>
     );
   }

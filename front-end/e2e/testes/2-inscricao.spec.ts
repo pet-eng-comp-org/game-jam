@@ -37,7 +37,7 @@ test("inscreve a equipe e grava cada participante", async ({ page }, info) => {
   await page.getByRole("textbox", { name: "Instituição de ensino do participante 2" }).fill("IFES");
   await page.getByRole("button", { name: "inscrever-se" }).click();
 
-  await expect(page.getByText("Inscrição solicitada com sucesso!")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Inscrição recebida!" })).toBeVisible();
   confere();
 
   const gravada = await banco.equipe.findFirst({
@@ -73,7 +73,7 @@ test("toque duplo no botao grava a equipe uma vez so", async ({ page }, info) =>
   await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: cpfNovo() });
   await page.getByRole("button", { name: "inscrever-se" }).dblclick();
 
-  await expect(page.getByText("Inscrição solicitada com sucesso!")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Inscrição recebida!" })).toBeVisible();
   expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(1);
 });
 
@@ -95,7 +95,7 @@ test("CPF ja inscrito na season fica marcado no campo", async ({ page }, info) =
     await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", cpf: cpfNovo() });
     await preenche(page, 2, { nome: "Bia Teste", email: "bia@exemplo.com", cpf });
     await page.getByRole("button", { name: "inscrever-se" }).click();
-    if (n === 0) await expect(page.getByText("Inscrição solicitada com sucesso!")).toBeVisible();
+    if (n === 0) await expect(page.getByRole("heading", { name: "Inscrição recebida!" })).toBeVisible();
   }
   await expect(page.getByRole("textbox", { name: "CPF do participante 2, para o certificado" }))
     .toHaveAccessibleDescription("este CPF já está inscrito nesta season.");
