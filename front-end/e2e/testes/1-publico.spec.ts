@@ -124,3 +124,20 @@ test("endereco que nao existe mostra a 404 do site, com volta ao inicio", async 
   await page.getByRole("link", { name: "Ir para o início" }).click();
   await expect(page).toHaveURL(/\/$/);
 });
+
+test("o jogo do Inicio comeca, anda e conta pontos, e as setas nao rolam a pagina", async ({ page }, info) => {
+  const confere = semErroDePagina(page);
+  await page.goto("/");
+  const jogo = page.getByRole("img", { name: /labirinto do Pac-Man/ });
+  await jogo.scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Jogar" }).click();
+  await page.waitForTimeout(2300); // "Pronto!"
+  const rolagem = await page.evaluate(() => scrollY);
+  if (info.project.name === "celular") await page.getByRole("button", { name: "Para cima" }).tap();
+  else await page.keyboard.press("ArrowUp");
+  await page.waitForTimeout(800);
+  const pontos = page.getByText("Pontos").locator("xpath=following-sibling::p");
+  await expect(pontos).not.toHaveText("0");
+  expect(await page.evaluate(() => scrollY), "a seta virou o Pac-Man, e nao rolou a pagina").toBe(rolagem);
+  confere();
+});

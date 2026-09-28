@@ -4,6 +4,7 @@ import TituloSecao from "./components/TituloSecao";
 import { APOS_TITULO, PAGINA, SECAO, TEXTO } from "./components/estilo";
 import Contagem from "./components/Contagem";
 import CasaDosFantasmas from "./components/CasaDosFantasmas";
+import JogoNaPagina from "./components/JogoNaPagina";
 import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
 import { seasonAtual } from "@/lib/conteudo";
@@ -107,6 +108,20 @@ export default async function Home() {
             Formato, equipes e linguagens permitidas estão nas{" "}
             <Link href="/regras" className="text-destaque underline">Regras</Link>.
           </p>
+        </section>
+
+        {/* O labirinto com o PET nas paredes, como o Google fez com o nome
+            dele no Doodle dos 30 anos do Pac-Man. Fica depois do que importa
+            (data, inscricao), para nao disputar com isso. */}
+        <section className={SECAO}>
+          <TituloSecao valor="Enquanto a Season não começa" />
+          <p className={`${APOS_TITULO} ${TEXTO}`}>
+            Uma partida de Pac-Man no labirinto do PET. No computador, use as setas ou
+            WASD; no celular, o direcional embaixo do labirinto.
+          </p>
+          <div className="mt-8">
+            <JogoNaPagina />
+          </div>
         </section>
       </div>
     </Layout>
