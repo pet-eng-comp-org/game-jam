@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import TituloSecao from "./components/TituloSecao";
 import { APOS_TITULO, PAGINA, SECAO, TEXTO } from "./components/estilo";
 import Contagem from "./components/Contagem";
+import CasaDosFantasmas from "./components/CasaDosFantasmas";
 import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
 import { seasonAtual } from "@/lib/conteudo";
@@ -45,7 +46,9 @@ export default async function Home() {
           {season?.dataEvento && inicioDoEvento ? (
             <>
               <div className="mt-8">
-                <Contagem inicio={season.dataEvento} rotuloData={inicioDoEvento} />
+                <CasaDosFantasmas>
+                  <Contagem inicio={season.dataEvento} rotuloData={inicioDoEvento} />
+                </CasaDosFantasmas>
               </div>
               {/* Quando e onde numa linha, como informacao do evento. Tocar no
                   local abre o mapa: quem vem de fora nao sabe onde fica o CT. */}

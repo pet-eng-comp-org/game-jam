@@ -28,6 +28,10 @@ const OLHOS = {
     branco: "M4 3h2v1h-2zM10 3h2v1h-2zM3 4h4v1h-4zM9 4h4v1h-4zM3 5h2v2h-2zM9 5h2v2h-2zM4 7h2v1h-2zM10 7h2v1h-2z",
     pupila: "M5 5h2v2h-2zM11 5h2v2h-2z",
   },
+  esquerda: {
+    branco: "M2 3h2v1h-2zM8 3h2v1h-2zM1 4h4v1h-4zM7 4h4v1h-4zM3 5h2v2h-2zM9 5h2v2h-2zM2 7h2v1h-2zM8 7h2v1h-2z",
+    pupila: "M1 5h2v2h-2zM7 5h2v2h-2z",
+  },
   cima: {
     branco: "M2 2h1v1h-1zM5 2h1v1h-1zM8 2h1v1h-1zM11 2h1v1h-1zM2 3h4v2h-4zM8 3h4v2h-4zM3 5h2v1h-2zM9 5h2v1h-2z",
     pupila: "M3 1h2v2h-2zM9 1h2v2h-2z",
@@ -45,7 +49,8 @@ const DUZENTOS = "M1 0h3v1h-3zM7 0h2v1h-2zM12 0h2v1h-2zM0 1h1v2h-1zM4 1h1v2h-1zM
 // virada olham para o link. No celular, ao lado do nome, olham para o lado.
 // mastigando: o Pac-Man abre e fecha a boca (animate-boca-meio e
 // animate-boca-fechada, em globals.css). Sem animacao, fica aberto.
-export default function Personagem({ qual, className, pendurado = false, mastigando = false }: { qual: Personagem; className?: string; pendurado?: boolean; mastigando?: boolean }) {
+// olhar: para onde o fantasma olha (fora da barra).
+export default function Personagem({ qual, className, pendurado = false, mastigando = false, olhar = "direita" }: { qual: Personagem; className?: string; pendurado?: boolean; mastigando?: boolean; olhar?: keyof typeof OLHOS }) {
   if (qual === "pacman") {
     return (
       <svg viewBox="0 0 13 13" aria-hidden shapeRendering="crispEdges" className={className}>
@@ -92,8 +97,8 @@ export default function Personagem({ qual, className, pendurado = false, mastiga
     <svg viewBox="0 0 14 14" aria-hidden shapeRendering="crispEdges" className={className}>
       <path fill={COR_FANTASMA[qual]} d={FANTASMA} />
       <g className={pendurado ? "md:hidden" : undefined}>
-        <path fill={OLHO} d={OLHOS.direita.branco} />
-        <path fill={PUPILA} d={OLHOS.direita.pupila} />
+        <path fill={OLHO} d={OLHOS[olhar].branco} />
+        <path fill={PUPILA} d={OLHOS[olhar].pupila} />
       </g>
       {pendurado && (
         <g className="hidden md:inline">

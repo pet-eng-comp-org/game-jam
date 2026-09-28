@@ -23,6 +23,8 @@
   /* Pac-Man mastigando: aberto, meio, fechado, meio (Personagem.tsx). */
   --animate-boca-meio: boca-meio 0.32s steps(1, end) infinite;
   --animate-boca-fechada: boca-fechada 0.32s steps(1, end) infinite;
+  /* Fantasmas na casa do Inicio: sobem e descem um pixel do sprite. */
+  --animate-flutua: flutua 0.5s steps(1, end) infinite;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
@@ -38,6 +40,10 @@ body {
 
 button { cursor: pointer; }
 
+@keyframes flutua {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(calc(var(--u) * -2)); }
+}
 @keyframes boca-meio {
   0% { opacity: 0; }
   25% { opacity: 1; }
