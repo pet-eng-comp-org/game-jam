@@ -101,9 +101,6 @@ export function montaInscricao(
     });
   }
 
-  // A declaração é uma só para a equipe inteira, no campo "termo".
-  if (estado["termo"] !== true) erros.termo = "Marque a declaração para se inscrever.";
-
   if (Object.keys(erros).length > 0) return { ok: false, erros };
   return { ok: true, equipe, participantes };
 }

@@ -7,7 +7,6 @@ const todosUfes = { 1: true, 2: true, 3: true };
 
 const valido: EstadoFormulario = {
   equipe: "Equipe Teste",
-  termo: true,
   nome1: "Ana",
   email1: "ana@exemplo.com",
   cpf1: "529.982.247-25",
@@ -15,9 +14,7 @@ const valido: EstadoFormulario = {
 
 const erros = (r: ReturnType<typeof montaInscricao>) => (r.ok ? {} : r.erros);
 
-test("aceita a inscrição com a declaração única marcada", () => {
-  // Regressão do PR #108: a declaração virou um campo só ("termo"), mas a
-  // validação ainda exigia "termo1" e recusava toda inscrição.
+test("aceita a inscrição preenchida", () => {
   const r = montaInscricao(valido, todosUfes, 3);
   assert.equal(r.ok, true);
   if (!r.ok) return;
@@ -27,12 +24,8 @@ test("aceita a inscrição com a declaração única marcada", () => {
   assert.equal(r.participantes[0].genero, "nao-informado", "sem escolha, o gênero não é presumido");
 });
 
-test("recusa sem a declaração", () => {
-  assert.deepEqual(erros(montaInscricao({ ...valido, termo: false }, todosUfes, 3)), { termo: "Marque a declaração para se inscrever." });
-});
-
 test("aponta todos os campos com problema de uma vez", () => {
-  const r = montaInscricao({ termo: true, nome1: "Ana" }, todosUfes, 3);
+  const r = montaInscricao({ nome1: "Ana" }, todosUfes, 3);
   assert.deepEqual(erros(r), { equipe: "Informe o nome da equipe.", email1: "Informe o e-mail.", cpf1: "Informe o CPF." });
 });
 

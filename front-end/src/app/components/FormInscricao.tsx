@@ -183,7 +183,10 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         </button>
       )}
 
-      {/* A LGPD pede que a finalidade do dado seja dita na hora da coleta. */}
+      {/* A LGPD pede que a finalidade do dado seja dita na hora da coleta.
+          Aqui ficava uma declaracao obrigatoria de que alguem da equipe iria a
+          Ufes buscar a premiacao, das edicoes a distancia; com a competicao
+          presencial, ela saiu. */}
       <p className="mt-10 text-sm leading-snug text-destaque-claro">
         Pedimos o CPF só para emitir o certificado de participação, feito pela
         Pró-Reitoria de Extensão (Proex) da Ufes. Ele é visto apenas pela
@@ -191,24 +194,6 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         depois que os certificados são emitidos.{" "}
         <Link href="/privacidade" className="text-destaque underline">Como tratamos seus dados</Link>.
       </p>
-
-      <div className="mt-4 flex items-start gap-3">
-        <input
-          id="termo"
-          type="checkbox"
-          checked={(formDataState["termo"] as boolean) || false}
-          onChange={e => handleInputChange("termo", e.target.checked)}
-          aria-invalid={erros.termo ? true : undefined}
-          aria-describedby={erros.termo ? "termo-erro" : undefined}
-          className="mt-1 h-4 w-4 shrink-0 accent-[#FFCF00]"
-        />
-        <label htmlFor="termo" className="text-sm leading-snug text-destaque-claro">
-          Declaro que há pelo menos alguém do grupo que poderá comparecer à Ufes
-          para receber a premiação, e caso contrário, estou ciente que não haverá
-          premiação física.
-        </label>
-      </div>
-      {erros.termo && <p id="termo-erro" className={`mt-2 pl-7 ${ERRO}`}>{erros.termo}</p>}
 
       {/* Botao do mockup: 377x61, #FFCF00, cantos de 21px (o texto era em PacFont);
           no desenho ele fica 5px a esquerda do centro da coluna. */}
