@@ -113,3 +113,12 @@ test("a barra de cima nao sobrepoe logo, links e botao em nenhuma largura", asyn
     }
   }
 });
+
+test("endereco que nao existe mostra a 404 do site, com volta ao inicio", async ({ page }) => {
+  // Antes caia na tela padrao do Next, em branco e em ingles.
+  const resposta = await page.goto("/pagina-que-nao-existe");
+  expect(resposta?.status()).toBe(404);
+  await expect(page.getByRole("heading", { name: "Essa página não existe" })).toBeVisible();
+  await page.getByRole("link", { name: "Ir para o início" }).click();
+  await expect(page).toHaveURL(/\/$/);
+});
