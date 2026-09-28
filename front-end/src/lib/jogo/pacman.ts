@@ -12,8 +12,10 @@
 //   casas a frente dele, Inky usa o Blinky de referencia, Clyde persegue de
 //   longe e foge de perto;
 // - pastilha grande: fantasmas azuis por alguns segundos; comidos em
-//   sequencia valem 200, 400, 800 e 1600, e voltam para a casa so os olhos.
-import { ALTURA, CANTOS, INICIO, LABIRINTO, LARGURA } from "./labirinto.ts";
+//   sequencia valem 200, 400, 800 e 1600, e voltam para a casa so os olhos;
+// - fruta duas vezes por nivel, valendo mais a cada nivel, e uma vida extra
+//   aos 10.000 pontos.
+import { ALTURA, CANTOS, INICIO, LABIRINTO, LARGURA, MEIO } from "./labirinto.ts";
 
 export type Direcao = "cima" | "esquerda" | "baixo" | "direita";
 export type NomeFantasma = "vermelho" | "rosa" | "ciano" | "laranja";
@@ -42,6 +44,20 @@ const PAUSA = { pronto: 2, comendo: 0.5, morrendo: 1.8, venceu: 2.2 };
 // segunda metade.
 export const ABERTURA = { dura: 4.2, aparecem: 2.2 };
 export const VIDAS = 3;
+export const VIDA_EXTRA = 10000;
+
+// Frutas, como no arcade: aparecem embaixo da casa quando o Pac-Man ja comeu
+// 70 e 170 das 244 bolinhas do nivel (aqui, a mesma fracao), ficam 9,5 s e
+// valem mais a cada nivel. O lugar e o meio do corredor do tunel, onde fica o
+// "PRONTO!", como no arcade.
+export type NomeFruta = "cereja" | "morango" | "laranja" | "maca" | "melao" | "galaxian" | "sino" | "chave";
+const FRUTA_DO_NIVEL: NomeFruta[] = ["cereja", "morango", "laranja", "laranja", "maca", "maca", "melao", "melao", "galaxian", "galaxian", "sino", "sino"];
+export const frutaDoNivel = (nivel: number): NomeFruta => FRUTA_DO_NIVEL[nivel - 1] ?? "chave";
+export const VALOR_FRUTA: Record<NomeFruta, number> = { cereja: 100, morango: 300, laranja: 500, maca: 700, melao: 1000, galaxian: 2000, sino: 3000, chave: 5000 };
+export const LUGAR_DA_FRUTA = { x: Math.floor(LARGURA / 2), y: MEIO };
+const DURA_FRUTA = 9.5;
+const TOTAL_BOLINHAS = LABIRINTO.join("").split("").filter((c) => c === "." || c === "o").length;
+const SAI_FRUTA = [70, 170].map((n) => Math.round((n / 244) * TOTAL_BOLINHAS));
 
 export interface Pacman { x: number; y: number; dir: Direcao; quer: Direcao | null; parado: boolean; andou: number }
 export interface Fantasma {
@@ -70,6 +86,8 @@ export interface Estado {
   pacman: Pacman;
   fantasmas: Fantasma[];
   placares: Placar[];
+  fruta: number;       // ate quando (em "jogo") a fruta fica; 0 = sem fruta
+  pontosFruta: { valor: number; ate: number } | null; // "ate" em "tempo"
   rng: () => number;
 }
 
@@ -106,6 +124,8 @@ function posicoesIniciais(e: Estado) {
   e.tempoModo = 0;
   e.assustadoAte = 0;
   e.placares = [];
+  e.fruta = 0;
+  e.pontosFruta = null;
 }
 
 export function novoJogo(rng: () => number = Math.random): Estado {
@@ -183,11 +203,21 @@ export function passo(e: Estado, dt: number) {
     for (const f of e.fantasmas) f.assustado = false;
   }
 
+  if (e.fruta && e.jogo >= e.fruta) e.fruta = 0;
+  if (e.pontosFruta && e.tempo >= e.pontosFruta.ate) e.pontosFruta = null;
   andaPacman(e, dt);
   // Comeu a ultima bolinha: o quadro para aqui. Antes os fantasmas ainda
   // andavam e uma colisao no mesmo quadro trocava "venceu" por "morrendo",
   // e o nivel ficava vazio para sempre.
   if (e.fase !== "jogando") return;
+  // Fruta: vale quando o Pac-Man passa pelo tile dela.
+  const p = e.pacman;
+  if (e.fruta && Math.abs(p.x - LUGAR_DA_FRUTA.x) < 0.5 && Math.abs(p.y - LUGAR_DA_FRUTA.y) < 0.5) {
+    const valor = VALOR_FRUTA[frutaDoNivel(e.nivel)];
+    ganha(e, valor);
+    e.fruta = 0;
+    e.pontosFruta = { valor, ate: e.tempo + 2 };
+  }
   for (const f of e.fantasmas) andaFantasma(e, f, dt);
   colisoes(e);
 }
@@ -240,9 +270,10 @@ function come(e: Estado, x: number, y: number) {
   if (c !== "." && c !== "o") return;
   e.grade[y][x] = "_";
   e.restantes -= 1;
-  if (c === ".") e.pontos += 10;
+  if (SAI_FRUTA.includes(TOTAL_BOLINHAS - e.restantes)) e.fruta = e.jogo + DURA_FRUTA;
+  if (c === ".") ganha(e, 10);
   else {
-    e.pontos += 50;
+    ganha(e, 50);
     e.assustadoAte = e.jogo + duracaoAssustado(e.nivel);
     e.combo = 200;
     for (const f of e.fantasmas) {
@@ -252,6 +283,12 @@ function come(e: Estado, x: number, y: number) {
     }
   }
   if (e.restantes === 0) muda(e, "venceu");
+}
+
+// Todo ponto passa por aqui, por causa da vida extra.
+function ganha(e: Estado, n: number) {
+  if (e.pontos < VIDA_EXTRA && e.pontos + n >= VIDA_EXTRA) e.vidas += 1;
+  e.pontos += n;
 }
 
 function alvo(e: Estado, f: Fantasma): { x: number; y: number } {
@@ -401,7 +438,7 @@ function colisoes(e: Estado) {
     if (f.assustado) {
       f.estado = "olhos";
       f.assustado = false;
-      e.pontos += e.combo;
+      ganha(e, e.combo);
       e.placares.push({ x: f.x, y: f.y, valor: e.combo, ate: e.tempo + 1 });
       e.combo = e.combo === 1600 ? 1600 : ((e.combo * 2) as Estado["combo"]);
       muda(e, "comendo");

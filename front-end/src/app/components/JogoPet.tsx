@@ -18,10 +18,10 @@
 // botao que entra em tela cheia e trava na horizontal. O canvas e o mesmo
 // elemento nos dois jeitos (so o CSS muda), para a partida nao recomecar.
 import { useCallback, useEffect, useRef, useState } from "react"
-import { ABERTURA, comeca, novoJogo, passo, vira, VIDAS, type Direcao, type Estado, type Fantasma } from "@/lib/jogo/pacman"
+import { ABERTURA, comeca, frutaDoNivel, LUGAR_DA_FRUTA, novoJogo, passo, vira, VIDAS, type Direcao, type Estado, type Fantasma, type NomeFruta } from "@/lib/jogo/pacman"
 import { ALTURA, LABIRINTO, LARGURA, LETRA, MEIO } from "@/lib/jogo/labirinto"
 import { CORES, FANTASMA, OLHOS, PACMAN_ABERTO, PACMAN_FECHADO, PACMAN_MEIO, ROSTO_ASSUSTADO } from "@/lib/sprites"
-import { FANTASMA_B, PACMAN_MORTE, PASTILHA, PONTOS_FANTASMA } from "@/lib/jogo/sprites-jogo"
+import { FANTASMA_B, FRUTAS, PACMAN_MORTE, PASTILHA, PONTOS_FANTASMA, PONTOS_FRUTA } from "@/lib/jogo/sprites-jogo"
 import { FONTE, larguraDoTexto } from "@/lib/jogo/fonte"
 
 const CHAVE_RECORDE = "pet-game-jam-recorde"
@@ -424,6 +424,13 @@ function desenha(c: HTMLCanvasElement, e: Estado, t: number, paredes: Paredes | 
     g.restore()
   }
 
+  // E a direita, as frutas dos ultimos 7 niveis, como no arcade: a mais
+  // antiga no canto, cada nivel novo acrescenta uma a esquerda.
+  const primeiro = Math.max(1, e.nivel - 6)
+  for (let n = primeiro; n <= e.nivel; n++) {
+    desenhaFruta(g, frutaDoNivel(n), (LARGURA - 1.5 - (n - primeiro) * 2) * t, (TOPO + ALTURA + BASE / 2) * t, s)
+  }
+
   // Daqui para baixo, o labirinto, entre as faixas.
   g.translate(0, TOPO * t)
   // Labirinto limpo: as paredes piscam em branco, e os fantasmas somem.
@@ -455,6 +462,18 @@ function desenha(c: HTMLCanvasElement, e: Estado, t: number, paredes: Paredes | 
   // Fantasmas (somem enquanto o Pac-Man morre, como no arcade).
   if (!limpo && (!morrendo || e.tempoFase < 0.5)) {
     for (const f of e.fantasmas) desenhaFantasma(g, e, f, centro(f.x), centro(f.y), s)
+  }
+
+  // A fruta, e os pontos dela (em rosa) depois de comida.
+  if (e.fruta) desenhaFruta(g, frutaDoNivel(e.nivel), centro(LUGAR_DA_FRUTA.x), centro(LUGAR_DA_FRUTA.y), s)
+  const pf = e.pontosFruta && e.tempo < e.pontosFruta.ate ? PONTOS_FRUTA[e.pontosFruta.valor] : null
+  if (pf) {
+    g.save()
+    g.translate(Math.round(centro(LUGAR_DA_FRUTA.x) - (pf.largura * s) / 2), Math.round(centro(LUGAR_DA_FRUTA.y) - (7 * s) / 2))
+    g.scale(s, s)
+    g.fillStyle = CORES.porta
+    g.fill(caminho(pf.d))
+    g.restore()
   }
 
   // Pontos do fantasma comido, no lugar dele.
@@ -490,6 +509,10 @@ function desenha(c: HTMLCanvasElement, e: Estado, t: number, paredes: Paredes | 
   g.fillStyle = CORES.pacman
   g.fill(caminho(d))
   g.restore()
+}
+
+function desenhaFruta(g: CanvasRenderingContext2D, fruta: NomeFruta, cx: number, cy: number, s: number) {
+  for (const camada of FRUTAS[fruta]) sprite(g, camada.d, camada.cor, cx, cy, s, 16)
 }
 
 function desenhaFantasma(g: CanvasRenderingContext2D, e: Estado, f: Fantasma, cx: number, cy: number, s: number) {

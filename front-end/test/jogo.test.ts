@@ -1,7 +1,7 @@
 // Regras do jogo do Inicio (src/lib/jogo/pacman.ts), sem navegador.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ABERTURA, comeca, novoJogo, passo, vira, VIDAS, type Estado } from "../src/lib/jogo/pacman.ts";
+import { ABERTURA, comeca, frutaDoNivel, LUGAR_DA_FRUTA, novoJogo, passo, VALOR_FRUTA, VIDA_EXTRA, vira, VIDAS, type Estado } from "../src/lib/jogo/pacman.ts";
 import { INICIO, LABIRINTO, LETRA, MEIO } from "../src/lib/jogo/labirinto.ts";
 
 // Aleatorio com semente: os fantasmas assustados andam ao acaso, e o teste
@@ -168,6 +168,48 @@ test("limpar o labirinto passa de nivel, com as bolinhas de volta", () => {
   roda(e, 2.5);
   assert.equal(e.nivel, 2);
   assert.ok(e.restantes > 100);
+});
+
+test("a fruta aparece depois de comidas 70/244 das bolinhas, vale pelo nivel e some sozinha", () => {
+  const e = jogando();
+  const total = LABIRINTO.join("").split("").filter((c) => c === "." || c === "o").length;
+  // Tira bolinhas longe do Pac-Man ate faltar uma para a marca.
+  const marca = Math.round((70 / 244) * total);
+  let tirar = marca - 1 - (total - e.restantes);
+  for (let y = 1; y < 8 && tirar > 0; y++) for (let x = 0; x < e.grade[y].length && tirar > 0; x++) {
+    if (e.grade[y][x] === ".") { e.grade[y][x] = "_"; e.restantes -= 1; tirar -= 1; }
+  }
+  assert.equal(e.fruta, 0);
+  // A proxima bolinha no caminho do Pac-Man (anda para a esquerda) faz a fruta sair.
+  e.fantasmas = [];
+  roda(e, 0.3);
+  assert.ok(e.fruta > 0, "a fruta saiu");
+  // Leva o Pac-Man ate ela.
+  e.pacman.x = LUGAR_DA_FRUTA.x + 1; e.pacman.y = LUGAR_DA_FRUTA.y; e.pacman.dir = "esquerda"; e.pacman.quer = null;
+  const antes = e.pontos;
+  roda(e, 0.2);
+  assert.equal(e.pontos - antes, VALOR_FRUTA[frutaDoNivel(1)], "cereja no nivel 1");
+  assert.equal(e.fruta, 0);
+  assert.equal(frutaDoNivel(3), "laranja");
+  assert.equal(frutaDoNivel(99), "chave");
+
+  // Sem ninguem comer, ela some.
+  const f = jogando();
+  f.fantasmas = [];
+  f.fruta = f.jogo + 9.5;
+  f.pacman.quer = "cima"; // longe da fruta
+  roda(f, 10);
+  assert.equal(f.fruta, 0);
+});
+
+test("aos 10.000 pontos ganha uma vida, uma vez so", () => {
+  const e = jogando();
+  e.fantasmas = [];
+  e.pontos = VIDA_EXTRA - 10;
+  roda(e, 1);
+  assert.equal(e.vidas, VIDAS + 1);
+  roda(e, 1);
+  assert.equal(e.vidas, VIDAS + 1);
 });
 
 // Achados do code review (reproduzidos antes da correcao).
