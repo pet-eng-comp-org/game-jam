@@ -80,8 +80,11 @@ export default function Footer() {
       </div>
 
       <div className="w-full border-t border-white/20">
-        <p className="mx-auto flex max-w-[1154px] flex-col items-center gap-1 px-4 py-4 text-center text-sm text-destaque-claro/80 md:flex-row md:justify-center md:gap-6">
-          <span>© {ano} PET Engenharia de Computação da Ufes</span>
+        {/* Credito curto: a Ufes ja esta no selo e na frase de cima. O ponto separa
+            dois itens soltos numa linha, e some no celular, onde eles empilham. */}
+        <p className="mx-auto flex max-w-[1154px] flex-col items-center gap-1 px-4 py-4 text-center text-sm text-destaque-claro/80 md:flex-row md:justify-center md:gap-2">
+          <span>© {ano} PET Engenharia de Computação</span>
+          <span aria-hidden className="hidden md:inline">·</span>
           <Link href="/privacidade" className="underline hover:text-destaque">Privacidade</Link>
         </p>
       </div>

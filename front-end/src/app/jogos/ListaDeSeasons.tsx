@@ -87,7 +87,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
                         cada jogo, ja que o formato dessas edicoes era outro. */}
                     {(t.ano || t.tema) && (
                       <span className="basis-full font-sans text-base normal-case leading-snug text-destaque-claro md:ml-8 md:basis-auto md:text-xl">
-                        {t.ano && t.tema ? `${t.ano}, tema “${t.tema}”` : t.ano ?? `tema “${t.tema}”`}
+                        {[t.ano, t.tema && `tema “${t.tema}”`].filter(Boolean).join(" · ")}
                       </span>
                     )}
                   </button>
