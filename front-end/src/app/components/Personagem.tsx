@@ -2,7 +2,15 @@
 // sao os do Figma (Tematica > Fantasma *, os mesmos da pagina de inscricao),
 // com as cores de la; o Pac-Man segue o mesmo traco em pixels.
 
-export type Personagem = "pacman" | "vermelho" | "rosa" | "ciano" | "laranja";
+export type Personagem = "pacman" | "vermelho" | "rosa" | "ciano" | "laranja" | "assustado" | "olhos";
+
+// Os dois estados do fantasma depois que o Pac-Man come a pastilha grande, na
+// grade de 14x14 do arcade: azul e assustado (piscando em branco quando o
+// efeito acaba) e, se for comido, so os olhos voltando para casa.
+const CORPO = "M5 0h4v1h-4zM3 1h8v1h-8zM2 2h10v1h-10zM1 3h12v3h-12zM0 6h14v6h-14zM0 12h2v1h-2zM3 12h3v1h-3zM8 12h3v1h-3zM12 12h2v1h-2zM0 13h1v1h-1zM4 13h2v1h-2zM8 13h2v1h-2zM13 13h1v1h-1z";
+const ROSTO = "M4 5h2v2h-2zM8 5h2v2h-2zM1 9h1v1h-1zM4 9h2v1h-2zM8 9h2v1h-2zM12 9h1v1h-1zM2 10h2v1h-2zM6 10h2v1h-2zM10 10h2v1h-2z";
+const OLHO_BRANCO = "M3 3h2v1h-2zM9 3h2v1h-2zM2 4h4v3h-4zM8 4h4v3h-4zM3 7h2v1h-2zM9 7h2v1h-2z";
+const PUPILA = "M3 6h2v2h-2zM9 6h2v2h-2z";
 
 const COR_FANTASMA = {
   vermelho: "#FF0100",
@@ -14,6 +22,28 @@ const COR_FANTASMA = {
 // pendurado: no desktop o fantasma fica de cabeca para baixo na barra, e as
 // pupilas vao para o lado que vira o de baixo.
 export default function Personagem({ qual, className, pendurado = false }: { qual: Personagem; className?: string; pendurado?: boolean }) {
+  if (qual === "assustado") {
+    return (
+      <svg viewBox="0 0 14 14" aria-hidden shapeRendering="crispEdges" className={className}>
+        <path fill="#2121FF" d={CORPO} />
+        <path fill="#FFB8AE" d={ROSTO} />
+        {/* Fase branca: pisca algumas vezes quando a pagina abre e some
+            (animate-pisca, em globals.css). Sem animacao, fica so o azul. */}
+        <g className="opacity-0 motion-safe:animate-pisca">
+          <path fill="#FFFFFF" d={CORPO} />
+          <path fill="#FF0000" d={ROSTO} />
+        </g>
+      </svg>
+    );
+  }
+  if (qual === "olhos") {
+    return (
+      <svg viewBox="1 2 12 7" aria-hidden shapeRendering="crispEdges" className={className}>
+        <path fill="#FFFFFF" d={OLHO_BRANCO} />
+        <path fill="#2121FF" d={PUPILA} />
+      </svg>
+    );
+  }
   if (qual === "pacman") {
     return (
       <svg viewBox="0 0 13 13" aria-hidden shapeRendering="crispEdges" className={className}>

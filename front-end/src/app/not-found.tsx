@@ -15,7 +15,7 @@ export default function NaoEncontrada() {
   return (
     <Layout>
       <div className={`${PAGINA} flex flex-col items-center text-center`}>
-        <Personagem qual="ciano" className="h-16 w-16 md:h-20 md:w-20" />
+        <Personagem qual="olhos" className="h-[70px] w-[120px] md:h-[88px] md:w-[150px]" />
         <h1 className="mt-8 text-balance font-secao text-5xl uppercase leading-none text-destaque md:text-7xl">
           Essa página não existe
         </h1>

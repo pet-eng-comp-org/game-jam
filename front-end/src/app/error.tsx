@@ -11,7 +11,7 @@ import { TEXTO } from "./components/estilo";
 export default function Erro({ retry }: { error: Error & { digest?: string }; retry: () => void }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-fundo px-6 text-center">
-      <Personagem qual="vermelho" className="h-16 w-16 md:h-20 md:w-20" />
+      <Personagem qual="assustado" className="h-16 w-16 md:h-20 md:w-20" />
       <h1 className="mt-8 text-balance font-secao text-5xl uppercase leading-none text-destaque md:text-7xl">
         Não deu para abrir a página
       </h1>
