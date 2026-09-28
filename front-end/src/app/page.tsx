@@ -116,13 +116,13 @@ export default async function Home() {
           </p>
         </section>
 
-        {/* O labirinto com o PET nas paredes, como o Google fez com o nome
+        {/* O labirinto com GAME JAM nas paredes, como o Google fez com o nome
             dele no Doodle dos 30 anos do Pac-Man. Fica depois do que importa
             (data, inscricao), para nao disputar com isso. */}
         <section className={SECAO}>
           <TituloSecao valor="Enquanto a Season não começa" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
-            Uma partida de Pac-Man no labirinto do PET. No computador, use as setas ou
+            Uma partida de Pac-Man no labirinto do Game Jam. No computador, use as setas ou
             WASD; no celular, o direcional embaixo do labirinto.
           </p>
           <div className="mt-8">

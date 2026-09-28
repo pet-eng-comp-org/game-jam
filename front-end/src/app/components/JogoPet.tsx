@@ -1,6 +1,6 @@
 "use client"
 
-// O jogo do Inicio: o labirinto com "PET" nas paredes (src/lib/jogo), desenhado
+// O jogo do Inicio: o labirinto com "GAME JAM" nas paredes (src/lib/jogo), desenhado
 // num canvas com os sprites do arcade (src/lib/sprites.ts). Teclado (setas ou
 // WASD) e, no celular, deslizar o dedo sobre o labirinto.
 //
@@ -173,7 +173,7 @@ export default function JogoPet() {
           ref={telaRef}
           tabIndex={0}
           role="img"
-          aria-label="Jogo: labirinto do Pac-Man com PET escrito nas paredes. Enter para jogar, setas para mover."
+          aria-label="Jogo: labirinto do Pac-Man com GAME JAM escrito nas paredes. Enter para jogar, setas para mover."
           className="block h-auto max-w-full touch-none select-none rounded-md bg-black outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-destaque"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}

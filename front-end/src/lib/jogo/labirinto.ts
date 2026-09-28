@@ -1,39 +1,52 @@
-// O labirinto do jogo do Inicio: "PET" escrito com as paredes, como o Google
-// fez com o proprio nome no Doodle dos 30 anos do Pac-Man, e a casa dos
-// fantasmas a direita. Letras com traco de 2 tiles, para o contorno duplo das
-// paredes ler como letra.
+// O labirinto do jogo do Inicio: "GAME JAM" escrito com as paredes, nas
+// letras da propria logo (o alfabeto em pixel do Figma, 7x7, traco de 2),
+// GAME em cima e JAM embaixo, com a casa dos fantasmas ao lado do JAM. Mais
+// alto que largo, como o do arcade, para ter corredores e cruzamentos e caber
+// maior na tela do celular. O bloquinho solto a esquerda do J quebra a sala
+// que sobrava ali.
 //
 //   #  parede          .  bolinha        o  pastilha grande
-//   x  buraco da letra (fora do jogo)    -  porta da casa
+//   x  miolo de letra (fora do jogo)     -  porta da casa
 //   h  dentro da casa  (so fantasmas)    _  corredor sem bolinha
 export const LABIRINTO = [
-  "################################",
-  "#o............................o#",
-  "#.######.#####.######.###--###.#",
-  "#.##xx##.#####.######.#hhhhhh#.#",
-  "#.##xx##.##......##...#hhhhhh#.#",
-  "#.######.####....##...#hhhhhh#.#",
-  "#.##.....##......##...#hhhhhh#.#",
-  "#.##.....#####...##...#hhhhhh#.#",
-  "#.##.....#####...##...########.#",
-  "#o............................o#",
-  "################################",
+  "###################################",
+  "#o...............................o#",
+  "#..#####...#####..##...##..######.#",
+  "#.#######.#######.###.###.#######.#",
+  "#.##......##xxx##.#######.##......#",
+  "#.##..###.##xxx##.##.####.######..#",
+  "#.##...##.#######.##...##.##......#",
+  "#.#######.##...##.##...##.#######.#",
+  "#..#####..##...##.##...##.#######.#",
+  "#.................................#",
+  "#.....##..#####..##...##.###--###.#",
+  "#.###.##.#######.###.###.#hhhhhh#.#",
+  "#.....##.##xxx##.#######.#hhhhhh#.#",
+  "#.##..##.##xxx##.##.####.#hhhhhh#.#",
+  "#.##..##.#######.##...##.#hhhhhh#.#",
+  "#.######.##...##.##...##.#hhhhhh#.#",
+  "#..#####.##...##.##...##.########.#",
+  "#o...............................o#",
+  "###################################",
 ];
 
 export const LARGURA = LABIRINTO[0].length;
 export const ALTURA = LABIRINTO.length;
 
-// Onde cada um comeca, em tiles (coluna, linha). O Pac-Man no meio de baixo;
-// o Blinky do lado de fora, em cima da porta; os outros dentro da casa.
-const PORTA = LABIRINTO[2].indexOf("-");
+// Onde cada um comeca, em tiles (coluna, linha), a partir do mapa: o Pac-Man
+// no meio de baixo; o Blinky do lado de fora, em cima da porta; os outros
+// dentro da casa.
+const LINHA_DA_PORTA = LABIRINTO.findIndex((l) => l.includes("-"));
+const PORTA = LABIRINTO[LINHA_DA_PORTA].indexOf("-");
+const MEIO_DA_CASA = LINHA_DA_PORTA + 3;
 export const INICIO = {
-  pacman: { x: 15, y: 9 },
-  porta: { x: PORTA, y: 2 },
-  acimaDaPorta: { x: PORTA, y: 1 },
-  vermelho: { x: PORTA, y: 1 },
-  rosa: { x: PORTA, y: 5 },
-  ciano: { x: PORTA - 2, y: 5 },
-  laranja: { x: PORTA + 2, y: 5 },
+  pacman: { x: Math.floor(LARGURA / 2), y: ALTURA - 2 },
+  porta: { x: PORTA, y: LINHA_DA_PORTA },
+  acimaDaPorta: { x: PORTA, y: LINHA_DA_PORTA - 1 },
+  vermelho: { x: PORTA, y: LINHA_DA_PORTA - 1 },
+  rosa: { x: PORTA, y: MEIO_DA_CASA },
+  ciano: { x: PORTA - 2, y: MEIO_DA_CASA },
+  laranja: { x: PORTA + 2, y: MEIO_DA_CASA },
 };
 
 // Cantos de cada fantasma no modo de dispersao, como no arcade: cada um vai

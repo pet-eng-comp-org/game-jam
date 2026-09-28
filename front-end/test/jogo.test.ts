@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { comeca, novoJogo, passo, vira, VIDAS, type Estado } from "../src/lib/jogo/pacman.ts";
-import { LABIRINTO } from "../src/lib/jogo/labirinto.ts";
+import { INICIO, LABIRINTO } from "../src/lib/jogo/labirinto.ts";
 
 // Aleatorio com semente: os fantasmas assustados andam ao acaso, e o teste
 // precisa dar o mesmo resultado sempre.
@@ -42,7 +42,7 @@ test("comeca parado, esperando a pessoa apertar para jogar", () => {
 test("o Pac-Man anda sozinho para a esquerda e come as bolinhas do caminho", () => {
   const e = jogando();
   roda(e, 0.5);
-  assert.ok(e.pacman.x < 15);
+  assert.ok(e.pacman.x < INICIO.pacman.x);
   assert.ok(e.pontos >= 30);
 });
 
@@ -53,8 +53,9 @@ test("a curva pedida acontece no cruzamento, e parede nao deixa passar", () => {
   vira(e, "cima");
   roda(e, 2.05);
   roda(e, 0.3);
-  assert.ok(e.pacman.y < 9, "subiu pelo corredor em cima do comeco");
-  assert.equal(Math.round(e.pacman.x), 15);
+  // Em cima do comeco e parede: vira no primeiro corredor para cima, a esquerda.
+  assert.ok(e.pacman.y < INICIO.pacman.y, "subiu pelo primeiro corredor");
+  assert.equal(Math.round(e.pacman.x), INICIO.pacman.x - 1);
 });
 
 test("em um minuto de teclas ao acaso, ninguem atravessa parede", () => {
@@ -105,7 +106,7 @@ test("os olhos do fantasma comido voltam para a casa e ele sai de novo", () => {
   const f = e.fantasmas[0];
   e.fantasmas = [f];
   f.estado = "olhos"; f.x = 1; f.y = 9; f.dir = "cima";
-  e.pacman.x = 28; e.pacman.y = 9; e.pacman.dir = "cima";
+  e.pacman.x = 2; e.pacman.y = 2; e.pacman.dir = "direita";
   roda(e, 8);
   assert.equal(f.estado, "normal");
   assert.equal(f.assustado, false);
@@ -132,7 +133,7 @@ test("encostar num fantasma tira uma vida e recomeca; sem vidas, fim de jogo", (
 test("limpar o labirinto passa de nivel, com as bolinhas de volta", () => {
   const e = jogando();
   for (const linha of e.grade) for (let x = 0; x < linha.length; x++) if (linha[x] === "." || linha[x] === "o") linha[x] = "_";
-  e.grade[9][14] = ".";
+  e.grade[INICIO.pacman.y][INICIO.pacman.x - 2] = ".";
   e.restantes = 1;
   e.fantasmas.forEach((f) => { f.estado = "casa"; });
   roda(e, 0.3);
@@ -173,7 +174,7 @@ test("os olhos do fantasma comido chegam em casa saindo de qualquer ponto", () =
     const f = e.fantasmas[1];
     e.fantasmas = [f];
     f.estado = "olhos"; f.x = t.x; f.y = t.y; f.dir = "esquerda";
-    e.pacman.x = 28; e.pacman.y = 9; e.pacman.dir = "cima"; // parado, sem bolinha grande
+    e.pacman.x = 2; e.pacman.y = 2; e.pacman.dir = "direita"; // parado, sem bolinha grande
     let chegou = false;
     for (let i = 0; i < 60 * 8 && !chegou; i++) { passo(e, 1 / 60); chegou = f.estado !== "olhos"; }
     assert.ok(chegou, `olhos presos saindo de ${t.x},${t.y}`);

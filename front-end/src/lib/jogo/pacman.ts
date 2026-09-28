@@ -336,7 +336,7 @@ function escolhe(e: Estado, f: Fantasma, cx: number, cy: number, quem: "fantasma
   // Distancia ate o alvo. Na dispersao, em linha reta, como no arcade (dar
   // voltas no canto e o comportamento original). Perseguindo e voltando para
   // casa, pelos corredores: com linha reta, os espacos abertos de 2x2 do
-  // labirinto do PET prendiam fantasma e olhos girando em circulo.
+  // labirinto prendiam fantasma e olhos girando em circulo.
   const pelosCorredores = olhos || MODOS[e.modo].modo === "perseguicao";
   const mapa = pelosCorredores ? distancias(e, t, quem) : null;
   let melhor = abertas[0], menor = Infinity;
