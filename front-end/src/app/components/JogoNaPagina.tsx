@@ -36,5 +36,7 @@ export default function JogoNaPagina() {
     return () => obs.disconnect()
   }, [])
 
-  return <div ref={ancora}>{perto ? <JogoPet /> : <Espaco />}</div>
+  // No celular o jogo vai de borda a borda (sai da margem de 24 px da pagina):
+  // o tile passa de 9 para 11 px num celular de 390 px.
+  return <div ref={ancora} className="-mx-6 sm:mx-0">{perto ? <JogoPet /> : <Espaco />}</div>
 }

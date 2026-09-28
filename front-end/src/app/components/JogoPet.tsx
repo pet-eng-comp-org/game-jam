@@ -152,7 +152,7 @@ export default function JogoPet() {
     <div ref={caixaRef} className="w-full">
       {/* Placar e labirinto na mesma largura (a do canvas). */}
       <div className="mx-auto w-fit max-w-full">
-      <div className="mb-3 flex items-end justify-between gap-4 font-bold">
+      <div className="mb-3 flex items-end justify-between gap-4 px-6 font-bold sm:px-0">
         <div>
           <p className="text-sm text-destaque-claro/80">Pontos</p>
           <p className="font-secao text-4xl leading-none text-white" aria-live="off">{hud.pontos}</p>
