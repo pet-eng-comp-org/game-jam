@@ -35,18 +35,10 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
     e.preventDefault();
 
     const listaParticipantes: ParticipanteForm[] = [];
-
     const nomeEquipe = (formDataState["equipe"] as string)?.trim() || "";
 
     if (!nomeEquipe) {
       toast.warning("Preencha o nome da equipe!");
-      return;
-    }
-
-    const termo = (formDataState["termo"] as boolean) || false;
-
-    if (!termo) {
-      toast.warning("Você deve aceitar o termo para realizar a inscrição!");
       return;
     }
 
@@ -144,7 +136,7 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         />
         <input
           type="text"
-          placeholder="Curso (se for universitário)"
+          placeholder="Curso (se for estudante universitário)"
           value={(formDataState["curso" + index] as string) || ""}
           onChange={e => handleInputChange("curso" + index, e.target.value)}
           className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
@@ -186,20 +178,27 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
             className="w-full h-11 bg-gray-200 text-black p-3 rounded-lg"
           />
         )}
+
+        <div className="flex items-start gap-2 mt-2">
+          <input
+            type="checkbox"
+            checked={(formDataState["termo" + index] as boolean) || false}
+            onChange={e => handleInputChange("termo" + index, e.target.checked)}
+            className="mt-1"
+          />
+          <label className="text-sm leading-snug">
+            Declaro que há pelo menos alguém do grupo que poderá comparecer à Ufes
+            para receber a premiação, e caso contrário, estou ciente que não haverá premiação física.
+          </label>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-h-none overflow-visible lg:max-h-screen lg:overflow-y-auto">
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col w-full lg:w-[80%] mx-auto"
-      >
-        <label className="mb-3 text-xl font-bold">
-          Qual o nome da sua equipe?
-        </label>
-
+    <div className="overflow-y-auto max-h-screen p-6">
+      <form onSubmit={handleSubmit} className="flex flex-col w-[80%] mx-auto">
+        <label className="mb-3 text-xl font-bold">Qual o nome da sua equipe?</label>
         <input
           type="text"
           value={(formDataState["equipe"] as string) || ""}
@@ -208,20 +207,6 @@ export default function FormInscricao({ numParticipantesPorEquipe }: FormInscric
         />
 
         {participantesForm}
-        <div className="flex items-start gap-2 mt-8">
-          <input
-            type="checkbox"
-            checked={(formDataState["termo"] as boolean) || false}
-            onChange={e => handleInputChange("termo", e.target.checked)}
-            className="mt-1"
-          />
-
-          <label className="text-sm leading-snug">
-            Declaro que há pelo menos alguém do grupo que poderá comparecer à Ufes
-            para receber a premiação, e caso contrário, estou ciente que não haverá
-            premiação física.
-          </label>
-        </div>
 
         <button
           type="submit"
