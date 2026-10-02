@@ -8,7 +8,7 @@
 // API) a falha vira null, e a pagina sai com o "em breve" ate a primeira visita.
 import "server-only";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
-import type { JogoJson, MaterialJson, PatrocinadorJson, SeasonComJogosJson, SeasonJson } from "@/models/api";
+import type { JogoJson, MaterialJson, NumerosJson, PatrocinadorJson, SeasonComJogosJson, SeasonJson } from "@/models/api";
 
 export const TAG_CONTEUDO = "conteudo";
 
@@ -38,6 +38,7 @@ export const patrocinadores = async () =>
     const publico = process.env.NEXT_PUBLIC_API_URL;
     return interno && publico && p.logo.startsWith(interno) ? { ...p, logo: publico + p.logo.slice(interno.length) } : p;
   });
+export const numeros = () => busca<NumerosJson>("/numeros");
 export const seasonsComJogos = async () => (await busca<SeasonComJogosJson[]>("/seasonsComJogos")) ?? [];
 export type { JogoJson };
 

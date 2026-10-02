@@ -19,9 +19,9 @@ const paginas = [
   { label: 'Patrocinadores', url: '/apoio', personagem: 'laranja' },
 ] as const
 
-// Sem patrocinador cadastrado, o link some: levava a uma pagina so com "em
-// breve". A pagina continua no ar pelo endereco.
-export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
+// Patrocinadores fica sempre no menu: alem dos logos, a pagina tem o convite
+// para patrocinar, que vale tambem antes de haver algum.
+export default function Navbar() {
 
   const caminho = usePathname()
   const naInscricao = caminho === "/inscricao"
@@ -40,7 +40,6 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
   // eles, texto em y=25 com 25px de altura; botao de 143x53 em y=13, com
   // 25/14px de respiro. O botao Login saiu: o "Inscreva-se" fica onde ele
   // terminava, 17px antes da borda.
-  const visiveis = paginas.filter((p) => mostraPatrocinadores || p.url !== '/apoio')
 
   return (
     // A barra acompanha a rolagem. No desktop e fina (79px); no celular vira
@@ -60,7 +59,7 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
         </Link>
 
         <div className="absolute left-1/2 top-[25px] flex -translate-x-1/2 items-center gap-x-8 xl:gap-x-[53px]">
-          {visiveis.map((pagina) => {
+          {paginas.map((pagina) => {
 
             const ativa = caminho === pagina.url
 
@@ -131,7 +130,7 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
 
         {menuAberto && (
           <ul id="menu-celular" className="border-t border-white/10 px-4 pb-4 pt-2">
-            {visiveis.map((pagina) => {
+            {paginas.map((pagina) => {
               const ativa = caminho === pagina.url
               return (
                 <li key={pagina.url}>

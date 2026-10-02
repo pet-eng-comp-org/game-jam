@@ -24,6 +24,18 @@ for (const { caminho, mostra } of paginas) {
   });
 }
 
+// O convite para patrocinar aparece mesmo sem patrocinador, com o contato, e o
+// menu sempre leva a ele.
+test("/apoio convida a patrocinar e tem o contato", async ({ page }) => {
+  const confere = semErroDePagina(page);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  await page.getByRole("navigation").getByRole("link", { name: "Patrocinadores" }).click();
+  await expect(page.getByRole("heading", { name: "SEJA PATROCINADOR" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "petengcomp@inf.ufes.br" }).first()).toHaveAttribute("href", /^mailto:petengcomp@inf\.ufes\.br\?subject=/);
+  confere();
+});
+
 test("/jogos mostra os jogos de todas as seasons, com link para jogar", async ({ page }) => {
   const confere = semErroDePagina(page);
   await page.goto("/jogos");

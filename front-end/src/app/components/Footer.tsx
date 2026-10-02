@@ -17,6 +17,7 @@ const paginas = [
   { label: "Regras", url: "/regras" },
   { label: "Materiais", url: "/materiais" },
   { label: "Inscrição", url: "/inscricao" },
+  { label: "Patrocinadores", url: "/apoio" },
 ]
 
 const TITULO = "mb-3 text-base font-bold text-destaque"

@@ -51,6 +51,13 @@ export interface PatrocinadorJson {
     logo: string
 }
 
+// GET /numeros: so contagens, para a pagina de patrocinio.
+export interface NumerosJson {
+    edicoes: number
+    jogos: number
+    ultima: { numero: string; ano: string | null; quantasEquipes: number; quantasPessoas: number; deFora: number } | null
+}
+
 export interface UsuarioJson {
     id: string
     username: string

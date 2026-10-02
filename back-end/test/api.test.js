@@ -217,7 +217,7 @@ describe("rotas publicas", () => {
   // O site le temporadas, jogos, patrocinadores e materiais sem login. Nenhuma
   // dessas leituras pode trazer equipe ou participante — por isso a comissao ve os
   // inscritos so pelo painel do banco.
-  for (const caminho of ["/seasons/atual", "/seasonsComJogos", "/patrocinador", "/material"]) {
+  for (const caminho of ["/seasons/atual", "/seasonsComJogos", "/patrocinador", "/material", "/numeros"]) {
     it(`${caminho} nao expoe dado de participante`, async () => {
       const r = await api("GET", caminho);
       assert.equal(r.status, 200);
@@ -226,6 +226,21 @@ describe("rotas publicas", () => {
       for (const chave of ['"participantes"', '"equipes"', '"senha"']) assert.ok(!corpo.includes(chave), `${caminho} traz ${chave}`);
     });
   }
+
+  it("/numeros conta a ultima edicao encerrada, nao a atual", async () => {
+    const passada = await prisma.season.create({ data: { numero: "90", capa: "c.png", numParticipantesPorEquipe: "3", ano: "2099" } });
+    const equipe = await prisma.equipe.create({ data: { nome: "Equipe dos numeros", seasonId: passada.id } });
+    for (const [i, ufes] of [true, false, false].entries()) {
+      await prisma.participante.create({ data: { nome: `P${i}`, email: `p${i}@numeros.exemplo`, cpf: `0000000009${i}`, genero: "x", ufes, equipeId: equipe.id } });
+    }
+    const n = await (await api("GET", "/numeros")).json();
+    assert.equal(n.edicoes, await prisma.season.count());
+    assert.equal(n.jogos, await prisma.jogo.count());
+    assert.deepEqual(n.ultima, { numero: "90", ano: "2099", quantasEquipes: 1, quantasPessoas: 3, deFora: 2 });
+    await prisma.participante.deleteMany({ where: { equipeId: equipe.id } });
+    await prisma.equipe.delete({ where: { id: equipe.id } });
+    await prisma.season.delete({ where: { id: passada.id } });
+  });
 
   it("/material vem em ordem de nome", async () => {
     await prisma.material.create({ data: { nome: "Zeta", link: "https://exemplo.com/z", descricao: "d" } });

@@ -32,6 +32,8 @@ import { ObtemMateriaisController } from "./controllers/material/ObtemMateriaisC
 import { EditaMaterialController } from "./controllers/material/EditaMaterialController";
 import { ObtemPatrocinadoresController } from "./controllers/patrocinador/ObtemPatrocinadorController";
 
+import { ObtemNumerosController } from "./controllers/numeros/ObtemNumerosController";
+
 import { CriaInscricaoController } from "./controllers/inscricao/CriaInscricaoController";
 import { ObtemEquipesController, DeletaEquipeController, AprovaEquipeController } from "./controllers/equipe/EquipeController";
 
@@ -67,6 +69,10 @@ router.put('/jogos', estaAutenticado, new EditaJogoController().handle)
 router.post('/patrocinador', estaAutenticado, upload.single('logo'), new CriaPatrocinadorController().handle)
 router.delete('/patrocinador/remove', estaAutenticado, new DeletaPatrocinadorController().handle)
 router.get('/patrocinador', new ObtemPatrocinadoresController().handle)
+
+// -- NUMEROS --
+// Publica: so contagens agregadas, para a pagina de patrocinio.
+router.get('/numeros', new ObtemNumerosController().handle)
 
 // -- ROUTES MATERIAIS --
 // Mesmo criterio do patrocinador: leitura publica, escrita autenticada.
