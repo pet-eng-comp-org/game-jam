@@ -1,132 +1,135 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import type { Metadata } from "next";
 import Layout from "../components/Layout";
-import { Season } from "@/models/Season";
-import { Material } from "@/models/Materiais";
+import { listaDeLinguagens, materiais, miniaturaDoYoutube, seasonAtual } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
+import TituloSecao from "../components/TituloSecao";
+import { APOS_TITULO, LISTA, PAGINA, SECAO, TEXTO } from "../components/estilo";
 
-export default function Materiais() {
+export const metadata: Metadata = {
+  title: "Materiais",
+  description: "Como se preparar para o Game Jam da Ufes: lógica, a linguagem da competição e materiais das edições anteriores.",
+};
 
-  const [seasonAtual, setSeasonAtual] = useState<Season>();
-  const [materiais, setMateriais] = useState<Material[]>([]);
+export default async function Materiais() {
 
-  async function obtemSeasonAtual() {
-
-    const res = await Season.obtemAtual();
-    setSeasonAtual(res);
-  }
-
-  async function obtemMateriais() {
-
-    const m = await Material.obtemTodosMateriais();
-    setMateriais(m);
-  }
-
-  useEffect(() => {
-
-    obtemSeasonAtual();
-    obtemMateriais();
-  }, []);
-
-  function getYouTubeEmbedUrl(link: string) {
-
-    const match = link.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]+)/);
-    return match ? match[1] : null;
-  }
+  const [todos, season] = await Promise.all([materiais(), seasonAtual()]);
+  const linguagens = listaDeLinguagens(season?.linguagens);
+  const comMiniatura = await Promise.all(todos.map(async (m) => ({ ...m, miniatura: await miniaturaDoYoutube(m.link) })));
+  const videos = comMiniatura.filter((m) => m.miniatura);
+  const links = comMiniatura.filter((m) => !m.miniatura);
 
   return (
 
-    <Layout season={seasonAtual} className="flex flex-col">
+    <Layout>
 
-      <div className="max-w-6xl w-[80%] mt-20 relative flex flex-col mx-auto px-3.5">
+      <div className={PAGINA}>
 
-        {/* Título */}
         <Titulo valor="materiais" />
 
-        <p className="mt-6 mb-10 whitespace-pre-wrap">
-          Nesta seção, você encontrará diversos materiais úteis para iniciar e aprofundar seus estudos em desenvolvimento de jogos. Reunimos{"\n"}
-          dicas, projetos de exemplo e recursos selecionados para facilitar sua jornada.
+        {/* A Season 4 nao pede um jogo feito do zero: a equipe recebe um pronto e
+            implementa parte da logica. O que ajuda a se preparar vem primeiro;
+            os materiais de Phaser das edicoes anteriores ficam depois, como extra. */}
+        <p className={`mt-6 ${TEXTO}`}>
+          Como o jogo já vem pronto e a equipe implementa parte da lógica dele, a melhor
+          preparação é de programação, não de desenvolvimento de jogos.
         </p>
 
-        {/* Dicas */}
-        <Titulo valor="DICAS" className="mb-2" />
+        <section className={SECAO}>
+          <TituloSecao valor="Como se preparar" />
+          <ul className={`${APOS_TITULO} ${LISTA} space-y-4`}>
+            <li>
+              <strong>Pratique lógica e a linguagem da competição.</strong>{" "}
+              {/* Sem lista definida, nao repete o "em breve" das Regras. */}
+              {linguagens && <>As linguagens permitidas são: {linguagens}.{" "}</>}
+              Resolver exercícios curtos, com tempo contado, é o treino mais parecido com o dia.
+            </li>
+            <li>
+              <strong>Entenda como um jogo funciona por dentro.</strong> Quase todo jogo repete
+              o mesmo ciclo várias vezes por segundo: lê o que o jogador fez, atualiza o estado
+              (posição, pontos, vidas) e desenha a tela. Colisão, pontuação e fim de jogo são
+              regras aplicadas nesse ciclo, e é esse tipo de lógica que a equipe vai escrever.
+            </li>
+            <li>
+              <strong>Treine ler código que não é seu.</strong> No dia, a equipe parte do
+              código do jogo preparado: entender rápido o que já existe vale tanto quanto
+              escrever código novo.
+            </li>
+            <li>
+              <strong>Combinem a divisão do trabalho.</strong> O tempo é curto: vale decidir
+              antes quem lê o código, quem escreve e quem testa.
+            </li>
+          </ul>
+        </section>
 
-        {/* Super PETs */}
-        <h4 className="mb-4 mt-7 text-xl font-semibold text-destaque">Super PETs</h4>
+        {/* Super PETs, links e videos sao partes desta secao, e nao secoes do
+            mesmo nivel dela: por isso sao subsecoes (h3). */}
+        <section className={SECAO}>
+          <TituloSecao valor="Para ir além" />
+          <p className={`${APOS_TITULO} ${TEXTO}`}>
+            Nas edições anteriores, as equipes criavam o jogo do zero com o framework Phaser3,
+            em JavaScript. Os materiais daquela época continuam aqui para quem quer entender
+            como se faz um jogo inteiro.
+          </p>
 
-        <p className="mb-5 whitespace-pre-wrap">
-          Para ajudá-los nessa nova jornada no desenvolvimento de jogos, o PET EngComp desenvolveu o Super PETs, um jogo de código aberto{"\n"}no github{" "}
-          <a 
-            href="https://github.com/BrunoAngeloti/SuperPets" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-destaque hover:underline font-semibold"
-          >
-            (repositório)
-          </a>. Nesse repositório vocês podem ter uma boa base de como desenvolver um jogo usando o framework Phaser3.
-        </p>
-        
-        {/* Links úteis */}
-        <h4 className="mb-4 mt-3 text-xl font-semibold text-destaque">Links úteis</h4>
+          <TituloSecao subsecao valor="Super PETs" className="mt-12" />
+          <p className={`mt-4 ${TEXTO}`}>
+            Um jogo de código aberto feito pelo PET EngComp com o framework Phaser3, que serve
+            de base para entender como um jogo é organizado:{" "}
+            <a
+              href="https://github.com/BrunoAngeloti/SuperPets"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-destaque underline underline-offset-2 hover:decoration-2"
+            >
+              repositório no GitHub
+            </a>.
+          </p>
 
-        <ul className="list-disc marker:text-destaque ml-6 space-y-3 mb-10">
+          {links.length > 0 && (
+            <>
+              <TituloSecao subsecao valor="Links úteis" className="mt-12" />
+              <ul className={`mt-4 ${LISTA}`}>
+                {links.map(m => (
+                  <li key={m.id}>
+                    <a href={m.link} target="_blank" rel="noopener noreferrer" className="text-destaque underline underline-offset-2 hover:decoration-2">
+                      {m.nome}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
-          {materiais
-            .filter(m => !getYouTubeEmbedUrl(m.getLink))
-            .map(m => (
-              <li key={m.getId}>
-                <a
-                  href={m.getLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-destaque hover:underline font-semibold"
-                >
-                  {m.getNome}
-                </a>
-              </li>
-            ))}
-        </ul>
+          {videos.length > 0 && (
+            <>
+              <TituloSecao subsecao valor="Vídeos" className="mt-12" />
 
-        {/* Vídeos */}
-        <Titulo valor="VIDEOS" className="mb-2" />
+              {/* Miniatura e texto lado a lado a partir de 1024px; o texto na
+                  escala do resto do site (antes 29px, maior que qualquer outro
+                  texto corrido). */}
+              <div className="mt-6 flex flex-col gap-10">
+                {videos.map(m => {
+                  return (
+                    <article key={m.id} className="grid items-center gap-5 lg:grid-cols-[400px_1fr] lg:gap-10">
+                      <a href={m.link} target="_blank" rel="noopener noreferrer" aria-label={`Assistir: ${m.nome}`}>
+                        <img
+                          src={m.miniatura!}
+                          alt=""
+                          className="aspect-video w-full rounded-[10px] object-cover"
+                        />
+                      </a>
 
-        <div className="flex flex-col gap-6 mt-8">
-        {materiais
-        .filter(m => getYouTubeEmbedUrl(m.getLink))
-        .map(m => {
-          const videoId = getYouTubeEmbedUrl(m.getLink);
-          const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-
-        return (
-
-        <div key={m.getId} className="flex gap-6 items-center">
-
-          {/* Miniatura clicável */}
-          <a href={m.getLink} target="_blank" rel="noopener noreferrer">
-            <img
-              src={thumbnail}
-              alt={m.getNome}
-              className="w-72 h-auto rounded-md" // maior que antes
-            />
-          </a>
-
-          {/* Título, autor e descrição */}
-          <div className="flex flex-col justify-center ml-4 max-w-xl">
-            <h5 className="font-semibold text-destaque">
-              {m.getNome}
-            </h5>
-            <span className="mb-4 mt-1 text-sm uppercase tracking-wide text-tenue">
-              por EQUIPE PET
-            </span>
-            <p className="whitespace-pre-wrap">
-              {m.getDescricao}
-            </p>
-          </div>
-        </div>
-        );
-        })}
-        </div>
+                      <div>
+                        <h4 className="text-2xl font-bold text-destaque">{m.nome}</h4>
+                        <p className={`mt-3 whitespace-pre-wrap ${TEXTO}`}>{m.descricao}</p>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </section>
       </div>
     </Layout>
   );

@@ -1,66 +1,42 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import type { Metadata } from "next";
 import Layout from "../components/Layout";
-import { Patrocinador } from "@/models/Patrocinadores";
-import { Season } from "@/models/Season";
+import { patrocinadores } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
+import { PAGINA } from "../components/estilo";
 
-export default function Patrocinadores() {
+export const metadata: Metadata = {
+  title: "Patrocinadores",
+  description: "Quem apoia o Game Jam, a competição de programação do PET Engenharia de Computação da Ufes.",
+};
 
-  const [seasonAtual, setSeasonAtual] = useState<Season>();
-  const [patrocinadores, setPatrocinadores] = useState<Patrocinador[]>([]);
+export default async function Patrocinadores() {
 
-  async function obtemSeasonAtual() {
+  const lista = await patrocinadores();
 
-    const res = await Season.obtemAtual();
-    setSeasonAtual(res);
-  }
-
-  async function obtemPatrocinadores() {
-
-    const p = await Patrocinador.obtemTodosPatrocinadores();
-    setPatrocinadores(p);
-  }
-
-  useEffect(() => {
-
-    obtemSeasonAtual();
-    obtemPatrocinadores();
-  }, []);
-
+  // Como no mockup (frame Patrocinadores 78:775): titulo alinhado a esquerda,
+  // na mesma margem das outras paginas.
   return (
 
-    <Layout season={seasonAtual} className="flex flex-col items-center">
+    <Layout>
 
-      <div className="mx-auto flex w-[80%] max-w-[1154px] flex-col items-center pt-24 pb-10">
+      <div className={PAGINA}>
 
         <Titulo valor="patrocinadores" />
 
-        <div className="mt-15 mb-15 flex flex-wrap justify-center gap-8">
-
-        {patrocinadores.length > 0 && (
-
-          <div className="flex flex-wrap justify-center gap-10 mt-8">
-
-            {patrocinadores.map((p) => (
+        {lista.length > 0 ? (
+          <div className="mt-14 flex flex-wrap items-center gap-10">
+            {lista.map((p) => (
               <img
-                key={p.getId}
-                src={p.getLogo}
-                alt={p.getNome}
+                key={p.id}
+                src={p.logo}
+                alt={p.nome}
                 className="h-30 w-auto object-contain"
               />
             ))}
-
           </div>
+        ) : (
+          <p className="mt-6 text-lg">Os patrocinadores desta edição serão divulgados em breve.</p>
         )}
-
-        {patrocinadores.length === 0 && (
-          <p className="mt-6">Nenhum patrocinador cadastrado.</p>
-        )}
-
-        </div>
-
       </div>
     </Layout>
   );

@@ -6,7 +6,8 @@ import { Usuario } from "@/models/Usuario";
 import FormCadastrarUsuario from "../components/FormCadastrarUsuario";
 import { toast } from "sonner";
 import Botao from "../components/Botao";
-import Layout from "../components/Layout";
+import Layout from "../components/Layout"
+import type { UsuarioJson } from "@/models/api";
 
 export default function Usuarios() {
 
@@ -38,7 +39,7 @@ export default function Usuarios() {
     
     async function carregaUsuarios() {
 
-        await Usuario.obtemTodos().then((users: any[]) => {
+        await Usuario.obtemTodos().then((users: UsuarioJson[]) => {
             const vetor = users.map(Usuario.fromJson)
             setUsuarios(vetor)
         })
@@ -86,7 +87,11 @@ export default function Usuarios() {
 
             <Botao nome="Cadastrar Usuário" onClick={() => setAbreCadastro(true)} className="mb-5"/>
 
-            <table className="w-1/2 rounded-xl">
+            {/* No celular a tabela rola dentro desta caixa. */}
+
+            <div className="overflow-x-auto">
+
+            <table className="w-full rounded-xl lg:w-auto">
                 <thead className="font-bold bg-blue-950 text-white">
                     <tr>
                         <th className="rounded-tl-xl p-2 border-r border-r-white">username</th>
@@ -97,6 +102,7 @@ export default function Usuarios() {
                     {renderizaUsuarios()}
                 </tbody>
             </table>
+            </div>
         </Layout>
     )
 }

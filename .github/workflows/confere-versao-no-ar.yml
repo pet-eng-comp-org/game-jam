@@ -1,17 +1,10 @@
 name: Confere se o site no ar e o commit do main
 
-# Existe por causa de uma falha real: o plano atual da Vercel so implanta commit
-# autorado pela conta do PET. Commit de outra pessoa entra no main, a Vercel
-# recusa EM SILENCIO, e o site continua na versao anterior. Foi assim que ele
-# serviu um build de dezembro por seis semanas.
-#
-# O status de deploy da Vercel foi desligado de proposito no projeto, porque ele
-# marcava falha em todo preview de autor humano — e X vermelho que sempre aparece
-# ensina a ignorar X vermelho. Este workflow olha o RESULTADO, nao o processo:
+# Nasceu de uma falha real na Vercel, onde o site morou ate 01/09/2026: ela
+# recusava em silencio commit de quem nao fosse a conta do PET, e o site serviu
+# um build de dezembro por seis semanas. Na VM a pergunta continua: "o que esta
+# no ar e o que esta no main?". Este workflow olha o RESULTADO, nao o processo:
 # busca o site e compara o carimbo de versao com o commit que acabou de entrar.
-#
-# Continua valendo quando o site sair da Vercel: a pergunta "o que esta no ar e o
-# que esta no main?" nao depende de onde ele roda.
 
 on:
   push:
@@ -32,8 +25,9 @@ jobs:
         run: |
           echo "Commit que entrou no main: $ESPERADO"
 
-          # Ate 10 tentativas espacadas de 30s: o build da Vercel leva ~1 min.
-          for i in $(seq 1 10); do
+          # Ate 20 tentativas espacadas de 30s: testes e build (~5 min), o commit
+          # de deploy e o Portainer, que aplica em ate 5 min.
+          for i in $(seq 1 20); do
             HTML=$(curl -fsSL --max-time 20 "$SITE" || true)
             NO_AR=$(printf '%s' "$HTML" | grep -oE 'name="versao" content="[^"]*"' | head -1 | sed -E 's/.*content="([^"]*)".*/\1/')
 
@@ -50,7 +44,6 @@ jobs:
 
           echo
           echo "::error::O site NAO esta servindo o commit $ESPERADO."
-          echo "Causa mais provavel: o merge nao foi feito pela conta do PET, e a"
-          echo "Vercel recusou o deploy em silencio. Confira o autor do commit de"
-          echo "merge e reimplante pelo painel, ou refaca o merge pela conta certa."
+          echo "Confira o workflow publica-front-end (testes, build e o commit"
+          echo "deploy:) e, se ele passou, a stack game-jam no Portainer."
           exit 1

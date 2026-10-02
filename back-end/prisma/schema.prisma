@@ -8,9 +8,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// A URL do banco fica em prisma.config.ts (Prisma 7).
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -34,8 +34,22 @@ model Season {
   numero String
   capa String
   numParticipantesPorEquipe String
-  inscricoesAbertas Boolean @default(false)
   atual Boolean @default(false)
+
+  // Dados da edicao, editados pelo painel (antes ficavam no codigo do site).
+  dataEvento  DateTime? // dia e hora do inicio da competicao
+  local       String?   // onde acontece ("CT 9 da Ufes")
+  linguagens  String?   // uma por linha
+  regulamento String?   @db.Text // markdown
+
+  // Contexto das edicoes antigas, mostrado em /jogos: ano e tema da edicao.
+  ano  String? @db.VarChar(4)
+  tema String?
+
+  // As inscricoes ficam abertas entre as duas datas. Antes era um liga/desliga
+  // manual, que ficou ligado por esquecimento de uma edicao para a outra.
+  inscricoesAbrem  DateTime?
+  inscricoesFecham DateTime?
   createdAt DateTime? @default(now())
   updatedAt DateTime? @default(now())
 
@@ -47,10 +61,16 @@ model Season {
 model Jogo {
 
   id String @id @default(uuid())
-  nome String
+  // Opcional: de alguns jogos antigos so se sabe a equipe.
+  nome String?
+  equipe String @default("")
+  integrantes String? @db.Text // um por linha
+  // Nome de arquivo enviado pelo painel (servido em /files) ou caminho de uma
+  // capa do proprio site ("/jogos/x.jpg").
   capa String
-  descricao String
+  descricao String @db.Text
   link String
+  ordem Int @default(0) // ordem dentro da season
   createdAt DateTime? @default(now())
   updatedAt DateTime? @default(now())
 

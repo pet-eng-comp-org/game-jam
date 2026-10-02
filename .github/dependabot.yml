@@ -25,14 +25,6 @@ updates:
         dependency-type: development
         update-types: ["minor", "patch"]
     ignore:
-      # O express 5 exige tirar o express-async-errors, que so suporta o 4 e nao
-      # recebe versao nova desde 2019. Com os dois juntos o npm ci morre em
-      # ERESOLVE e a imagem nao constroi — foi o que derrubou o primeiro PR
-      # agrupado do backend. Voltar a considerar quando o pacote sair do projeto:
-      # o express 5 trata rejeicao de promessa sozinho e o express-async-errors
-      # deixa de ser necessario.
-      - dependency-name: express
-        update-types: ["version-update:semver-major"]
       # @types/node tem que acompanhar o major do Node da imagem base, hoje 24.
       # Tipo mais novo que o runtime descreve API que nao existe em execucao, e
       # o compilador aceita — a falha aparece so rodando. O Dependabot ofereceu
@@ -40,13 +32,16 @@ updates:
       # major, subir este junto e a mao.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
-      # Prisma 7 muda o gerador do client e quebra o build; CLI (prisma) e client
-      # (@prisma/client) tem que subir JUNTOS, na mesma versao, senao o prisma
-      # generate falha — e o Dependabot abre um PR para cada. Recusado em 20/08 e
-      # de novo em 22/09/2026. Migrar de proposito, os dois num PR, com os testes.
+      # Major do Prisma e migracao, nao atualizacao: o 7 (24/09/2026) tirou a URL
+      # do schema, passou a exigir driver adapter e parou de gerar o client no
+      # npm ci. CLI (prisma), client (@prisma/client) e adapter
+      # (@prisma/adapter-mariadb) tem que subir JUNTOS, na mesma versao, e o
+      # Dependabot abre um PR para cada. Migrar de proposito, num PR, com os testes.
       - dependency-name: prisma
         update-types: ["version-update:semver-major"]
       - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/adapter-mariadb"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
@@ -83,6 +78,35 @@ updates:
       # Patch e minor do digest continuam entrando — e o que mantem o pino vivo.
       - dependency-name: node
         update-types: ["version-update:semver-major"]
+
+  # O Dockerfile do front tambem fixa a node:24 por digest, e tem que andar junto
+  # com o do back (uma versao de Node so na stack). Ficou de fora ate 24/09/2026
+  # e o front estava num digest mais velho que o do back.
+  - package-ecosystem: docker
+    directory: /front-end
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+
+  # As imagens de terceiros da stack de producao (MySQL e o nginx do acervo).
+  # As do proprio projeto (ghcr.io/...) sao escritas pelo CI no deploy e ficam
+  # de fora. Mesclar um PR daqui IMPLANTA, porque o Portainer segue este arquivo.
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: "ghcr.io/pet-eng-comp-org/*"
+      # So correcoes: 9.8 e da trilha Innovation, e subir de serie e sem volta
+      # (o diretorio de dados nao abre em versao anterior). Trocar de serie e de
+      # proposito, com backup.
+      - dependency-name: mysql
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # So a serie estavel (numero par); a impar e a mainline.
+      - dependency-name: nginx
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   - package-ecosystem: github-actions
     directory: /

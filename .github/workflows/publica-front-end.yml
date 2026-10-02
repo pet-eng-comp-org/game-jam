@@ -9,10 +9,12 @@ on:
     paths:
       - 'front-end/**'
       - '.github/workflows/publica-front-end.yml'
+      - '.github/workflows/testa-site.yml'
   pull_request:
     paths:
       - 'front-end/**'
       - '.github/workflows/publica-front-end.yml'
+      - '.github/workflows/testa-site.yml'
   workflow_dispatch:
 
 # ATENCAO: NEXT_PUBLIC_API_URL e assada no build, nao lida em execucao. Definir
@@ -25,7 +27,32 @@ env:
   API_URL: https://apigamejam.pet.inf.ufes.br
 
 jobs:
+  # Testes de unidade (front-end/test/), hoje so a validacao da inscricao. Nao
+  # importam nada de node_modules, por isso dispensam o npm ci. Falhou aqui, a
+  # imagem nao e publicada e nada e implantado.
+  testa:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: front-end
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # A versao da imagem (Dockerfile: node:24), que roda TypeScript direto.
+          node-version: 24
+
+      - run: npm test
+
+  # Percorre o site no navegador, com a API e o front deste commit.
+  e2e:
+    uses: ./.github/workflows/testa-site.yml
+
   build:
+    needs: [testa, e2e]
     runs-on: ubuntu-latest
     permissions:
       contents: read

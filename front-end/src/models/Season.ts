@@ -1,7 +1,22 @@
-import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
+import type { JogoJson, SeasonComJogosJson, SeasonJson } from "./api"
 import { Jogo } from "./Jogos"
+import { isAxiosError } from "axios"
+
+// Campos que o painel edita numa season (PUT /seasons).
+export interface EdicaoSeason {
+    numParticipantesPorEquipe?: number
+    dataEvento?: string | null
+    linguagens?: string | null
+    local?: string | null
+    regulamento?: string | null
+    ano?: string | null
+    tema?: string | null
+    inscricoesAbrem?: string | null
+    inscricoesFecham?: string | null
+}
 
 class Season {
 
@@ -12,6 +27,8 @@ class Season {
     private atual: boolean
     private inscricoesAbertas: boolean
     private jogos: Jogo[]
+    // A season inteira como veio da API (datas, linguagens, regulamento).
+    private dados: SeasonJson | null = null
 
     constructor(numero: number, capa: string, numParticipantesPorEquipe: number, atual: boolean, inscricoesAbertas: boolean, id?: string) {
 
@@ -52,29 +69,24 @@ class Season {
         return this.inscricoesAbertas
     }
 
+    get getDados() {
+        return this.dados
+    }
+
+    static deJson(json: SeasonJson) {
+        const season = new Season(parseInt(json.numero), json.capa, parseInt(json.numParticipantesPorEquipe), json.atual, json.inscricoesAbertas, json.id)
+        season.dados = json
+        return season
+    }
+
     static async obtemTodos() {
 
-        const token = getCookieClient()
-                
-        if(!token) return
-
         try {
-            const response = await api.get("/seasons", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+            const response = await painel.get("/seasons")
 
             const seasonsJSON = response.data
 
-            const seasons = seasonsJSON.map((seasonJSON: any) => new Season(
-                parseInt(seasonJSON.numero),
-                seasonJSON.capa,
-                parseInt(seasonJSON.numParticipantesPorEquipe),
-                seasonJSON.atual,
-                seasonJSON.inscricoesAbertas,
-                seasonJSON.id
-            ))
+            const seasons = seasonsJSON.map((seasonJSON: SeasonJson) => Season.deJson(seasonJSON))
 
             return seasons
         }
@@ -85,41 +97,18 @@ class Season {
 
     static async obtemTodosComJogos() {
 
-        const token = getCookieClient()
-                
-        if(!token) return
-
+        // Rota publica: nao depende do cookie do painel (o mesmo defeito escondia
+        // materiais e patrocinadores de quem nao estava logado).
         try {
-            const response = await api.get("/seasonsComJogos", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+            const response = await api.get("/seasonsComJogos")
 
             const seasonsJSON = response.data
 
-            const seasons = seasonsJSON.map((seasonJSON: any) => {
-                const season = new Season(
-                    parseInt(seasonJSON.numero),
-                    seasonJSON.capa,
-                    parseInt(seasonJSON.numParticipantesPorEquipe),
-                    seasonJSON.atual,
-                    seasonJSON.inscricoesAbertas,
-                    seasonJSON.id
-                )
+            const seasons = seasonsJSON.map((seasonJSON: SeasonComJogosJson) => {
+                const season = Season.deJson(seasonJSON)
 
                 const jogosJSON = seasonJSON.jogos
-                jogosJSON.map((jogoJSON: any) => {
-                    const jogo = new Jogo(
-                        jogoJSON.nome,
-                        jogoJSON.capa,
-                        jogoJSON.descricao,
-                        jogoJSON.link,
-                        jogoJSON.id
-                    )
-
-                    season.jogos.push(jogo)
-                })
+                jogosJSON.forEach((jogoJSON: JogoJson) => season.jogos.push(new Jogo(jogoJSON)))
 
                 return season
             })
@@ -133,16 +122,8 @@ class Season {
 
     static async cadastrar(data: FormData) {
 
-        const token = getCookieClient()
-        
-        if(!token) return
-
         try {
-            await api.post("/seasons", data, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-            })
+            await painel.post("/seasons", data)
 
             toast.success('Season cadastrada com sucesso!')
         }
@@ -153,42 +134,24 @@ class Season {
         }
     }
 
-    static async obtemAtual() {
+    // null quando nao ha season atual; erro de rede sobe para quem chamou, que
+    // assim distingue "sem season" de "API fora do ar".
+    static async obtemAtual(): Promise<Season | null> {
 
-        try {
-            const response = await api.get("/seasons/atual")
+        const response = await api.get<SeasonJson | null>("/seasons/atual")
+        const seasonJSON = response.data
 
-            const seasonJSON = response.data
+        if (!seasonJSON) return null
 
-            const seasonAtual = new Season(
-                parseInt(seasonJSON.numero),
-                seasonJSON.capa,
-                parseInt(seasonJSON.numParticipantesPorEquipe),
-                seasonJSON.atual,
-                seasonJSON.inscricoesAbertas,
-                seasonJSON.id
-            )
-
-            return seasonAtual
-        }
-        catch(err) {
-            console.log(err)
-        }
+        return Season.deJson(seasonJSON)
     }
 
     async tornaAtual() {
 
-        const token = getCookieClient()
-                
-        if(!token) return
-
         try {
-            await api.put("/seasons/atual", {}, {
+            await painel.put("/seasons/atual", {}, {
                 params: {
                     id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
                 }
             })
 
@@ -199,65 +162,49 @@ class Season {
         }
     }
 
-    async abreInscricoes() {
-
-        const token = getCookieClient()
-                
-        if(!token) return
+    // Edita a season (numero por equipe, data, linguagens, regulamento e o
+    // periodo de inscricao). Devolve true se salvou.
+    async editar(dados: EdicaoSeason) {
 
         try {
-            await api.put("/seasons/abreInscricao", {}, {
-                params: {
-                    id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            await painel.put("/seasons", dados, {
+                params: { id: this.id }
             })
 
-            toast.success("Incrições abertas!")
+            toast.success("Season atualizada!")
+            return true
         }
         catch(err) {
             console.log(err)
+            toast.error(isAxiosError(err) ? err.response?.data?.error ?? "Não foi possível salvar." : "Não foi possível salvar.")
+            return false
         }
     }
 
-    async fechaInscricoes() {
-
-        const token = getCookieClient()
-                
-        if(!token) return
+    // Apaga o CPF de todos os participantes desta season. O CPF so serve para o
+    // certificado da PROEX; emitidos os certificados, ele nao deve ficar guardado.
+    async apagaCpfs() {
 
         try {
-            await api.put("/seasons/fechaInscricao", {}, {
-                params: {
-                    id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const response = await painel.put("/seasons/apagaCpfs", {}, {
+                params: { id: this.id }
             })
 
-            toast.success("Incrições fechadas!")
+            const apagados: number = response.data.apagados
+            toast.success(apagados ? `${apagados} CPF(s) apagado(s).` : "Não havia CPF guardado nesta season.")
         }
         catch(err) {
             console.log(err)
+            toast.error("Não foi possível apagar os CPFs.")
         }
     }
 
     async deletar() {
 
-        const token = getCookieClient()
-        
-        if(!token) return
-
         try {
-            await api.delete("/seasons", {
+            await painel.delete("/seasons", {
                 params: {
                     id: this.id
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
                 }
             })
             toast.success('Season deletada com sucesso!')

@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react"
 import { Season } from "@/models/Season"
 import Layout from "../components/Layout"
-import { Jogo } from "@/models/Jogos"
+import { Jogo, type EdicaoJogo } from "@/models/Jogos"
 import JogoComponente from "../components/JogoComponente"
-import FormCadastrarJogo from "../components/FormCadastrarJogo"
+import FormJogo from "../components/FormJogo"
 import Botao from "../components/Botao"
 
 export default function Jogos() {
@@ -14,6 +14,7 @@ export default function Jogos() {
     const [seasonSelecionada, setSeasonSelecionada] = useState<Season>()
     const [jogos, setJogos] = useState<Jogo[]>()
     const [exibeFormCadastro, setExibeFormCadastro] = useState(false)
+    const [emEdicao, setEmEdicao] = useState<Jogo>()
 
     function selecionaSeason(id: string) {
 
@@ -23,34 +24,35 @@ export default function Jogos() {
         setJogos(seasonSelected?.getJogos)
     }
 
-    async function cadastrarJogo(nome: string, capa: File, descricao: string, link: string) {
-
-        const seasonId = seasonSelecionada?.getId ? seasonSelecionada.getId : ''
+    async function cadastrarJogo(dados: EdicaoJogo, capa: File) {
 
         const data = new FormData()
-        data.append("nome", nome)
+        for (const [campo, valor] of Object.entries(dados)) data.append(campo, String(valor))
         data.append("file", capa)
-        data.append("descricao", descricao)
-        data.append("link", link)
-        data.append("seasonId", seasonId)
-        
-        await Jogo.cadastrar(data)
+        data.append("seasonId", seasonSelecionada?.getId ?? '')
 
-        setExibeFormCadastro(false)
-        carregaSeasons()
+        return Jogo.cadastrar(data)
     }
 
+    function fechaForm() {
+
+        setExibeFormCadastro(false)
+        setEmEdicao(undefined)
+    }
+
+    // Recarrega mantendo a season que estava escolhida.
     async function carregaSeasons() {
 
-        const response: Season[] = await Season.obtemTodosComJogos()
+        const response: Season[] = (await Season.obtemTodosComJogos()) ?? []
         setSeasons(response)
-        setSeasonSelecionada(response[0])
-        setJogos(response[0].getJogos)
+        const escolhida = response.find(s => s.getId === seasonSelecionada?.getId) ?? response[0]
+        setSeasonSelecionada(escolhida)
+        setJogos(escolhida?.getJogos)
     }
 
     async function deletaJogo(jogo: Jogo) {
 
-        console.log('entrou')
+        if (!confirm(`Apagar ${jogo.getNome ?? jogo.getDados.equipe}?`)) return
 
         await jogo.deletar()
 
@@ -65,7 +67,9 @@ export default function Jogos() {
 
         <Layout 
         titulo="Jogos"
-        form={exibeFormCadastro ? <FormCadastrarJogo cadastrarJogo={cadastrarJogo} fechar={() => setExibeFormCadastro(false)}/> : false}
+        form={exibeFormCadastro || emEdicao
+            ? <FormJogo jogo={emEdicao} cadastrar={cadastrarJogo} fechar={fechaForm} salvo={() => { fechaForm(); carregaSeasons() }}/>
+            : false}
         >
 
             <select 
@@ -73,6 +77,7 @@ export default function Jogos() {
               flex w-max border-b border-gray-800 text-2xl focus:outline-0
               font-semibold mb-10
             `}
+            value={seasonSelecionada?.getId ?? ''}
             onChange={(e) => selecionaSeason(e.target.value)}>
                 {
                     seasons?.map((season) => {
@@ -91,7 +96,7 @@ export default function Jogos() {
                     )
                     : (
                         jogos?.map((jogo) => {
-                            return <JogoComponente deletaJogo={deletaJogo} jogo={jogo} key={jogo.getId}/>
+                            return <JogoComponente deletaJogo={deletaJogo} editaJogo={setEmEdicao} jogo={jogo} key={jogo.getId}/>
                         })  
                     )
                 }

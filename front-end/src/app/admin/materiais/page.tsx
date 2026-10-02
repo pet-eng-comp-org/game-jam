@@ -11,11 +11,19 @@ export default function Materiais() {
 
     const [materiais, setMateriais] = useState<Material[]>()
     const [exibeFormCadastro, setExibeFormCadastro] = useState(false)
+    const [editando, setEditando] = useState<Material | null>(null)
 
     async function cadastrarMaterial(nome: string, descricao: string, link: string) {
 
-        await Material.cadastrar({ nome, descricao, link })
+        if (!(await Material.cadastrar({ nome, descricao, link }))) return
         setExibeFormCadastro(false)
+        carregaMateriais()
+    }
+
+    async function salvaEdicao(nome: string, descricao: string, link: string) {
+
+        if (!editando || !(await editando.editar({ nome, descricao, link }))) return
+        setEditando(null)
         carregaMateriais()
     }
 
@@ -27,6 +35,8 @@ export default function Materiais() {
 
     async function deletaMaterial(material: Material) {
 
+        // Sai do site na hora, e nao da para desfazer: pergunta antes.
+        if (!window.confirm(`Apagar o material "${material.getNome}"? Ele sai do site.`)) return
         await material.deletar()
         carregaMateriais()
     }
@@ -39,7 +49,14 @@ export default function Materiais() {
         
         <Layout 
             titulo="Materiais"
-            form={exibeFormCadastro 
+            form={editando
+                ? <FormCadastrarMaterial
+                    key={editando.getId}
+                    inicial={{ nome: editando.getNome, descricao: editando.getDescricao, link: editando.getLink }}
+                    cadastrarMaterial={salvaEdicao}
+                    fechar={() => setEditando(null)}
+                  />
+                : exibeFormCadastro
                 ? <FormCadastrarMaterial 
                     cadastrarMaterial={cadastrarMaterial} 
                     fechar={() => setExibeFormCadastro(false)} 
@@ -56,6 +73,7 @@ export default function Materiais() {
                         materiais?.map((material) => (
                             <MaterialComponente 
                                 deletaMaterial={deletaMaterial} 
+                                editaMaterial={setEditando}
                                 material={material} 
                                 key={material.getId}
                             />

@@ -1,6 +1,17 @@
-import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
+import type { MaterialJson } from "./api"
+import { isAxiosError } from "axios"
+
+type DadosMaterial = { nome: string; descricao: string; link: string }
+
+// A API explica o que esta errado (nome vazio, link sem http); mostra isso em
+// vez de um "erro ao cadastrar" generico.
+function avisaErro(err: unknown, padrao: string) {
+    const motivo = isAxiosError(err) ? err.response?.data?.error : undefined
+    toast.warning(motivo ?? padrao)
+}
 
 class Material {
 
@@ -33,37 +44,41 @@ class Material {
         return this.link
     }
 
-    static async cadastrar({ nome, descricao, link }: { nome: string; descricao: string; link: string }) {
-
-        const token = getCookieClient()
-
-        if (!token) return
+    // Devolvem se deu certo: o formulario so fecha quando salva.
+    static async cadastrar({ nome, descricao, link }: DadosMaterial) {
 
         try {
-            await api.post("/material", { nome, descricao, link }, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-
-        toast.success("Material cadastrado com sucesso!")
+            await painel.post("/material", { nome, descricao, link })
+            toast.success("Material cadastrado!")
+            return true
         }
         catch (err) {
-            toast.warning("Erro ao cadastrar Material.")
-            console.log(err)
+            avisaErro(err, "Não foi possível cadastrar o material.")
+            return false
+        }
+    }
+
+    async editar(dados: DadosMaterial) {
+
+        try {
+            await painel.put("/material", dados, { params: { id: this.id } })
+            toast.success("Material salvo!")
+            return true
+        }
+        catch (err) {
+            avisaErro(err, "Não foi possível salvar o material.")
+            return false
         }
     }
 
     static async obtemTodosMateriais(): Promise<Material[]> {
 
-        const token = getCookieClient()
-
-        if (!token) return []
-
+        // Leitura publica: o site mostra isto a qualquer visitante. Exigir o
+        // cookie do painel escondia a lista de quem nao estava logado.
         try {
-            const response = await api.get("/material", {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const response = await api.get("/material")
 
-            return response.data.map((m: any) =>
+            return response.data.map((m: MaterialJson) =>
                 new Material(m.nome, m.descricao, m.link, m.id)
             )
         }
@@ -75,14 +90,9 @@ class Material {
 
     async deletar() {
 
-        const token = getCookieClient()
-
-        if (!token) return
-
         try {
-            await api.delete("/material", {
-                params: { id: this.id },
-                headers: { Authorization: `Bearer ${token}` }
+            await painel.delete("/material", {
+                params: { id: this.id }
             })
             toast.success('Material deletado com sucesso!')
         }

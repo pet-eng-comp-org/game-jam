@@ -111,5 +111,8 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+  },
+  // So o codigo da API. O prisma.config.ts, na raiz, e da CLI do Prisma: se
+  // entrasse aqui, a raiz do build subiria um nivel e o server iria para dist/src/.
+  "include": ["src"]
 }

@@ -1,4 +1,5 @@
 import prismaClient from "../../prisma";
+import { comSituacao } from "../../utils/season";
 
 class ObtemSeasonsComJogosService {
 
@@ -9,11 +10,11 @@ class ObtemSeasonsComJogosService {
                 numero: "asc"
             },
             include:{
-                jogos: true
+                jogos: { orderBy: [{ ordem: "asc" }, { createdAt: "asc" }] }
             }
         })
 
-        return seasons
+        return seasons.map(comSituacao)
     }
 }
 

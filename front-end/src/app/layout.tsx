@@ -1,17 +1,27 @@
 import type { Metadata } from "next";
-import { Inter, Jomhuria } from "next/font/google";
+import { Jomhuria } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
-import { Toaster } from "sonner";
 
-// Inter e a fonte de corpo do mockup da Season 4, nos pesos 400/500/700.
-const inter = Inter({
+// Inter e a fonte de corpo do mockup da Season 4, nos pesos 400/500/700. E a
+// 3.19, hospedada aqui, e nao a do Google Fonts: o mockup foi feito com ela, e
+// a do Google (4.x) tem outro espacamento — a mesma linha de 18px saia 28px
+// mais estreita que no Figma e quebrava em outro lugar. Medido no Chrome:
+// Figma 1140px, Inter 3.19 1137px, Google 1112px. Arquivos so com o latim
+// (fontTools subset) e gerados da versao DESKTOP: a "Inter Web" do mesmo
+// pacote tem outras medidas (1115px na mesma linha). Licenca OFL em
+// fontes/LICENCA-inter.txt.
+const inter = localFont({
   variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  display: "swap",
+  src: [
+    { path: "./fontes/inter-3.19-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fontes/inter-3.19-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fontes/inter-3.19-Bold.woff2", weight: "700", style: "normal" },
+  ],
 });
 
-// Jomhuria e a condensada dos titulos de secao do mockup (48px). Ao contrario
-// do PacFont, ela TEM os acentuados, entao "DUVIDAS" e "PREMIACAO" saem certos.
+// Jomhuria e a condensada dos titulos do mockup: de pagina e de secao.
 const jomhuria = Jomhuria({
   variable: "--font-jomhuria",
   subsets: ["latin"],
@@ -35,15 +45,19 @@ const jomhuria = Jomhuria({
 const versao =
   process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.COMMIT ?? "desconhecida";
 
+// "Ufes" e "Vitória" no texto: quem procura o evento busca por eles, e "pet game
+// jam" sozinho tambem traz o PET Jam, do PET Computacao da UFRGS.
 const descricao =
-  "O Game Jam é um torneio de programação de jogos organizado pelo PET Engenharia de Computação da UFES.";
+  "Competição de programação em equipes, em um único dia, organizada pelo PET Engenharia de Computação da Ufes, em Vitória (ES).";
 
 export const metadata: Metadata = {
   other: { versao },
   // Sem metadataBase o Next resolve as URLs de imagem contra localhost, e a
   // prévia do link sai quebrada fora da máquina de quem construiu.
   metadataBase: new URL("https://gamejam.pet.inf.ufes.br"),
-  title: "PET Game Jam",
+  // Cada pagina tem o proprio titulo ("Regras · PET Game Jam"); antes todas
+  // se chamavam "PET Game Jam", e o Google nao tinha como distinguir.
+  title: { default: "PET Game Jam · Competição de programação da Ufes", template: "%s · PET Game Jam" },
   description: descricao,
   // Sem isto, o link colado no WhatsApp ou no Instagram aparece sem imagem e
   // sem texto nenhum — e divulgação é metade do evento.
@@ -74,9 +88,8 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jomhuria.variable} font-sans antialiased`}
       >
-        <Toaster 
-          position="bottom-right"
-        />
+        {/* Os avisos (sonner) ficam so no painel e na inscricao, onde ha aviso
+            para mostrar: aqui ele carregava em toda pagina. */}
         {children}
       </body>
     </html>

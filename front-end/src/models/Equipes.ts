@@ -1,79 +1,48 @@
-import { getCookieClient } from "@/lib/cookieClient"
-import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
+import type { EquipeInscrita } from "@/lib/planilha"
 
-class Equipe {
+// Os inscritos de uma season, para o painel (rota com login).
+export async function obtemEquipes(seasonId: string): Promise<EquipeInscrita[]> {
 
-    private id?: string
-    private nome: string
-    private aprovada?: boolean
-    private createdAt?: string
-    private updatedAt?: string
+    try {
+        const response = await painel.get("/equipes", {
+            params: { seasonId }
+        })
 
-    constructor(nome: string, id?: string, aprovada?: boolean, createdAt?: string, updatedAt?: string) {
-
-        this.id = id
-        this.nome = nome
-        this.aprovada = aprovada
-        this.createdAt = createdAt
-        this.updatedAt = updatedAt
+        return response.data
     }
-
-    get getId() {
-        return this.id
-    }
-
-    get getNome() {
-        return this.nome
-    }
-
-    get getAprovada() {
-        return this.aprovada
-    }
-
-    get getCreatedAt() {
-        return this.createdAt
-    }
-
-    get getUpdatedAt() {
-        return this.updatedAt
-    }
-
-    static async cadastrar(nome: string) {
-
-        try {
-            const response = await api.post("/equipe", { nome })
-
-            return new Equipe(response.data.nome, response.data.id, response.data.aprovada, response.data.createdAt, response.data.updatedAt)
-        }
-        catch(err) {
-            toast.error('Erro ao cadastrar equipe.')
-            console.log(err)
-            return
-        }
-    }
-
-    async deletar() {
-
-        const token = getCookieClient()
-        
-        if (!token || !this.id) return
-
-        try {
-            await api.delete("/equipe", {
-                params: { id: this.id },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            toast.success('Equipe deletada com sucesso!')
-        }
-        catch(err) {
-            console.log(err)
-            toast.error('Erro ao deletar equipe.')
-            return
-        }
+    catch (err) {
+        console.log(err)
+        toast.error("Não foi possível carregar as equipes.")
+        return []
     }
 }
 
-export { Equipe }
+export async function aprovaEquipe(id: string, aprovada: boolean) {
+
+    try {
+        await painel.put("/equipe/aprovada", { aprovada }, { params: { id } })
+        return true
+    }
+    catch (err) {
+        console.log(err)
+        toast.error("Não foi possível mudar a aprovação.")
+        return false
+    }
+}
+
+export async function deletaEquipe(id: string) {
+
+    try {
+        await painel.delete("/equipe", {
+            params: { id }
+        })
+
+        toast.success("Equipe apagada.")
+    }
+    catch (err) {
+        console.log(err)
+        toast.error("Não foi possível apagar a equipe.")
+    }
+}

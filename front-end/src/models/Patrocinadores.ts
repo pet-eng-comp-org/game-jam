@@ -1,6 +1,7 @@
-import { getCookieClient } from "@/lib/cookieClient"
 import { api } from "@/services/api"
+import { painel } from "@/services/painel"
 import { toast } from "sonner"
+import type { PatrocinadorJson } from "./api"
 
 class Patrocinador {
 
@@ -29,14 +30,9 @@ class Patrocinador {
 
     static async cadastrar(data: FormData) {
 
-        const token = getCookieClient()
-
-        if (!token) return
-
         try {
-            await api.post("/patrocinador", data, {
+            await painel.post("/patrocinador", data, {
                 headers: { 
-                    Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data" 
                 }
             })
@@ -50,16 +46,12 @@ class Patrocinador {
 
     static async obtemTodosPatrocinadores(): Promise<Patrocinador[]> {
 
-        const token = getCookieClient()
-
-        if (!token) return []
-
+        // Leitura publica: o site mostra isto a qualquer visitante. Exigir o
+        // cookie do painel escondia a lista de quem nao estava logado.
         try {
-            const response = await api.get("/patrocinador", {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const response = await api.get("/patrocinador")
 
-            return response.data.map((p: any) =>
+            return response.data.map((p: PatrocinadorJson) =>
                 new Patrocinador(p.nome, p.logo, p.id)
             )
         }
@@ -71,14 +63,9 @@ class Patrocinador {
 
     async deletar() {
 
-        const token = getCookieClient()
-
-        if (!token) return
-
         try {
-            await api.delete("/patrocinador/remove", {
-                params: { id: this.id },
-                headers: { Authorization: `Bearer ${token}` }
+            await painel.delete("/patrocinador/remove", {
+                params: { id: this.id }
             })
             toast.success("Patrocinador deletado com sucesso!")
         }

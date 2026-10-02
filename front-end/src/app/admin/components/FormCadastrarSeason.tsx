@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from "react"
 import Titulo from "./Título"
 import Image from "next/image"
-import Botao from "./Botao"
+import { toast } from "sonner"
 
 interface FormProps {
 
@@ -29,13 +29,13 @@ export default function FormCadastrarSeason({fechar, cadastrarSeason}: FormProps
 
     return (
 
-        <div className="absolute top-0 h-screen w-screen bg-gray-800/50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/50 p-4">
 
-            <section className="relative flex flex-col items-center justify-center bg-gray-200 pt-12 p-7 rounded-xl w-xl">
+            <section className="relative flex flex-col items-center justify-center bg-gray-200 pt-12 p-7 rounded-xl w-full max-w-xl max-h-[92vh] overflow-y-auto">
 
                 <button onClick={fechar} className="absolute right-4 top-2 text-xl font-bold hover:text-red-500">x</button>
 
-                <Titulo valor="Cadastrar Season" />
+                <Titulo valor="Cadastrar Season" nivel={2} />
 
                 <form action="" className="flex flex-col gap-4 w-full">
 
@@ -86,7 +86,11 @@ export default function FormCadastrarSeason({fechar, cadastrarSeason}: FormProps
                         </label>
                     </div>
 
-                    <button type="button" onClick={() => {capa ? cadastrarSeason(numero, capa, numParticipantesPorEquipe): false}} className="text-white font-bold bg-blue-950 p-3 rounded-md hover:bg-blue-900 duration-300">Salvar</button>
+                    <button type="button" onClick={() => {
+                        // Sem capa o clique era ignorado em silencio.
+                        if (!capa) return toast.warning("Escolha a capa da season.")
+                        cadastrarSeason(numero, capa, numParticipantesPorEquipe)
+                    }} className="text-white font-bold bg-blue-950 p-3 rounded-md hover:bg-blue-900 duration-300">Salvar</button>
                 </form>
 
             </section>

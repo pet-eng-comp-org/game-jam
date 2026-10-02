@@ -18,11 +18,11 @@ x-logging: &logging
 
 services:
   database:
-    # mysql:9.5.0 — digest tirado do container que estava em execucao, nao do
-    # registry: a tag 9.5.0 disponivel na VM NAO e a mesma imagem que rodava.
-    # Trilha Innovation, suporte curto. A LTS e a 8.4, mas o diretorio de dados
-    # da 9.5 nao abre em versao anterior: migrar exige dump e restore.
-    image: mysql@sha256:57c892ddeb17e6c7dddf219914db017b2cf3e2797806a75424444b83622cc8ef
+    # mysql:9.7.2, a LTS da serie 9 (tag "lts" no Docker Hub em 24/09/2026).
+    # Ate aqui rodava a 9.5.0, trilha Innovation, que deixou de receber correcao
+    # quando saiu a 9.6. Subir de versao e automatico: o mysqld atualiza o
+    # diretorio de dados ao iniciar. Descer NAO e: voltar exige restaurar o backup.
+    image: mysql:9.7.2@sha256:30a0abfa7b502a496e12339b54cd07aaa70363396dc4b8e8a72a92804a505cd6
     container_name: game-jam_database
     restart: unless-stopped
     logging: *logging
@@ -71,6 +71,12 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
+      # E-mail de confirmacao da inscricao. Sem SMTP_HOST, desligado.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORTA: ${SMTP_PORTA:-465}
+      SMTP_USUARIO: ${SMTP_USUARIO:-}
+      SMTP_SENHA: ${SMTP_SENHA:-}
+      EMAIL_REMETENTE: ${EMAIL_REMETENTE:-}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.game-jam_back-end.rule=Host(`apigamejam.pet.inf.ufes.br`)"
@@ -79,20 +85,27 @@ services:
       - "traefik.http.routers.game-jam_back-end.tls.certresolver=le"
       - "traefik.docker.network=traefik"
     networks:
-      - traefik
-      - internal
+      # O front busca o conteudo das paginas publicas pelo servidor, e chega a API
+      # por este nome, sem sair da VM (API_URL_INTERNA no front).
+      traefik:
+        aliases: [game-jam-api]
+      internal:
     volumes:
       - uploads:/app/tmp
 
-  # O site do Game Jam. Next em modo standalone (server.js), agora servido pela
-  # VM como as demais stacks — antes vivia so na Vercel. A URL da API
+  # O site do Game Jam. Next em modo standalone (server.js), servido pela VM
+  # como as demais stacks desde 01/09/2026 (antes vivia na Vercel). A URL da API
   # (https://apigamejam.pet.inf.ufes.br) e assada no build pelo workflow do
   # front, entao aqui nao ha env de execucao nem rede interna: o navegador chama
-  # a API pelo dominio publico. So falta o LAR apontar gamejam.pet para a VM.
+  # a API pelo dominio publico.
   front-end:
     # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-7e928bdc79d517a9901ba4fa7b03ce299eed64af)
     image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:287afa66b8eb82e04e8c707679baf223ca2e16b3fbd2d8d83038bced386e74e9
     container_name: game-jam_front-end
+    environment:
+      # Lida em execucao (a NEXT_PUBLIC_API_URL e assada no build): e por onde o
+      # servidor do Next busca o conteudo das paginas publicas.
+      API_URL_INTERNA: http://game-jam-api:3333
     restart: unless-stopped
     logging: *logging
     labels:
@@ -105,32 +118,6 @@ services:
     networks:
       - traefik
 
-  database-client:
-    # phpmyadmin:5.2.3 — digest do container em execucao.
-    # Nao pode sair: nao existe rota GET /participante na API, entao ele e a
-    # unica forma de a organizacao ver os inscritos. Por isso fica atras de
-    # basicauth, e nao removido.
-    image: phpmyadmin@sha256:6db6e0bc9959eb00395f5d927cc786cb63530a265663950ecb9faf5955419c37
-    container_name: game-jam_database-client
-    restart: unless-stopped
-    logging: *logging
-    environment:
-      - PMA_HOST=game-jam-database
-      - PMA_ABSOLUTE_URI=https://gamejam-db.pet.inf.ufes.br
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.game-jam_database-client.rule=Host(`gamejam-db.pet.inf.ufes.br`)"
-      - "traefik.http.services.game-jam_database-client.loadbalancer.server.port=80"
-      - "traefik.http.routers.game-jam_database-client.entrypoints=websecure"
-      - "traefik.http.routers.game-jam_database-client.tls.certresolver=le"
-      - "traefik.docker.network=traefik"
-      # Hash bcrypt, com os $ dobrados para o compose nao tratar como variavel.
-      - "traefik.http.middlewares.game-jam_database-client-auth.basicauth.users=game-jam:$$2b$$12$$H7UEfZoGNPyFTPZslcA3ruoahMQ6g2dBnAqkYUJe6hlG59pm/Y5BW"
-      - "traefik.http.routers.game-jam_database-client.middlewares=game-jam_database-client-auth"
-    networks:
-      - traefik
-      - internal
-
   # Acervo dos jogos das edicoes passadas. Sao jogos estaticos — HTML, JS e
   # imagem — entao basta um servidor de arquivo; nao ha build nem banco.
   #
@@ -142,7 +129,10 @@ services:
   # evita pedir nome novo ao LAR: um dominio serve quantos jogos existirem,
   # porque o que separa cada um e caminho, nao DNS.
   arquivo:
-    image: nginx:1.29-alpine
+    # 1.30 e a serie estavel do nginx; a 1.29 parou de receber correcao em
+    # abril de 2026. Tag e digest: a tag diz a versao (e e o que o Dependabot
+    # compara), o digest fixa a imagem.
+    image: nginx:1.30.5-alpine@sha256:bf3201ab56f23e5954646379c775d511fc466e9f11376d9725361064ad07ed35
     container_name: game-jam_arquivo
     restart: unless-stopped
     logging: *logging

@@ -20,5 +20,7 @@ README.md
 docker-compose.yml
 Insomnia*.json
 
-# Testes rodam no CI, antes do build; nao vao para a imagem.
+# Testes rodam no CI, antes do build; nao vao para a imagem. scripts/ tem o
+# que prepara o banco dos testes de ponta a ponta, e ele APAGA o banco.
 test
+scripts

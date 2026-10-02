@@ -1,23 +1,24 @@
-"use client"
-
-import { Season } from "@/models/Season"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
+import { patrocinadores } from "@/lib/conteudo"
 
 interface LayoutProps {
 
-    season?: Season
-    children?: any
+    children?: React.ReactNode
     className?: string
 }
 
-export default function Layout({ season, children, className }: LayoutProps) {
+// Componente de servidor: busca os patrocinadores junto com o resto do
+// conteudo (mesmo cache), para a barra so mostrar o link quando houver algum.
+export default async function Layout({ children, className }: LayoutProps) {
+
+    const temPatrocinadores = (await patrocinadores()).length > 0
 
     return (
 
         <div className="relative flex min-h-screen flex-col bg-fundo">
 
-            <Navbar />
+            <Navbar mostraPatrocinadores={temPatrocinadores} />
 
             <main className={`flex-1 ${className ?? ""}`}>
                 {children}

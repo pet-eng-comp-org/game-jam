@@ -3,7 +3,6 @@
 import 'dotenv/config'
 
 import express, { Request, Response, NextFunction } from 'express'
-import 'express-async-errors'
 import cors from 'cors'
 import helmet from 'helmet'
 import path from 'path'
@@ -18,6 +17,14 @@ const app = express()
 // misto numa pagina servida em https.
 app.set('trust proxy', 1)
 app.use(express.json())
+
+// O Express 5 deixa req.body undefined quando nao ha corpo JSON (o 4 dava {}).
+// Os controllers desestruturam req.body, e sem isto uma requisicao sem corpo
+// virava TypeError com mensagem interna na resposta.
+app.use((req, _res, next) => {
+    req.body ??= {}
+    next()
+})
 
 // Cabecalhos de seguranca. crossOriginResourcePolicy fica em cross-origin
 // porque /files serve as imagens dos patrocinadores para o site, que esta em
@@ -67,10 +74,13 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): any => {
             })
         }
 
-        // Erro vindo do Prisma nao pode ser devolvido cru: a mensagem dele carrega
-        // o caminho do arquivo, o trecho da query e o nome das colunas. Fica no log
-        // do servidor e o cliente recebe uma mensagem generica.
-        if(err.constructor.name.startsWith('PrismaClient')){
+        // Erro vindo do banco nao pode ser devolvido cru: a mensagem carrega o
+        // caminho do arquivo, o trecho da query, o nome das colunas ou o endereco
+        // do servidor. Fica no log e o cliente recebe uma mensagem generica. Desde
+        // o Prisma 7 ele chega tambem como erro do adapter (DriverAdapterError) ou
+        // do proprio driver mariadb (SqlError).
+        const nome = err.constructor.name
+        if(nome.startsWith('PrismaClient') || nome === 'DriverAdapterError' || nome === 'SqlError'){
             console.error(err)
 
             return res.status(500).json({
@@ -93,4 +103,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): any => {
 
 const PORT = process.env.PORT || 3333;
 
-app.listen(PORT, () => console.log('Server Online!'))
+// No Express 5 o callback tambem recebe o erro do listen (porta ocupada, sem
+// permissao). Sem o throw, o erro sumia e o log ainda dizia "Server Online!".
+app.listen(PORT, (err) => {
+    if (err) throw err
+    console.log('Server Online!')
+})

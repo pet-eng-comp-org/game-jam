@@ -1,16 +1,5 @@
 @import "tailwindcss";
 
-/* PacFont e a fonte de titulo do mockup da Season 4. Nao esta no Google Fonts,
-   entao o arquivo mora no repositorio. Se ele faltar, o navegador cai sozinho
-   para a proxima da pilha e a pagina continua legivel — nao quebra o build. */
-@font-face {
-  font-family: "PacFont";
-  src: url("/fontes/pacfont.woff2") format("woff2"),
-       url("/fontes/pacfont.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-
 /* "inline" e obrigatorio aqui: sem ele o Tailwind resolve os valores em tempo
    de build, e as variaveis que o next/font cria em tempo de execucao
    (--font-inter, --font-jomhuria) ainda nao existem. O resultado e silencioso —
@@ -26,8 +15,18 @@
   --color-perigo: #F20D0D;       /* ponto ativo da Regras */
   --color-agua: #1990E2;         /* ponto ativo de Jogos e Patrocinadores */
 
-  --font-titulo: "PacFont", "Inter", system-ui, sans-serif;
   --font-secao: var(--font-jomhuria), "Inter", sans-serif;
+
+  /* Fantasma assustado da tela de erro: comeca a piscar depois de 1s, pisca
+     seis vezes, como no fim do efeito da pastilha, e fica azul. */
+  --animate-pisca: pisca 0.4s steps(1, end) 1s 6;
+  /* Pac-Man mastigando: aberto, meio, fechado, meio (Personagem.tsx). */
+  --animate-boca-meio: boca-meio 0.32s steps(1, end) infinite;
+  --animate-boca-fechada: boca-fechada 0.32s steps(1, end) infinite;
+  /* Fantasmas na casa do Inicio: sobem e descem um pixel do sprite. */
+  --animate-flutua: flutua 0.5s steps(1, end) infinite;
+  /* Dica de deitar o celular: o aparelho gira e volta, tres vezes. */
+  --animate-vira-celular: vira-celular 2.2s ease-in-out 3;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
@@ -36,7 +35,70 @@ body {
   /* O corpo do texto no mockup e o amarelo palido, nao branco. O branco fica
      so no rodape. */
   color: var(--color-destaque-claro);
-  min-width: 320px;
+  /* Sem largura minima: com min-width de 320px, numa tela menor (Galaxy Fold
+     dobrado, 280px) a pagina ficava mais larga que a tela e cortava a direita,
+     inclusive o botao do menu. */
 }
 
 button { cursor: pointer; }
+
+/* Foco de teclado igual em todo navegador: anel amarelo do site, com folga.
+   No painel (fundo cinza) o amarelo some, entao la ele e azul-escuro. So
+   :focus-visible: quem clica com mouse nao ve o anel. Na camada base, para
+   classes como outline-none (campos com borda de foco propria) valerem. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-destaque);
+    outline-offset: 3px;
+  }
+  .painel :focus-visible {
+    outline-color: #172554;
+  }
+  .painel aside :focus-visible {
+    outline-color: var(--color-destaque);
+    outline-offset: -3px; /* dentro do item: o menu encosta na borda da tela */
+  }
+}
+
+@keyframes vira-celular {
+  0%, 25% { transform: rotate(0deg); }
+  55%, 85% { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes flutua {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(calc(var(--u) * -2)); }
+}
+@keyframes boca-meio {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  50% { opacity: 0; }
+  75% { opacity: 1; }
+}
+@keyframes boca-fechada {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  75% { opacity: 0; }
+}
+
+@keyframes pisca {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* Tela de inscricao recebida (InscricaoRecebida.tsx): o Pac-Man atravessa e
+   sai, as bolinhas e o fantasma somem quando ele passa (atraso no
+   componente), o fantasma vira o assustado na pastilha grande e o 200 fica
+   no lugar dele, como o placar da jogada. Com animacao reduzida nada disso roda, e a cena fica parada. */
+@keyframes anda { to { left: calc(100% + 8px); } }
+@keyframes some { to { opacity: 0; } }
+@keyframes aparece { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pontos { from { opacity: 1; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.fantasma-vira-entra, .pontos { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .pacman-anda { animation: anda 2.6s linear forwards; }
+  .bolinha-comida { animation: some 0.01s linear forwards; }
+  .fantasma-vira-entra { animation: aparece 0.01s linear forwards; }
+  .fantasma-vira-sai { animation: some 0.01s linear forwards; }
+  .pontos { animation: pontos 0.3s steps(2, end) forwards; }
+}

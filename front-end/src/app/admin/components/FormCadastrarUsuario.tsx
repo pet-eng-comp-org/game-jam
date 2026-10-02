@@ -14,13 +14,13 @@ export default function FormCadastrarUsuario({fechar, cadastrarUsuario}: FormPro
 
     return (
 
-        <div className="absolute top-0 h-screen w-screen bg-gray-800/50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/50 p-4">
 
             <section className="relative w-max bg-gray-200 pt-12 p-7 rounded-xl">
 
                 <button onClick={fechar} className="absolute right-4 top-2 text-xl font-bold hover:text-red-500">x</button>
 
-                <Titulo valor="Cadastrar Usuário" />
+                <Titulo valor="Cadastrar Usuário" nivel={2} />
 
                 <form action="" className="flex flex-col gap-4 mt-10">
 
