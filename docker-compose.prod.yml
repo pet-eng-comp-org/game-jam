@@ -132,7 +132,7 @@ services:
     # 1.30 e a serie estavel do nginx; a 1.29 parou de receber correcao em
     # abril de 2026. Tag e digest: a tag diz a versao (e e o que o Dependabot
     # compara), o digest fixa a imagem.
-    image: nginx:1.30.5-alpine@sha256:bf3201ab56f23e5954646379c775d511fc466e9f11376d9725361064ad07ed35
+    image: nginx:1.30.5-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
     container_name: game-jam_arquivo
     restart: unless-stopped
     logging: *logging
