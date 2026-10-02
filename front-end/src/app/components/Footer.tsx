@@ -55,7 +55,7 @@ export default function Footer() {
 
         <nav aria-label="Rodapé">
           <p className={TITULO}>Páginas</p>
-          <ul className="grid w-max grid-cols-2 gap-x-10 gap-y-2">
+          <ul className="grid w-max grid-cols-1 gap-x-10 gap-y-2 min-[360px]:grid-cols-2">
             {paginas.map((p) => (
               <li key={p.url}>
                 <Link href={p.url} className="text-destaque-claro transition-colors hover:text-destaque">{p.label}</Link>

@@ -30,7 +30,7 @@ test("/apoio convida a patrocinar e tem o contato", async ({ page }) => {
   const confere = semErroDePagina(page);
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
-  await page.getByRole("navigation").getByRole("link", { name: "Patrocinadores" }).click();
+  await page.getByRole("navigation").getByRole("link", { name: "Patrocinadores" }).filter({ visible: true }).first().click();
   await expect(page.getByRole("heading", { name: "SEJA PATROCINADOR" })).toBeVisible();
   await expect(page.getByRole("link", { name: "petengcomp@inf.ufes.br" }).first()).toHaveAttribute("href", /^mailto:petengcomp@inf\.ufes\.br\?subject=/);
   confere();
