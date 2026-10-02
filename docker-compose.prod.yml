@@ -57,9 +57,9 @@ services:
           - game-jam-database
 
   back-end:
-    # ghcr.io/pet-eng-comp-org/game-jam/back-end:sha-9ff68b5792dd74104758f8e95aa41d6b6690e3ed
+    # ghcr.io/pet-eng-comp-org/game-jam/back-end:sha-f30ba2d30b1c3fe15055362d7faa94c841b934ec
     # Inclui o limite de taxa no login e na inscricao (PR #46).
-    image: ghcr.io/pet-eng-comp-org/game-jam/back-end@sha256:1050587cef1a596bc756d45cdfe2b40b04453560d17cc04e3003ef3218dd1301
+    image: ghcr.io/pet-eng-comp-org/game-jam/back-end@sha256:968ef5199fa9f8bf1e5577ab56aebc3d05d2b47b2ccb77518d2b3eb962dc6d9c
     container_name: game-jam_back-end
     restart: unless-stopped
     logging: *logging
@@ -99,8 +99,8 @@ services:
   # front, entao aqui nao ha env de execucao nem rede interna: o navegador chama
   # a API pelo dominio publico.
   front-end:
-    # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-5891c23778c748b674bfb0ad242a7b9277af2d96)
-    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:48dcbc88341bedb07eb5d5e660942a9337d3ebab8b3d953c77859971f865e81e
+    # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-7e928bdc79d517a9901ba4fa7b03ce299eed64af)
+    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:287afa66b8eb82e04e8c707679baf223ca2e16b3fbd2d8d83038bced386e74e9
     container_name: game-jam_front-end
     environment:
       # Lida em execucao (a NEXT_PUBLIC_API_URL e assada no build): e por onde o
