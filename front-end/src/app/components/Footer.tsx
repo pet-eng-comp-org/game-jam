@@ -16,6 +16,7 @@ const paginas = [
   { label: "Jogos", url: "/jogos" },
   { label: "Regras", url: "/regras" },
   { label: "Materiais", url: "/materiais" },
+  { label: "Patrocinadores", url: "/apoio" },
   { label: "Inscrição", url: "/inscricao" },
 ]
 
