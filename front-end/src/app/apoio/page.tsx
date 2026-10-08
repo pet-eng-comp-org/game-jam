@@ -24,9 +24,13 @@ export default async function Patrocinadores() {
 
         <Titulo valor="patrocinadores" />
 
-        <div className="mt-14">
-          <FaixaPatrocinadores lista={lista} />
-        </div>
+        {lista.length > 0 ? (
+          <div className="mt-14">
+            <FaixaPatrocinadores lista={lista} />
+          </div>
+        ) : (
+          <p className="mt-6 text-lg">Os patrocinadores desta edição serão divulgados em breve.</p>
+        )}
       </div>
     </Layout>
   );

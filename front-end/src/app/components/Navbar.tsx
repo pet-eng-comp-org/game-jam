@@ -19,9 +19,7 @@ const paginas = [
   { label: 'Patrocinadores', url: '/apoio', personagem: 'laranja' },
 ] as const
 
-// O link de Patrocinadores fica sempre: sem patrocinador, a pagina mostra os
-// espacos reservados para as marcas, que a organizacao apresenta a empresas.
-export default function Navbar() {
+export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
 
   const caminho = usePathname()
   const naInscricao = caminho === "/inscricao"
@@ -41,6 +39,8 @@ export default function Navbar() {
   // 25/14px de respiro. O botao Login saiu: o "Inscreva-se" fica onde ele
   // terminava, 17px antes da borda.
 
+  const visiveis = paginas.filter((p) => mostraPatrocinadores || p.url !== '/apoio')
+
   return (
     // A barra acompanha a rolagem. No desktop e fina (79px); no celular vira
     // uma faixa de 60px com a logo, a inscricao e o menu, em vez de empilhar
@@ -59,7 +59,7 @@ export default function Navbar() {
         </Link>
 
         <div className="absolute left-1/2 top-[25px] flex -translate-x-1/2 items-center gap-x-8 xl:gap-x-[53px]">
-          {paginas.map((pagina) => {
+          {visiveis.map((pagina) => {
 
             const ativa = caminho === pagina.url
 
@@ -130,7 +130,7 @@ export default function Navbar() {
 
         {menuAberto && (
           <ul id="menu-celular" className="border-t border-white/10 px-4 pb-4 pt-2">
-            {paginas.map((pagina) => {
+            {visiveis.map((pagina) => {
               const ativa = caminho === pagina.url
               return (
                 <li key={pagina.url}>
