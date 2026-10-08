@@ -16,13 +16,15 @@ const paginas = [
   { label: "Jogos", url: "/jogos" },
   { label: "Regras", url: "/regras" },
   { label: "Materiais", url: "/materiais" },
-  { label: "Patrocinadores", url: "/apoio" },
+  { label: "Patrocinadores", url: "/patrocinadores" },
   { label: "Inscrição", url: "/inscricao" },
 ]
 
 const TITULO = "mb-3 text-base font-bold text-destaque"
 
-export default function Footer() {
+export default function Footer({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
+
+  const visiveis = paginas.filter((p) => mostraPatrocinadores || p.url !== "/patrocinadores")
 
   // O ano vinha cravado como 2025 e envelheceu sozinho. Aqui ele e resolvido na
   // construcao do site, entao acompanha os deploys sem ninguem lembrar.
@@ -56,7 +58,7 @@ export default function Footer() {
         <nav aria-label="Rodapé">
           <p className={TITULO}>Páginas</p>
           <ul className="grid w-max grid-cols-2 gap-x-6 gap-y-2 sm:gap-x-10">
-            {paginas.map((p) => (
+            {visiveis.map((p) => (
               <li key={p.url}>
                 <Link href={p.url} className="text-destaque-claro transition-colors hover:text-destaque">{p.label}</Link>
               </li>

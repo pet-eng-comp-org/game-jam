@@ -26,6 +26,12 @@ export default function PatrocinadorComponente({ patrocinador, deletaPatrocinado
                 </button>
             </div>
 
+            {patrocinador.getSite && (
+                <a href={patrocinador.getSite} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-800 underline break-all">
+                    {patrocinador.getSite}
+                </a>
+            )}
+
             {patrocinador.getLogo && (
                 <img 
                     src={patrocinador.getLogo} 

@@ -9,7 +9,7 @@ const paginas: { caminho: string; mostra: (p: import("@playwright/test").Page) =
   { caminho: "/", mostra: (p) => p.getByText("cada equipe recebe um jogo preparado especialmente", { exact: false }).first() },
   { caminho: "/regras", mostra: (p) => p.getByRole("heading", { name: "REGRAS" }) },
   { caminho: "/materiais", mostra: (p) => p.getByText("Material E2E").first() },
-  { caminho: "/apoio", mostra: (p) => p.getByAltText("Patrocinador E2E").first() },
+  { caminho: "/patrocinadores", mostra: (p) => p.getByAltText("Patrocinador E2E").first() },
   { caminho: "/inscricao", mostra: (p) => p.getByRole("textbox", { name: "Nome da equipe" }) },
   { caminho: "/privacidade", mostra: (p) => p.getByText("O CPF é apagado", { exact: false }).first() },
 ];
@@ -84,7 +84,7 @@ test("nenhuma pagina passa da tela no celular mais estreito (280px)", async ({ p
   // Galaxy Fold dobrado. Ja existiu uma largura minima de 320px no body, que
   // cortava a direita da pagina (e o botao do menu) em telas menores.
   await page.setViewportSize({ width: 280, height: 653 });
-  for (const caminho of ["/", "/jogos", "/regras", "/materiais", "/inscricao", "/privacidade", "/apoio"]) {
+  for (const caminho of ["/", "/jogos", "/regras", "/materiais", "/inscricao", "/privacidade", "/patrocinadores"]) {
     await page.goto(caminho);
     await page.waitForLoadState("networkidle");
     const fora = await page.evaluate(() => {
@@ -102,10 +102,10 @@ test("nenhuma pagina passa da tela no celular mais estreito (280px)", async ({ p
 
 test("a barra de cima nao sobrepoe logo, links e botao em nenhuma largura", async ({ page }) => {
   // Em 768px a barra de desktop ja aparecia com os links por cima da logo e do
-  // "Inscreva-se": ela so cabe a partir de 1024px. /apoio tem os cinco links.
+  // "Inscreva-se": ela so cabe a partir de 1024px. /patrocinadores tem os cinco links.
   for (const largura of [412, 768, 1023, 1024, 1280, 1440]) {
     await page.setViewportSize({ width: largura, height: 800 });
-    await page.goto("/apoio");
+    await page.goto("/patrocinadores");
     const caixas = await page.evaluate(() =>
       [...document.querySelectorAll("nav a")]
         .map((a) => ({ nome: a.textContent?.trim() || a.getAttribute("aria-label"), b: a.getBoundingClientRect() }))
@@ -120,6 +120,13 @@ test("a barra de cima nao sobrepoe logo, links e botao em nenhuma largura", asyn
       }
     }
   }
+});
+
+test("o endereco antigo /apoio leva a /patrocinadores", async ({ page }) => {
+  // A pagina se chamava /apoio; link antigo de divulgacao continua chegando.
+  await page.goto("/apoio");
+  await expect(page).toHaveURL(/\/patrocinadores$/);
+  await expect(page.getByAltText("Patrocinador E2E").first()).toBeVisible();
 });
 
 test("endereco que nao existe mostra a 404 do site, com volta ao inicio", async ({ page }) => {
@@ -181,7 +188,7 @@ test("nenhuma pagina publica tem problema de acessibilidade que o axe acha", asy
   // axe-core: contraste, rotulos, nomes de botao e link, hierarquia de
   // titulos, landmarks. Zerado em 28/09/2026; um teste quebrando aqui e uma
   // regressao.
-  for (const caminho of ["/", "/jogos", "/regras", "/materiais", "/inscricao", "/apoio", "/privacidade", "/nao-existe", "/login"]) {
+  for (const caminho of ["/", "/jogos", "/regras", "/materiais", "/inscricao", "/patrocinadores", "/privacidade", "/nao-existe", "/login"]) {
     await page.goto(caminho);
     await page.waitForLoadState("networkidle");
     const r = await new AxeBuilder({ page }).analyze();

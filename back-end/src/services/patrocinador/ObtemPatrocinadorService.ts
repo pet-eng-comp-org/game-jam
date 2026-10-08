@@ -10,7 +10,8 @@ class ObtemPatrocinadoresService {
             select: {
                 id: true,
                 nome: true,
-                logo: true
+                logo: true,
+                site: true
             }
         });
 

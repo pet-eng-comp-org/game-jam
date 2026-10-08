@@ -131,14 +131,16 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Onde as marcas aparecem: a organizacao mostra este lugar a quem
-            pensa em patrocinar. Sem patrocinador, ficam os espacos reservados. */}
-        <section className={SECAO}>
-          <TituloSecao valor="Patrocinadores" />
-          <div className="mt-8">
-            <FaixaPatrocinadores lista={apoio} />
-          </div>
-        </section>
+        {/* As marcas dos patrocinadores, no fim da pagina: a secao so aparece
+            quando ha patrocinador cadastrado. */}
+        {apoio.length > 0 && (
+          <section className={SECAO}>
+            <TituloSecao valor="Patrocinadores" />
+            <div className="mt-8">
+              <FaixaPatrocinadores lista={apoio} />
+            </div>
+          </section>
+        )}
       </div>
     </Layout>
   );

@@ -49,6 +49,7 @@ export interface PatrocinadorJson {
     id: string
     nome: string
     logo: string
+    site?: string | null
 }
 
 export interface UsuarioJson {

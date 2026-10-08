@@ -8,12 +8,14 @@ class Patrocinador {
     private id?: string
     private nome: string
     private logo: string
+    private site: string | null
 
-    constructor(nome: string, logo: string, id?: string) {
+    constructor(nome: string, logo: string, id?: string, site: string | null = null) {
 
         this.id = id
         this.nome = nome
         this.logo = logo
+        this.site = site
     }
 
     get getId() {
@@ -28,6 +30,10 @@ class Patrocinador {
         return this.logo
     }
 
+    get getSite() {
+        return this.site
+    }
+
     static async cadastrar(data: FormData) {
 
         try {
@@ -39,7 +45,9 @@ class Patrocinador {
             toast.success("Patrocinador cadastrado com sucesso!")
         }
         catch (err) {
-            toast.warning("Erro ao cadastrar patrocinador.")
+            // A API diz o que esta errado (nome vazio, site sem http): mostrar isso.
+            const motivo = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+            toast.warning(motivo ?? "Erro ao cadastrar patrocinador.")
             console.log(err)
         }
     }
@@ -52,7 +60,7 @@ class Patrocinador {
             const response = await api.get("/patrocinador")
 
             return response.data.map((p: PatrocinadorJson) =>
-                new Patrocinador(p.nome, p.logo, p.id)
+                new Patrocinador(p.nome, p.logo, p.id, p.site ?? null)
             )
         }
         catch (err) {

@@ -12,11 +12,12 @@ export default function Patrocinadores() {
     const [patrocinadores, setPatrocinadores] = useState<Patrocinador[]>()
     const [exibeFormCadastro, setExibeFormCadastro] = useState(false)
 
-    async function cadastrarPatrocinador(nome: string, logo: File) {
+    async function cadastrarPatrocinador(nome: string, logo: File, site: string) {
 
         const data = new FormData()
         data.append("nome", nome)
         data.append("logo", logo)
+        data.append("site", site)
 
         await Patrocinador.cadastrar(data)
         setExibeFormCadastro(false)
