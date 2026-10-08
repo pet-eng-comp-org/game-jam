@@ -4,12 +4,13 @@ import Image from "next/image"
 
 interface FormProps {
     fechar: () => void
-    cadastrarPatrocinador: (nome: string, logo: File) => void
+    cadastrarPatrocinador: (nome: string, logo: File, site: string) => void
 }
 
 export default function FormCadastrarPatrocinador({ fechar, cadastrarPatrocinador }: FormProps) {
 
     const [nome, setNome] = useState('')
+    const [site, setSite] = useState('')
     const [logo, setLogo] = useState<File>()
     const [preview, setPreview] = useState('')
 
@@ -43,6 +44,17 @@ export default function FormCadastrarPatrocinador({ fechar, cadastrarPatrocinado
                         />
                     </label>
 
+                    <label className="flex flex-col">
+                        <span className="text-sm">Site da empresa (opcional, a logo no site leva até ele):</span>
+                        <input
+                            type="url"
+                            value={site}
+                            placeholder="https://"
+                            onChange={e => setSite(e.target.value)}
+                            className="h-10 px-4 rounded-lg border border-gray-100 bg-gray-300 focus:bg-gray-200"
+                        />
+                    </label>
+
                     <label className="relative flex items-center justify-center bg-gray-300 rounded-md w-full h-64 cursor-pointer hover:border hover:bg-gray-200 duration-300">
                         <span className="text-4xl">{!preview ? "+" : ""}</span>
                         <input
@@ -65,7 +77,7 @@ export default function FormCadastrarPatrocinador({ fechar, cadastrarPatrocinado
 
                     <button
                         type="button"
-                        onClick={() => { if (nome && logo) cadastrarPatrocinador(nome, logo) }}
+                        onClick={() => { if (nome && logo) cadastrarPatrocinador(nome, logo, site) }}
                         className="text-white font-bold bg-blue-950 p-3 rounded-md hover:bg-blue-900 duration-300"
                     >
                         Salvar

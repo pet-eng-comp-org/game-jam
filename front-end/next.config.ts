@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: cabecalhosDeSeguranca }];
   },
+  // A pagina era /apoio, mas o menu sempre disse "Patrocinadores". Link antigo
+  // (divulgacao, buscador) continua chegando.
+  async redirects() {
+    return [{ source: "/apoio", destination: "/patrocinadores", permanent: true }];
+  },
   // Os testes de ponta a ponta compilam em outra pasta (e2e/sobe-front.sh), para
   // nao sobrescrever o .next de quem roda o site na maquina.
   distDir: process.env.NEXT_DIST_DIR || ".next",

@@ -16,7 +16,7 @@ const paginas = [
   { label: "Jogos", url: "/jogos" },
   { label: "Regras", url: "/regras" },
   { label: "Materiais", url: "/materiais" },
-  { label: "Patrocinadores", url: "/apoio" },
+  { label: "Patrocinadores", url: "/patrocinadores" },
   { label: "Inscrição", url: "/inscricao" },
 ]
 
@@ -24,7 +24,7 @@ const TITULO = "mb-3 text-base font-bold text-destaque"
 
 export default function Footer({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
 
-  const visiveis = paginas.filter((p) => mostraPatrocinadores || p.url !== "/apoio")
+  const visiveis = paginas.filter((p) => mostraPatrocinadores || p.url !== "/patrocinadores")
 
   // O ano vinha cravado como 2025 e envelheceu sozinho. Aqui ele e resolvido na
   // construcao do site, entao acompanha os deploys sem ninguem lembrar.

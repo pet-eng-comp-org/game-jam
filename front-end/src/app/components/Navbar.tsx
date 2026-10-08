@@ -16,7 +16,7 @@ const paginas = [
   { label: 'Jogos', url: '/jogos', personagem: 'vermelho' },
   { label: 'Regras', url: '/regras', personagem: 'rosa' },
   { label: 'Materiais', url: '/materiais', personagem: 'ciano' },
-  { label: 'Patrocinadores', url: '/apoio', personagem: 'laranja' },
+  { label: 'Patrocinadores', url: '/patrocinadores', personagem: 'laranja' },
 ] as const
 
 export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
@@ -39,7 +39,7 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
   // 25/14px de respiro. O botao Login saiu: o "Inscreva-se" fica onde ele
   // terminava, 17px antes da borda.
 
-  const visiveis = paginas.filter((p) => mostraPatrocinadores || p.url !== '/apoio')
+  const visiveis = paginas.filter((p) => mostraPatrocinadores || p.url !== '/patrocinadores')
 
   return (
     // A barra acompanha a rolagem. No desktop e fina (79px); no celular vira

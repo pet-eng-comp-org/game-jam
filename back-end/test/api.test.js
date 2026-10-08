@@ -539,6 +539,33 @@ describe("materiais", () => {
   });
 });
 
+describe("patrocinadores", () => {
+  // O site vira o link da logo na pagina publica: opcional, e so http(s).
+  function cadastra(token, campos) {
+    const form = new FormData();
+    for (const [k, v] of Object.entries(campos)) form.append(k, v);
+    form.append("logo", new Blob([Buffer.from("89504e470d0a1a0a", "hex")], { type: "image/png" }), "logo.png");
+    return fetch(BASE + "/patrocinador", { method: "POST", headers: { authorization: `Bearer ${token}` }, body: form });
+  }
+
+  it("cadastro valida nome e site", async () => {
+    const token = await entra();
+    assert.equal((await cadastra(token, { nome: "  " })).status, 400);
+    assert.equal((await cadastra(token, { nome: "Empresa", site: "javascript:alert(1)" })).status, 400);
+    assert.equal((await cadastra(token, { nome: "Empresa", site: "exemplo.com" })).status, 400, "sem http(s), nao");
+  });
+
+  it("grava o site quando vem, e a lista publica devolve", async () => {
+    const token = await entra();
+    assert.equal((await cadastra(token, { nome: " Com Site ", site: " https://exemplo.com/marca " })).status, 201);
+    assert.equal((await cadastra(token, { nome: "Sem Site", site: "" })).status, 201);
+    const lista = await (await api("GET", "/patrocinador")).json();
+    const com = lista.find((p) => p.nome === "Com Site");
+    assert.equal(com.site, "https://exemplo.com/marca");
+    assert.equal(lista.find((p) => p.nome === "Sem Site").site, null);
+  });
+});
+
 describe("forca bruta no login", () => {
   it("bloqueia depois de 5 tentativas erradas", async () => {
     let ultimo;
