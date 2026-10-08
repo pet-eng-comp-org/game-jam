@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import { patrocinadores } from "@/lib/conteudo";
 import Titulo from "../components/Titulo";
 import { PAGINA } from "../components/estilo";
+import FaixaPatrocinadores from "../components/Patrocinadores";
 
 export const metadata: Metadata = {
   title: "Patrocinadores",
@@ -23,20 +24,9 @@ export default async function Patrocinadores() {
 
         <Titulo valor="patrocinadores" />
 
-        {lista.length > 0 ? (
-          <div className="mt-14 flex flex-wrap items-center gap-10">
-            {lista.map((p) => (
-              <img
-                key={p.id}
-                src={p.logo}
-                alt={p.nome}
-                className="h-30 w-auto object-contain"
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="mt-6 text-lg">Os patrocinadores desta edição serão divulgados em breve.</p>
-        )}
+        <div className="mt-14">
+          <FaixaPatrocinadores lista={lista} />
+        </div>
       </div>
     </Layout>
   );

@@ -8,12 +8,13 @@ import JogoNaPagina from "./components/JogoNaPagina";
 import SalvarNaAgenda from "./components/SalvarNaAgenda";
 import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
-import { seasonAtual } from "@/lib/conteudo";
+import FaixaPatrocinadores from "./components/Patrocinadores";
+import { patrocinadores, seasonAtual } from "@/lib/conteudo";
 import { dia, diaEHora, jaPassou } from "@/lib/datas";
 
 export default async function Home() {
 
-  const season = await seasonAtual();
+  const [season, apoio] = await Promise.all([seasonAtual(), patrocinadores()]);
   const pessoas = season ? Number(season.numParticipantesPorEquipe) || 3 : 3;
   const extenso = ["", "uma", "duas", "três", "quatro", "cinco", "seis"][pessoas] ?? String(pessoas);
   // "sábado, 28 de novembro, às 12h": dia e hora do inicio.
@@ -127,6 +128,15 @@ export default async function Home() {
           </p>
           <div className="mt-8">
             <JogoNaPagina />
+          </div>
+        </section>
+
+        {/* Onde as marcas aparecem: a organizacao mostra este lugar a quem
+            pensa em patrocinar. Sem patrocinador, ficam os espacos reservados. */}
+        <section className={SECAO}>
+          <TituloSecao valor="Patrocinadores" />
+          <div className="mt-8">
+            <FaixaPatrocinadores lista={apoio} />
           </div>
         </section>
       </div>
