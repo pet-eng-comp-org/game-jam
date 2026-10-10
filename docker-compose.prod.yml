@@ -45,7 +45,7 @@ services:
       # a subida e rapida; a folga aqui e para o caso de restore ou disco lento.
       start_period: 40s
     networks:
-      interna:
+      internal:
         # Alias com o projeto no nome, e NAO opcional: o back-end tambem esta
         # na rede "traefik", que e compartilhada pelas dez stacks, e la existe
         # outro servico chamado "database" (o do introcomp). Sem este alias o
@@ -89,9 +89,9 @@ services:
       # por este nome, sem sair da VM (API_URL_INTERNA no front).
       traefik:
         aliases: [game-jam-api]
-      interna:
+      internal:
     volumes:
-      - uploads:/app/tmp
+      - back-end-uploads:/app/tmp
 
   # O site do Game Jam. Next em modo standalone (server.js), servido pela VM
   # como as demais stacks desde 01/09/2026 (antes vivia na Vercel). A URL da API
@@ -128,12 +128,12 @@ services:
   # O caminho e /arquivo no MESMO dominio da API, que ja aponta para a VM. Isso
   # evita pedir nome novo ao LAR: um dominio serve quantos jogos existirem,
   # porque o que separa cada um e caminho, nao DNS.
-  arquivo:
+  archive:
     # 1.30 e a serie estavel do nginx; a 1.29 parou de receber correcao em
     # abril de 2026. Tag e digest: a tag diz a versao (e e o que o Dependabot
     # compara), o digest fixa a imagem.
     image: nginx:1.30.5-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
-    container_name: game-jam_arquivo
+    container_name: game-jam_archive
     restart: unless-stopped
     logging: *logging
     volumes:
@@ -145,22 +145,28 @@ services:
       # PathPrefix), e no Traefik regra mais longa vence por padrao. A
       # prioridade vai explicita mesmo assim: se esta ordem inverter, o
       # /arquivo cai na API e devolve 404 em vez do jogo.
-      - "traefik.http.routers.game-jam_arquivo.rule=Host(`apigamejam.pet.inf.ufes.br`) && PathPrefix(`/arquivo`)"
-      - "traefik.http.routers.game-jam_arquivo.priority=100"
-      - "traefik.http.services.game-jam_arquivo.loadbalancer.server.port=80"
-      - "traefik.http.routers.game-jam_arquivo.entrypoints=websecure"
-      - "traefik.http.routers.game-jam_arquivo.tls.certresolver=le"
+      - "traefik.http.routers.game-jam_archive.rule=Host(`apigamejam.pet.inf.ufes.br`) && PathPrefix(`/arquivo`)"
+      - "traefik.http.routers.game-jam_archive.priority=100"
+      - "traefik.http.services.game-jam_archive.loadbalancer.server.port=80"
+      - "traefik.http.routers.game-jam_archive.entrypoints=websecure"
+      - "traefik.http.routers.game-jam_archive.tls.certresolver=le"
       - "traefik.docker.network=traefik"
     networks:
       - traefik
 
+# Volumes com nome fixo (external): game-jam_uploads foi copiado para
+# game-jam_back-end-uploads em 10/10/2026, no padrao <stack>_<servico>-<conteudo>.
 volumes:
   database-data:
-  uploads:
+    external: true
+    name: game-jam_database-data
+  back-end-uploads:
+    external: true
+    name: game-jam_back-end-uploads
 
 networks:
   traefik:
     name: traefik
-  interna:
+  internal:
     internal: true
 
