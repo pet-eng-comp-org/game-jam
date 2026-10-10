@@ -45,7 +45,7 @@ services:
       # a subida e rapida; a folga aqui e para o caso de restore ou disco lento.
       start_period: 40s
     networks:
-      internal:
+      interna:
         # Alias com o projeto no nome, e NAO opcional: o back-end tambem esta
         # na rede "traefik", que e compartilhada pelas dez stacks, e la existe
         # outro servico chamado "database" (o do introcomp). Sem este alias o
@@ -89,7 +89,7 @@ services:
       # por este nome, sem sair da VM (API_URL_INTERNA no front).
       traefik:
         aliases: [game-jam-api]
-      internal:
+      interna:
     volumes:
       - uploads:/app/tmp
 
@@ -161,6 +161,6 @@ volumes:
 networks:
   traefik:
     name: traefik
-  internal:
+  interna:
     internal: true
 
