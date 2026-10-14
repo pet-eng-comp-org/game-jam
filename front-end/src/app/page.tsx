@@ -92,8 +92,8 @@ export default async function Home() {
             É uma competição de programação em equipes do PET Engenharia de Computação da
             Ufes. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
             evento e usa programação para implementar parte da lógica dele. O desafio só é
-            revelado no dia: mais do que escrever código, ele põe à prova interpretação de
-            problemas, raciocínio lógico, trabalho em equipe e adaptação ao inesperado.
+            revelado no dia, então a equipe precisa entender o problema e se organizar na
+            hora, além de programar.
           </p>
           {/* A Season 4 e a primeira neste formato: sem este aviso, os jogos das
               outras edicoes (em /jogos) pareciam o que se faz na competicao. */}
