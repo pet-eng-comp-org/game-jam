@@ -57,9 +57,9 @@ services:
           - game-jam-database
 
   back-end:
-    # ghcr.io/pet-eng-comp-org/game-jam/back-end:sha-e58a3afa0a62b2023ceeebb19e541453c09acc5b
+    # ghcr.io/pet-eng-comp-org/game-jam/back-end:sha-25586207ed51a687eb48344eea431a97d9aa9730
     # Inclui o limite de taxa no login e na inscricao (PR #46).
-    image: ghcr.io/pet-eng-comp-org/game-jam/back-end@sha256:a20fb06e3cdf1f7b6967d5d58367d8f3218d945842dbd765db6b87c18deea11e
+    image: ghcr.io/pet-eng-comp-org/game-jam/back-end@sha256:be3afffb82de65ab8dc5ade4f8cc6095fb7d74046bc650f74e52cd10d2571728
     container_name: game-jam_back-end
     restart: unless-stopped
     logging: *logging
