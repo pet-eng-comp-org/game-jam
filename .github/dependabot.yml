@@ -24,6 +24,9 @@ updates:
       back-end-desenvolvimento:
         dependency-type: development
         update-types: ["minor", "patch"]
+      back-end-seguranca:
+        applies-to: security-updates
+        patterns: ["*"]
     ignore:
       # @types/node tem que acompanhar o major do Node da imagem base, hoje 24.
       # Tipo mais novo que o runtime descreve API que nao existe em execucao, e
@@ -57,11 +60,29 @@ updates:
       front-end-desenvolvimento:
         dependency-type: development
         update-types: ["minor", "patch"]
+      front-end-seguranca:
+        applies-to: security-updates
+        patterns: ["*"]
     ignore:
       # Mesmo criterio do back-end: @types/node acompanha o major do Node que roda
       # o site (24). O 26 foi oferecido aqui em 31/08/2026 e recusado.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+
+  # Os testes de ponta a ponta (Playwright) têm o próprio package.json.
+  - package-ecosystem: npm
+    directory: /front-end/e2e
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      e2e:
+        update-types: ["minor", "patch"]
+        patterns: ["*"]
+      e2e-seguranca:
+        applies-to: security-updates
+        patterns: ["*"]
 
   # O Dockerfile do back-end fixa a imagem base por digest. E o Dependabot que
   # traz o digest novo quando a node:24 recebe correcao — sem isso, o pino vira
@@ -112,3 +133,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
