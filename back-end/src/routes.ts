@@ -18,7 +18,6 @@ import { DeletaSeasonController } from "./controllers/season/DeletaSeasonControl
 import { ObtemAtualSeasonController } from "./controllers/season/ObtemAtualSeasonController";
 import { ObtemSeasonsController } from "./controllers/season/ObtemSeasonsController";
 import { ObtemSeasonsComJogosController } from "./controllers/season/ObtemSeasonsComJogosController";
-import { ApagaCpfsSeasonController } from "./controllers/season/ApagaCpfsSeasonController";
 import { EditaSeasonController } from "./controllers/season/EditaSeasonController";
 
 import { CriaJogoController } from "./controllers/jogo/CriaJogoController";
@@ -55,7 +54,6 @@ router.get('/seasonsComJogos', new ObtemSeasonsComJogosController().handle)
 router.put('/seasons/atual', estaAutenticado, new AtualSeasonController().handle)
 router.get('/seasons/atual', new ObtemAtualSeasonController().handle)
 router.put('/seasons', estaAutenticado, new EditaSeasonController().handle)
-router.put('/seasons/apagaCpfs', estaAutenticado, new ApagaCpfsSeasonController().handle)
 
 // -- ROUTES JOGO --
 router.post('/jogos', estaAutenticado, upload.single('file'), new CriaJogoController().handle)
@@ -82,7 +80,7 @@ router.get('/material', new ObtemMateriaisController().handle)
 router.post('/inscricao', limiteDeInscricao, new CriaInscricaoController().handle)
 
 // -- EQUIPES (painel) --
-// Os inscritos, com CPF: so com login.
+// Os inscritos, com nome e e-mail: so com login.
 router.get('/equipes', estaAutenticado, new ObtemEquipesController().handle)
 router.delete('/equipe', estaAutenticado, new DeletaEquipeController().handle)
 router.put('/equipe/aprovada', estaAutenticado, new AprovaEquipeController().handle)

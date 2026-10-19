@@ -25,7 +25,7 @@ export const limiteDeLogin = rateLimit({
 // equipe de quatro sao cinco requisicoes, e ainda ha quem repita por erro de
 // formulario. Vinte por hora cobre o uso real com folga e ainda impede alguem
 // de encher o banco de inscricao falsa — que aqui nao e so lixo, e dado pessoal
-// (nome, e-mail e CPF) entrando sem ninguem pedir.
+// (nome e e-mail) entrando sem ninguem pedir.
 export const limiteDeInscricao = rateLimit({
     windowMs: 60 * 60 * 1000,
     limit: 20,

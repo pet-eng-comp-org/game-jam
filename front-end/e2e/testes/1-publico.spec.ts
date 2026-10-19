@@ -11,7 +11,7 @@ const paginas: { caminho: string; mostra: (p: import("@playwright/test").Page) =
   { caminho: "/materiais", mostra: (p) => p.getByText("Material E2E").first() },
   { caminho: "/patrocinadores", mostra: (p) => p.getByAltText("Patrocinador E2E").first() },
   { caminho: "/inscricao", mostra: (p) => p.getByRole("textbox", { name: "Nome da equipe" }) },
-  { caminho: "/privacidade", mostra: (p) => p.getByText("O CPF é apagado", { exact: false }).first() },
+  { caminho: "/privacidade", mostra: (p) => p.getByRole("heading", { name: "O que pedimos" }) },
 ];
 
 for (const { caminho, mostra } of paginas) {
@@ -47,7 +47,7 @@ test("a barra do site nao tem botao de login", async ({ page }) => {
 });
 
 test("o site manda os cabecalhos de seguranca", async ({ page }) => {
-  // O painel mostra CPF: nao pode ser carregado dentro de pagina de terceiros.
+  // O painel mostra os dados dos inscritos: nao pode ser carregado dentro de pagina de terceiros.
   for (const caminho of ["/", "/login", "/admin/equipes"]) {
     const r = await page.request.get(caminho, { maxRedirects: 0 });
     const h = r.headers();

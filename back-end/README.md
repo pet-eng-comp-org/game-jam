@@ -79,7 +79,6 @@ GET    /seasons                                          (autenticado)
 POST   /seasons                    cria, com upload de capa (autenticado)
 PUT    /seasons                    edita datas, local, linguagens, regulamento (autenticado)
 PUT    /seasons/atual              define a temporada atual (autenticado)
-PUT    /seasons/apagaCpfs          apaga os CPFs dos inscritos da temporada (autenticado)
 DELETE /seasons                                          (autenticado)
 
 POST   /jogos                      cria, com upload de capa (autenticado)
@@ -96,7 +95,7 @@ PUT    /material                   edita                 (autenticado)
 DELETE /material                                         (autenticado)
 
 POST   /inscricao                  equipe e participantes, numa transação
-GET    /equipes                    inscritos da temporada, com CPF (autenticado)
+GET    /equipes                    inscritos da temporada, com e-mail (autenticado)
 PUT    /equipe/aprovada            aprova ou desaprova   (autenticado)
 DELETE /equipe                                           (autenticado)
 

@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 // so as dependencias que o codigo importa. E o que o Dockerfile copia, e sem
 // ele a imagem teria que carregar o node_modules inteiro.
 // Os mesmos cabecalhos que a API ja manda pelo helmet. Sem eles, o painel (que
-// mostra o CPF dos inscritos) podia ser carregado dentro de uma pagina de
+// mostra os dados dos inscritos) podia ser carregado dentro de uma pagina de
 // terceiros, e o navegador aceitava o site por http na primeira visita.
 const cabecalhosDeSeguranca = [
   { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },

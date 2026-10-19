@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { isAxiosError } from "axios";
 import { api } from "@/services/api";
-import { formataCpf, montaInscricao, type ErrosFormulario } from "@/lib/inscricao";
+import { montaInscricao, type ErrosFormulario } from "@/lib/inscricao";
 import InscricaoRecebida from "./InscricaoRecebida";
 
 interface FormInscricaoProps {
@@ -67,7 +67,7 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
       setQuantos(1);
       setErros({});
     } catch (err) {
-      // A API explica o motivo (inscrições fechadas, equipe grande demais, CPF
+      // A API explica o motivo (inscrições fechadas, equipe grande demais, e-mail
       // já inscrito, limite de tentativas) e, quando é de um campo, qual. Nada
       // foi gravado, então dá para corrigir e enviar de novo.
       const dados = isAxiosError(err) ? err.response?.data : undefined;
@@ -118,11 +118,6 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
           <Campo id={`email${index}`} rotulo="E-mail" leitor={`E-mail do participante ${index}`} erro={erros["email" + index]}>
             <input {...marca("email" + index)} type="email" autoComplete={index === 1 ? "email" : "off"}
               value={valor("email" + index)} onChange={e => handleInputChange("email" + index, e.target.value)} />
-          </Campo>
-
-          <Campo id={`cpf${index}`} rotulo="CPF" leitor={`CPF do participante ${index}, para o certificado`} erro={erros["cpf" + index]}>
-            <input {...marca("cpf" + index)} type="text" inputMode="numeric" autoComplete="off" placeholder="000.000.000-00"
-              value={valor("cpf" + index)} onChange={e => handleInputChange("cpf" + index, formataCpf(e.target.value))} />
           </Campo>
 
           {/* Opcional a vista: so o leitor de tela sabia, e quem ainda nao esta
@@ -208,10 +203,9 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
           Ufes buscar a premiacao, das edicoes a distancia; com a competicao
           presencial, ela saiu. */}
       <p className="mt-10 text-sm leading-snug text-destaque-claro">
-        Pedimos o CPF só para emitir o certificado de participação, feito pela
-        Pró-Reitoria de Extensão (Proex) da Ufes. Ele é visto apenas pela
-        organização do Game Jam, não aparece em nenhuma página do site e é apagado
-        depois que os certificados são emitidos.{" "}
+        Nome e e-mail servem para organizar o evento e falar com a equipe. Só a
+        organização do Game Jam vê esses dados, e eles não aparecem em nenhuma
+        página do site.{" "}
         <Link href="/privacidade" className="text-destaque underline">Como tratamos seus dados</Link>.
       </p>
 
