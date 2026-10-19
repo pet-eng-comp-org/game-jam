@@ -268,7 +268,7 @@ export default function JogoPet() {
           role="img"
           aria-label="Jogo: labirinto do Pac-Man com GAME JAM escrito nas paredes. Enter para jogar, setas para mover."
           data-fase={hud.fase}
-          className="block h-auto max-w-full touch-none select-none rounded-md bg-black outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-destaque"
+          className="mx-auto block h-auto max-w-full touch-none select-none rounded-md bg-black outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-destaque"
         />
         {(hud.fase === "espera" || hud.fase === "fim") && (
           // O "Insert Coin" do Doodle: um botao de verdade, por cima do quadro.
