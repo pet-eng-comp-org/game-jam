@@ -174,6 +174,15 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex w-full max-w-[555px] flex-col">
+      {/* Dentro do formulario, e nao na pagina: depois de enviar, a tela de
+          inscricao recebida toma o lugar dele, e o aviso some junto. Sem ele, quem
+          chegava direto pelo "Inscreva-se" so via a regra dos menores em /regras. */}
+      <p className="mb-6 text-center text-base text-destaque-claro">
+        Tenha em mãos o nome e o e-mail de cada pessoa da equipe e saiba quem estuda
+        na Ufes: quem não estuda informa a instituição. Quem tem menos de 18 anos se
+        inscreve com o conhecimento de um responsável (veja as{" "}
+        <Link href="/regras" className="text-destaque underline">regras</Link>).
+      </p>
       <Campo id="equipe" rotulo="Nome da equipe" leitor="Nome da equipe" erro={erros.equipe}>
         <input {...marca("equipe")} type="text" value={valor("equipe")}
           onChange={e => handleInputChange("equipe", e.target.value)} className={`${marca("equipe").className} sm:max-w-[261px]`} />
