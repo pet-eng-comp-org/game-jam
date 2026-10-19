@@ -367,6 +367,13 @@ describe("inscricao", () => {
     assert.equal(r.status, 409);
     assert.deepEqual(await r.json(), { error: "Participante 2: este e-mail já está inscrito nesta season.", campo: "email2" });
     assert.equal(await equipesChamadas("Segunda Vez"), 0);
+
+    // O banco tambem ignora acento: o erro precisa apontar o participante certo.
+    const acento = `josé${proximo++}@exemplo.com`;
+    assert.equal((await inscreve("Com Acento", [participante({ email: acento })])).status, 201);
+    const s = await inscreve("Sem Acento", [participante(), participante({ email: acento.replace("é", "e") })]);
+    assert.equal(s.status, 409);
+    assert.equal((await s.json()).campo, "email2");
   });
 
   it("recusa equipe acima do limite da temporada, sem gravar nada", async () => {
