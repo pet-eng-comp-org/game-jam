@@ -60,19 +60,10 @@ export default async function Inscricao() {
 
           {season && (
             sit === "abertas" ? (
-              <>
-              {/* Sem este aviso, quem chegava direto pelo "Inscreva-se" so via a regra
-                  dos menores de idade na pagina de regras. */}
-              <p className="mb-6 text-center text-base text-destaque-claro">
-                Tenha em mãos o nome e o e-mail de cada pessoa da equipe. Quem tem
-                menos de 18 anos se inscreve com o conhecimento de um responsável
-                (veja as <Link href="/regras" className="underline">regras</Link>).
-              </p>
               <FormInscricao
                 numParticipantesPorEquipe={Number(season.numParticipantesPorEquipe) || 3}
                 season={{ numero: season.numero, dataEvento: season.dataEvento, local: season.local }}
               />
-              </>
             ) : (
               <Aviso {...avisoFechada(season, sit!)} />
             )

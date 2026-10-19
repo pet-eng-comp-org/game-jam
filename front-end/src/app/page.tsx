@@ -86,7 +86,7 @@ export default async function Home() {
         {/* Aqui fica o convite; o regulamento (formato, equipes, linguagens) e
             da pagina Regras. Antes as duas repetiam o formato e a lista de
             data, local e linguagens, que a abertura ja mostra. */}
-        <section id="formato" className={`${SECAO} scroll-mt-24`}>
+        <section className={SECAO}>
           <TituloSecao valor="O que é o Game Jam" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
             É uma competição de programação em equipes do PET Engenharia de Computação da

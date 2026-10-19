@@ -7,17 +7,18 @@ interface TituloSecaoProps {
 
     valor: string
     className?: string
+    id?: string
     subsecao?: boolean
 }
 
-export default function TituloSecao({ valor, className, subsecao = false }: TituloSecaoProps) {
+export default function TituloSecao({ valor, className, subsecao = false, id }: TituloSecaoProps) {
 
     const Tag = subsecao ? "h3" : "h2"
     const tamanho = subsecao ? "text-3xl md:text-4xl" : "text-4xl md:text-6xl"
 
     return (
 
-        <Tag className={`font-secao uppercase leading-none text-destaque ${tamanho} ${className ?? ""}`}>
+        <Tag id={id} className={`font-secao uppercase leading-none text-destaque ${tamanho} ${className ?? ""}`}>
             {valor}
         </Tag>
     )

@@ -36,7 +36,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
         sobre um tema. Todos rodam no navegador, mas foram feitos para jogar no computador:
         vários usam o teclado e não respondem ao toque no celular. A Season 4 muda o
         formato:{" "}
-        <Link href="/#formato" className="text-destaque underline">veja como funciona</Link>.
+        <Link href="/regras#formato" className="text-destaque underline">veja como funciona</Link>.
       </p>
 
       {temporadas.map((t) => (

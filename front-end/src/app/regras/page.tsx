@@ -54,7 +54,7 @@ export default async function Regras() {
               será divulgado aqui em breve. Por enquanto, o que já está definido:
             </p>
 
-            <TituloSecao valor="O formato" className={SECAO_REGRAS} />
+            <TituloSecao id="formato" valor="O formato" className={`${SECAO_REGRAS} scroll-mt-24`} />
             <ul className={LISTA}>
               <li>A competição acontece em um único dia e é disputada em equipes.</li>
               <li>Cada equipe recebe um jogo preparado especialmente para o evento e precisa implementar parte da lógica dele.</li>
