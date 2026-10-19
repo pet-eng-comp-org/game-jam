@@ -110,13 +110,31 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: main
+          # Historico inteiro: a trava abaixo compara este commit com o que esta no ar.
+          fetch-depth: 0
 
       - name: Escreve o digest novo no compose de producao
         env:
           DIGEST: ${{ needs.build.outputs.digest }}
           COMPONENTE: front-end
         run: |
-          python3 - <<'EOF'
+          # Duas execucoes terminando juntas (merge seguido de merge, 19/10/2026)
+          # gravavam na ordem em que acabavam, e a mais antiga desfez a mais nova.
+          # Agora so grava se este commit for mais novo que o que esta no compose,
+          # e, se outra execucao gravar no meio, busca de novo e confere outra vez.
+          CURTO="${GITHUB_SHA:0:8}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for tentativa in 1 2 3; do
+            git fetch -q origin main && git reset -q --hard origin/main
+
+            NO_AR=$(grep -oE "game-jam/${COMPONENTE}[^@]*sha-[0-9a-f]{40}" docker-compose.prod.yml | grep -oE "[0-9a-f]{40}" | head -1)
+            if [ -n "$NO_AR" ] && [ "$NO_AR" != "$GITHUB_SHA" ] && git merge-base --is-ancestor "$GITHUB_SHA" "$NO_AR"; then
+              echo "No ar ja esta ${NO_AR:0:8}, mais novo que ${CURTO} - nada a implantar."
+              exit 0
+            fi
+
+            python3 - <<'EOF'
           import os, re
           arq = "docker-compose.prod.yml"
           img = "ghcr.io/pet-eng-comp-org/game-jam/" + os.environ["COMPONENTE"]
@@ -128,19 +146,22 @@ jobs:
           open(arq, "w", encoding="utf-8").write(s)
           EOF
 
-          if git diff --quiet -- docker-compose.prod.yml; then
-            echo "O compose ja aponta para ${DIGEST} - nada a implantar."
-            exit 0
-          fi
+            if git diff --quiet -- docker-compose.prod.yml; then
+              echo "O compose ja aponta para ${DIGEST} - nada a implantar."
+              exit 0
+            fi
 
-          CURTO="${GITHUB_SHA:0:8}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -qm "deploy: ${COMPONENTE} no commit ${CURTO}
+            git commit -qm "deploy: ${COMPONENTE} no commit ${CURTO}
 
           Digest: ${DIGEST}
           Codigo: ${GITHUB_SHA}
 
           Para reverter esta implantacao: git revert deste commit." -- docker-compose.prod.yml
-          git push -q origin HEAD:main
-          echo "digest ${DIGEST} publicado na main"
+            if git push -q origin HEAD:main; then
+              echo "digest ${DIGEST} publicado na main"
+              exit 0
+            fi
+            echo "A main mudou durante a implantacao (tentativa ${tentativa}); buscando de novo."
+          done
+          echo "Nao consegui publicar o digest depois de 3 tentativas." >&2
+          exit 1
