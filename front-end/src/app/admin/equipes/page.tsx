@@ -7,7 +7,7 @@ import { IconeLixeira } from "../components/Icones"
 import { Season } from "@/models/Season"
 import { toast } from "sonner"
 import { aprovaEquipe, deletaEquipe, obtemEquipes } from "@/models/Equipes"
-import { cpfFormatado, planilhaDeInscritos, type EquipeInscrita } from "@/lib/planilha"
+import { planilhaDeInscritos, type EquipeInscrita } from "@/lib/planilha"
 
 export default function Equipes() {
 
@@ -81,8 +81,8 @@ export default function Equipes() {
         <Layout titulo="Equipes">
 
             <p className="mb-6">
-                As equipes inscritas em cada season. A planilha traz nome, e-mail e CPF de
-                cada participante, para o certificado da Proex.
+                As equipes inscritas em cada season. A planilha traz nome, e-mail, curso,
+                instituição e gênero de cada participante.
             </p>
 
             <div className="mb-6 flex flex-wrap items-center gap-4">
@@ -132,7 +132,6 @@ export default function Equipes() {
                                 <tr className="border-b">
                                     <th className="py-1 pr-4">Nome</th>
                                     <th className="py-1 pr-4">E-mail</th>
-                                    <th className="py-1 pr-4">CPF</th>
                                     <th className="py-1 pr-4">Curso</th>
                                     <th className="py-1">Instituição</th>
                                 </tr>
@@ -142,7 +141,6 @@ export default function Equipes() {
                                     <tr key={p.id} className="border-b last:border-0">
                                         <td className="py-1 pr-4">{p.nome}</td>
                                         <td className="py-1 pr-4">{p.email}</td>
-                                        <td className="py-1 pr-4">{cpfFormatado(p.cpf) || "apagado"}</td>
                                         <td className="py-1 pr-4">{p.curso ?? ""}</td>
                                         <td className="py-1">{p.ufes ? "Ufes" : p.instituicao}</td>
                                     </tr>

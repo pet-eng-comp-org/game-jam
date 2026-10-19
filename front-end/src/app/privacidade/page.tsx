@@ -26,7 +26,6 @@ export default function Privacidade() {
         <TituloSecao valor="O que pedimos" className="mb-4 mt-14" />
         <ul className={LISTA}>
           <li><strong>Nome da equipe</strong> e, de cada participante, <strong>nome</strong> e <strong>e-mail</strong>: para organizar o evento e falar com a equipe.</li>
-          <li><strong>CPF</strong>: só para emitir o certificado de participação, feito pela Pró-Reitoria de Extensão (Proex) da Ufes.</li>
           <li><strong>Curso, se estuda na Ufes e a instituição de ensino</strong>: para saber quem participa e de onde.</li>
           <li><strong>Gênero</strong>: para acompanhar a diversidade de quem participa. Dá para responder &quot;Prefiro não informar&quot;.</li>
         </ul>
@@ -34,15 +33,14 @@ export default function Privacidade() {
         <TituloSecao valor="Quem vê" className="mb-4 mt-14" />
         <p className={TEXTO}>
           Só a organização do Game Jam, pelo painel do site, que exige login. Nenhum dado de
-          participante aparece nas páginas públicas. Para o certificado, nome e CPF são
-          repassados à Proex. Os dados não são vendidos nem entregues a mais ninguém.
+          participante aparece nas páginas públicas. Os dados não são vendidos nem
+          entregues a mais ninguém.
         </p>
 
         <TituloSecao valor="Onde e por quanto tempo" className="mb-4 mt-14" />
         <p className={TEXTO}>
-          Os dados ficam num servidor do PET, na Ufes. O <strong>CPF é apagado</strong> depois
-          que os certificados da edição são emitidos. Os demais dados ficam guardados para a
-          organização e o histórico das edições, até que você peça a exclusão.
+          Os dados ficam num servidor do PET, na Ufes, guardados para a organização e o
+          histórico das edições, até que você peça a exclusão.
         </p>
 
         <TituloSecao valor="E-mails" className="mb-4 mt-14" />

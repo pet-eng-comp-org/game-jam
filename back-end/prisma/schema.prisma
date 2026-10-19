@@ -102,7 +102,6 @@ model Participante {
   email String
   genero String
   ufes Boolean
-  cpf String?
   curso String?
   instituicao String?
   createdAt DateTime? @default(now())

@@ -23,7 +23,7 @@ export async function estaAutenticado(req: Request, res: Response, next: NextFun
         ) as PayLoad
 
         // O token vale 1 dia e nao ha revogacao: sem esta consulta, um organizador
-        // apagado no painel continuava entrando (e vendo os CPFs) ate o token vencer.
+        // apagado no painel continuava entrando (e vendo os dados dos inscritos) ate o token vencer.
         const existe = await prismaClient.user.count({ where: { id: sub } })
         if(!existe) return res.status(401).end()
 

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import prismaClient from "../../prisma";
 import { CriaInscricaoService, ParticipanteInscricao } from "../../services/inscricao/CriaInscricaoService";
-import { cpfNormalizado } from "../../utils/cpf";
 import { inscricoesAbertas } from "../../utils/season";
 import { enviaConfirmacao } from "../../utils/email";
 
@@ -18,9 +17,6 @@ function participanteDe(bruto: any): ParticipanteInscricao | string {
 
   if (!nome || !email || !genero || typeof ufes !== "boolean") return "Campos obrigatórios faltando.";
 
-  // Obrigatorio: sem CPF nao ha certificado (emitido pela PROEX).
-  const cpf = cpfNormalizado(bruto?.cpf);
-  if (!cpf) return "CPF inválido.";
   if (!ufes && !instituicao) return "Informe a instituição para participantes externos.";
 
   return {
@@ -28,7 +24,6 @@ function participanteDe(bruto: any): ParticipanteInscricao | string {
     email,
     genero,
     ufes,
-    cpf,
     curso: texto(bruto?.curso) || undefined,
     instituicao: ufes ? undefined : instituicao,
   };
@@ -59,17 +54,17 @@ class CriaInscricaoController {
     for (const [i, bruto] of brutos.entries()) {
       const p = participanteDe(bruto);
       if (typeof p === "string") return res.status(400).json({ error: `Participante ${i + 1}: ${p}` });
-      if (participantes.some((outro) => outro.cpf === p.cpf)) {
-        return res.status(400).json({ error: `Participante ${i + 1}: CPF repetido na equipe.`, campo: `cpf${i + 1}` });
+      if (participantes.some((outro) => outro.email.toLowerCase() === p.email.toLowerCase())) {
+        return res.status(400).json({ error: `Participante ${i + 1}: e-mail repetido na equipe.`, campo: `email${i + 1}` });
       }
       participantes.push(p);
     }
 
     const inscricao = await new CriaInscricaoService().execute(nome, season.id, participantes);
-    if ("cpfRepetido" in inscricao) {
-      // O campo deixa o formulario marcar o CPF certo.
-      const i = inscricao.cpfRepetido + 1;
-      return res.status(409).json({ error: `Participante ${i}: este CPF já está inscrito nesta season.`, campo: `cpf${i}` });
+    if ("emailRepetido" in inscricao) {
+      // O campo deixa o formulario marcar o e-mail certo.
+      const i = inscricao.emailRepetido + 1;
+      return res.status(409).json({ error: `Participante ${i}: este e-mail já está inscrito nesta season.`, campo: `email${i}` });
     }
     // Sem esperar: o e-mail nao segura a resposta nem desfaz a inscricao.
     void enviaConfirmacao({ equipe: nome, season, participantes });

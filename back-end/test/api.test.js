@@ -3,7 +3,7 @@
 // o painel fazem.
 //
 // O foco e o que nao pode quebrar sem ninguem ver: quem escreve e quem le dado de
-// participante (nome, e-mail e CPF), o login do painel e o caminho da inscricao.
+// participante (nome e e-mail), o login do painel e o caminho da inscricao.
 // Cada teste de acesso aqui corresponde a uma falha que ja existiu e foi
 // corrigida — o teste e o que impede a volta dela.
 //
@@ -31,7 +31,7 @@ const PORTA_SMTP = 34_569;
 const BASE = `http://127.0.0.1:${PORTA}`;
 
 // Dado pessoal semeado direto no banco. Nenhuma resposta publica pode conter isto.
-const PESSOAL = { nome: "Participante Semeado", email: "semeado@exemplo.com", cpf: "12345678909" };
+const PESSOAL = { nome: "Participante Semeado", email: "semeado@exemplo.com" };
 
 let prisma;
 let servidor;
@@ -156,7 +156,6 @@ describe("login do painel", () => {
     ["GET", "/seasons"],
     ["PUT", "/seasons/atual"],
     ["PUT", "/seasons"],
-    ["PUT", "/seasons/apagaCpfs"],
     ["GET", "/equipes"],
     ["DELETE", "/equipe"],
     ["PUT", "/equipe/aprovada"],
@@ -256,23 +255,15 @@ describe("rotas publicas", () => {
 describe("inscricao", () => {
   // A equipe e todos os participantes chegam juntos em POST /inscricao e sao
   // gravados numa transacao: ou entra tudo, ou nada.
-  // Cada participante com um CPF valido diferente: a mesma pessoa nao pode se
+  // Cada participante com um e-mail diferente: a mesma pessoa nao pode se
   // inscrever duas vezes na season.
-  let proximoCpf = 100_000_000;
-  const novoCpf = () => {
-    const d = String(proximoCpf++).split("").map(Number);
-    for (const tamanho of [9, 10]) {
-      const soma = d.reduce((t, n, i) => t + n * (tamanho + 1 - i), 0);
-      d.push(((soma * 10) % 11) % 10);
-    }
-    return d.join("");
-  };
+  let proximo = 0;
+  const novoEmail = () => `novo${proximo++}@exemplo.com`;
   const participante = (extra = {}) => ({
     nome: "Participante Novo",
-    email: "novo@exemplo.com",
+    email: novoEmail(),
     genero: "feminino",
     ufes: true,
-    cpf: novoCpf(),
     curso: "Engenharia de Computacao",
     ...extra,
   });
@@ -340,12 +331,13 @@ describe("inscricao", () => {
     assert.equal(equipe.aprovada, false, "equipe nasce aprovada");
     const porEmail = Object.fromEntries(equipe.participantes.map((p) => [p.email, p]));
     assert.deepEqual(Object.keys(porEmail).sort(), ["a@exemplo.com", "b@exemplo.com"]);
-    assert.equal(porEmail["a@exemplo.com"].cpf, a.cpf, "CPF gravado");
+    assert.equal(porEmail["a@exemplo.com"].nome, a.nome);
+    assert.ok(!("cpf" in porEmail["a@exemplo.com"]), "sem coluna de CPF");
     assert.equal(porEmail["a@exemplo.com"].instituicao, null);
     assert.equal(porEmail["b@exemplo.com"].instituicao, "IFES");
   });
 
-  it("manda um e-mail de confirmacao para a equipe, sem o CPF", async () => {
+  it("manda um e-mail de confirmacao para a equipe", async () => {
     // A inscricao do teste anterior. O envio nao segura a resposta: espera chegar.
     for (let i = 0; i < 50 && !emails.some((e) => e.bruto.includes("Equipe Nova")); i++) await new Promise((r) => setTimeout(r, 100));
     const email = emails.find((e) => e.bruto.includes("Equipe Nova"));
@@ -353,28 +345,27 @@ describe("inscricao", () => {
     assert.deepEqual(email.para, ["a@exemplo.com", "b@exemplo.com"]);
     assert.match(email.bruto, /^From: Game Jam <gamejam@exemplo\.com>/m);
     assert.match(email.bruto, /Season 4/);
-    assert.ok(!/\d{3}\.?\d{3}\.?\d{3}-?\d{2}/.test(email.bruto.replace(/^(Message-ID|Date|X-|Content-).*$/gim, "")), "sem CPF no e-mail");
   });
 
-  it("recusa o mesmo CPF duas vezes na equipe", async () => {
-    const cpf = novoCpf();
-    const r = await inscreve("CPF Dobrado", [participante({ cpf }), participante({ cpf, email: "c@exemplo.com" })]);
+  it("recusa o mesmo e-mail duas vezes na equipe", async () => {
+    const email = novoEmail();
+    const r = await inscreve("Email Dobrado", [participante({ email }), participante({ email: email.toUpperCase() })]);
     assert.equal(r.status, 400);
-    assert.deepEqual(await r.json(), { error: "Participante 2: CPF repetido na equipe.", campo: "cpf2" });
-    assert.equal(await equipesChamadas("CPF Dobrado"), 0);
+    assert.deepEqual(await r.json(), { error: "Participante 2: e-mail repetido na equipe.", campo: "email2" });
+    assert.equal(await equipesChamadas("Email Dobrado"), 0);
   });
 
-  it("recusa CPF ja inscrito na season, mesmo chegando ao mesmo tempo", async () => {
-    // Tres pedidos simultaneos com o mesmo CPF: so um entra.
-    const cpf = novoCpf();
-    const status = await Promise.all([1, 2, 3].map((n) => inscreve(`Corrida ${n}`, [participante({ cpf })]).then((x) => x.status)));
+  it("recusa e-mail ja inscrito na season, mesmo chegando ao mesmo tempo", async () => {
+    // Tres pedidos simultaneos com o mesmo e-mail: so um entra.
+    const email = novoEmail();
+    const status = await Promise.all([1, 2, 3].map((n) => inscreve(`Corrida ${n}`, [participante({ email })]).then((x) => x.status)));
     assert.deepEqual(status.sort(), [201, 409, 409]);
-    assert.equal(await prisma.participante.count({ where: { cpf } }), 1);
+    assert.equal(await prisma.participante.count({ where: { email } }), 1);
 
-    // Depois, o mesmo CPF digitado com pontos, como segundo participante.
-    const r = await inscreve("Segunda Vez", [participante(), participante({ cpf: cpf.replace(/(\d{3})(\d{3})(\d{3})/, "$1.$2.$3-") })]);
+    // Depois, o mesmo e-mail com outras maiusculas, como segundo participante.
+    const r = await inscreve("Segunda Vez", [participante(), participante({ email: email.toUpperCase() })]);
     assert.equal(r.status, 409);
-    assert.deepEqual(await r.json(), { error: "Participante 2: este CPF já está inscrito nesta season.", campo: "cpf2" });
+    assert.deepEqual(await r.json(), { error: "Participante 2: este e-mail já está inscrito nesta season.", campo: "email2" });
     assert.equal(await equipesChamadas("Segunda Vez"), 0);
   });
 
@@ -390,9 +381,7 @@ describe("inscricao", () => {
       ["Sem Nome", participante({ nome: "" })],
       ["Externo", participante({ ufes: false })],
       ["Ufes Texto", participante({ ufes: "sim" })],
-      ["Sem CPF", participante({ cpf: undefined })],
-      ["CPF Errado", participante({ cpf: "98765432101" })],
-      ["CPF Repetido", participante({ cpf: "111.111.111-11" })],
+      ["Sem E-mail", participante({ email: "" })],
     ]) {
       const r = await inscreve(nome, [participante(), invalido]);
       assert.equal(r.status, 400, nome);
@@ -402,20 +391,20 @@ describe("inscricao", () => {
     assert.equal((await inscreve("Vazia", [])).status, 400);
   });
 
-  it("grava o CPF so com os digitos", async () => {
-    const r = await inscreve("CPF Pontuado", [participante({ email: "pontuado@exemplo.com", cpf: "529.982.247-25" })]);
+  it("ignora um CPF mandado por cliente antigo", async () => {
+    const r = await inscreve("Cliente Antigo", [participante({ email: "antigo@exemplo.com", cpf: "529.982.247-25" })]);
     assert.equal(r.status, 201);
-    const gravado = await prisma.participante.findFirst({ where: { email: "pontuado@exemplo.com" } });
-    assert.equal(gravado.cpf, "52998224725");
+    const gravado = await prisma.participante.findFirst({ where: { email: "antigo@exemplo.com" } });
+    assert.ok(!("cpf" in gravado));
   });
 
   it("ignora campos que o cliente nao deveria mandar", async () => {
     const outra = await prisma.equipe.findFirst({ where: { nome: "Equipe Semeada" } });
-    // O CPF e o do participante semeado numa season antiga: quem ja jogou pode
-    // se inscrever de novo na atual.
-    const r = await inscreve("Campos Extras", [participante({ id: "id-forjado", equipeId: outra.id, email: "x@exemplo.com", cpf: PESSOAL.cpf })]);
+    // O e-mail e o do participante semeado numa season antiga: quem ja jogou
+    // pode se inscrever de novo na atual.
+    const r = await inscreve("Campos Extras", [participante({ id: "id-forjado", equipeId: outra.id, email: PESSOAL.email })]);
     assert.equal(r.status, 201);
-    const gravado = await prisma.participante.findFirst({ where: { email: "x@exemplo.com" } });
+    const gravado = await prisma.participante.findFirst({ where: { email: PESSOAL.email, equipe: { seasonId: season.id } } });
     assert.notEqual(gravado.id, "id-forjado");
     assert.notEqual(gravado.equipeId, outra.id);
   });
@@ -427,7 +416,7 @@ describe("inscricao", () => {
     const nova = equipes.find((e) => e.nome === "Equipe Nova");
     assert.ok(nova, "equipe inscrita aparece");
     assert.deepEqual(nova.participantes.map((p) => p.email).sort(), ["a@exemplo.com", "b@exemplo.com"]);
-    assert.ok(nova.participantes.every((p) => /^\d{11}$/.test(p.cpf)), "o painel ve o CPF, para o certificado");
+    assert.ok(nova.participantes.every((p) => !("cpf" in p)), "sem CPF");
     assert.ok(equipes.every((e) => e.nome !== "Equipe Semeada"), "so a season pedida");
   });
 
@@ -442,26 +431,12 @@ describe("inscricao", () => {
   });
 
   it("o painel apaga a equipe inteira", async () => {
-    const alvo = await prisma.equipe.findFirst({ where: { nome: "CPF Pontuado" } });
+    const alvo = await prisma.equipe.findFirst({ where: { nome: "Cliente Antigo" } });
     const r = await api("DELETE", `/equipe?id=${alvo.id}`, { token: await entra() });
     assert.equal(r.status, 200);
     assert.equal((await r.json()).participantesApagados, 1);
     assert.equal(await prisma.equipe.count({ where: { id: alvo.id } }), 0);
     assert.equal(await prisma.participante.count({ where: { equipeId: alvo.id } }), 0);
-  });
-
-  it("apagar os CPFs de uma season nao mexe nas outras", async () => {
-    const semeado = await prisma.participante.findFirst({ where: { email: PESSOAL.email } });
-    assert.equal(semeado.cpf, PESSOAL.cpf, "CPF da season antiga antes");
-
-    const r = await api("PUT", `/seasons/apagaCpfs?id=${season.id}`, { token: await entra() });
-    assert.equal(r.status, 200);
-    assert.ok((await r.json()).apagados > 0);
-
-    const daAtual = await prisma.participante.count({ where: { equipe: { seasonId: season.id }, cpf: { not: null } } });
-    assert.equal(daAtual, 0);
-    const outro = await prisma.participante.findFirst({ where: { email: PESSOAL.email } });
-    assert.equal(outro.cpf, PESSOAL.cpf, "CPF de outra season intacto");
   });
 
   it("depois do fechamento, recusa", async () => {

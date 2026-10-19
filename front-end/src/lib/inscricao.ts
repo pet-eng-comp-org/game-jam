@@ -10,7 +10,6 @@ export type ErrosFormulario = { [campo: string]: string };
 export interface ParticipanteInscricao {
   nome: string;
   email: string;
-  cpf: string;
   curso?: string;
   genero: string;
   ufes: boolean;
@@ -23,28 +22,6 @@ export type ResultadoInscricao =
 
 const texto = (estado: EstadoFormulario, campo: string) =>
   ((estado[campo] as string) ?? "").trim();
-
-// Mesma conta do back-end (back-end/src/utils/cpf.ts): 11 dígitos e os dois
-// verificadores certos.
-export function cpfValido(valor: string) {
-  const cpf = valor.replace(/\D/g, "");
-  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-  for (const tamanho of [9, 10]) {
-    let soma = 0;
-    for (let i = 0; i < tamanho; i++) soma += Number(cpf[i]) * (tamanho + 1 - i);
-    if (((soma * 10) % 11) % 10 !== Number(cpf[tamanho])) return false;
-  }
-  return true;
-}
-
-// Máscara do campo: 000.000.000-00, montada enquanto a pessoa digita ou cola.
-export function formataCpf(valor: string) {
-  const d = valor.replace(/\D/g, "").slice(0, 11);
-  return d
-    .replace(/^(\d{3})(\d)/, "$1.$2")
-    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
-    .replace(/\.(\d{3})(\d{1,2})$/, ".$1-$2");
-}
 
 const emailValido = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -59,12 +36,11 @@ export function montaInscricao(
   if (!equipe) erros.equipe = "Informe o nome da equipe.";
 
   const participantes: ParticipanteInscricao[] = [];
-  const cpfs = new Set<string>();
+  const emails = new Set<string>();
 
   for (let i = 1; i <= numParticipantes; i++) {
     const nome = texto(estado, "nome" + i);
     const email = texto(estado, "email" + i);
-    const cpf = texto(estado, "cpf" + i).replace(/\D/g, "");
     const curso = texto(estado, "curso" + i);
     const instituicao = texto(estado, "instituicao" + i);
     // Sem escolha, "nao-informado": antes o padrao era "feminino", e quem nao
@@ -77,23 +53,20 @@ export function montaInscricao(
     // Participante acrescentado e deixado em branco não entra. Preenchido pela
     // metade é engano de quem preencheu, e antes sumia sem aviso.
     // A instituição só conta se o campo estiver visível (quem não é da Ufes).
-    const emBranco = !nome && !email && !cpf && !curso && (ufes !== false || !instituicao);
+    const emBranco = !nome && !email && !curso && (ufes !== false || !instituicao);
     if (emBranco && i > 1) continue;
 
     if (!nome) erros["nome" + i] = "Informe o nome.";
     if (!email) erros["email" + i] = "Informe o e-mail.";
     else if (!emailValido(email)) erros["email" + i] = "E-mail inválido.";
-    if (!cpf) erros["cpf" + i] = "Informe o CPF.";
-    else if (!cpfValido(cpf)) erros["cpf" + i] = "CPF inválido. Confira os números.";
-    else if (cpfs.has(cpf)) erros["cpf" + i] = "CPF repetido na equipe.";
+    else if (emails.has(email.toLowerCase())) erros["email" + i] = "E-mail repetido na equipe.";
     if (ufes === undefined) erros["ufes" + i] = "Informe se estuda na Ufes.";
     else if (!ufes && !instituicao) erros["instituicao" + i] = "Informe a instituição de ensino.";
-    cpfs.add(cpf);
+    emails.add(email.toLowerCase());
 
     participantes.push({
       nome,
       email,
-      cpf,
       curso: curso || undefined,
       genero,
       ufes: ufes === true,

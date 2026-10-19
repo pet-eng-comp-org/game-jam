@@ -1,7 +1,7 @@
 // Roda com `npm test` (node:test; o Node 24 executa TypeScript direto).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cpfValido, formataCpf, montaInscricao, type EstadoFormulario } from "../src/lib/inscricao.ts";
+import { montaInscricao, type EstadoFormulario } from "../src/lib/inscricao.ts";
 
 const todosUfes = { 1: true, 2: true, 3: true };
 
@@ -9,7 +9,6 @@ const valido: EstadoFormulario = {
   equipe: "Equipe Teste",
   nome1: "Ana",
   email1: "ana@exemplo.com",
-  cpf1: "529.982.247-25",
 };
 
 const erros = (r: ReturnType<typeof montaInscricao>) => (r.ok ? {} : r.erros);
@@ -20,18 +19,17 @@ test("aceita a inscrição preenchida", () => {
   if (!r.ok) return;
   assert.equal(r.equipe, "Equipe Teste");
   assert.equal(r.participantes.length, 1);
-  assert.equal(r.participantes[0].cpf, "52998224725", "o CPF vai só com os dígitos");
   assert.equal(r.participantes[0].genero, "nao-informado", "sem escolha, o gênero não é presumido");
 });
 
 test("aponta todos os campos com problema de uma vez", () => {
   const r = montaInscricao({ nome1: "Ana" }, todosUfes, 3);
-  assert.deepEqual(erros(r), { equipe: "Informe o nome da equipe.", email1: "Informe o e-mail.", cpf1: "Informe o CPF." });
+  assert.deepEqual(erros(r), { equipe: "Informe o nome da equipe.", email1: "Informe o e-mail." });
 });
 
-test("confere o formato do e-mail e os dígitos do CPF", () => {
-  const r = montaInscricao({ ...valido, email1: "ana@", cpf1: "529.982.247-24" }, todosUfes, 3);
-  assert.deepEqual(erros(r), { email1: "E-mail inválido.", cpf1: "CPF inválido. Confira os números." });
+test("confere o formato do e-mail", () => {
+  const r = montaInscricao({ ...valido, email1: "ana@" }, todosUfes, 3);
+  assert.deepEqual(erros(r), { email1: "E-mail inválido." });
 });
 
 test("ignora participante opcional em branco", () => {
@@ -41,12 +39,12 @@ test("ignora participante opcional em branco", () => {
 
 test("recusa participante opcional preenchido pela metade", () => {
   const r = montaInscricao({ ...valido, nome2: "Bruno" }, todosUfes, 3);
-  assert.deepEqual(erros(r), { email2: "Informe o e-mail.", cpf2: "Informe o CPF." });
+  assert.deepEqual(erros(r), { email2: "Informe o e-mail." });
 });
 
-test("recusa o mesmo CPF duas vezes na equipe", () => {
-  const r = montaInscricao({ ...valido, nome2: "Bruno", email2: "b@exemplo.com", cpf2: "52998224725" }, todosUfes, 3);
-  assert.deepEqual(erros(r), { cpf2: "CPF repetido na equipe." });
+test("recusa o mesmo e-mail duas vezes na equipe", () => {
+  const r = montaInscricao({ ...valido, nome2: "Bruno", email2: "ANA@exemplo.com" }, todosUfes, 3);
+  assert.deepEqual(erros(r), { email2: "E-mail repetido na equipe." });
 });
 
 test("so considera os participantes mostrados", () => {
@@ -57,7 +55,7 @@ test("so considera os participantes mostrados", () => {
 
 test("inclui os participantes opcionais completos", () => {
   const r = montaInscricao(
-    { ...valido, nome3: "Caio", email3: "caio@exemplo.com", cpf3: "11144477735", curso3: "Eng. Comp." },
+    { ...valido, nome3: "Caio", email3: "caio@exemplo.com", curso3: "Eng. Comp." },
     todosUfes,
     3,
   );
@@ -83,18 +81,4 @@ test("exige responder se estuda na Ufes, sem presumir", () => {
 test("descarta instituição digitada por quem é da Ufes", () => {
   const r = montaInscricao({ ...valido, instituicao1: "IFES" }, todosUfes, 3);
   assert.equal(r.ok && r.participantes[0].instituicao, undefined);
-});
-
-test("máscara do CPF", () => {
-  assert.equal(formataCpf("529"), "529");
-  assert.equal(formataCpf("5299"), "529.9");
-  assert.equal(formataCpf("5299822"), "529.982.2");
-  assert.equal(formataCpf("52998224725"), "529.982.247-25");
-  assert.equal(formataCpf("529.982.247-2599"), "529.982.247-25", "corta o que passa de 11 dígitos");
-  assert.equal(formataCpf("abc"), "");
-});
-
-test("CPF válido", () => {
-  assert.equal(cpfValido("529.982.247-25"), true);
-  assert.equal(cpfValido("111.111.111-11"), false);
 });
