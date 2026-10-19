@@ -78,7 +78,6 @@ export default async function Regras() {
               : "durante o período de inscrições,"}{" "}
             e cada equipe precisa de um nome.
           </li>
-          <li>Todos os participantes recebem certificado de participação, emitido pela Pró-Reitoria de Extensão (Proex) da Ufes.</li>
         </ul>
 
         {/* O que a pessoa precisa saber para ir: fica fora do regulamento do
