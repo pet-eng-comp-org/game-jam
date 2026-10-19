@@ -177,7 +177,7 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
       {/* Dentro do formulario, e nao na pagina: depois de enviar, a tela de
           inscricao recebida toma o lugar dele, e o aviso some junto. Sem ele, quem
           chegava direto pelo "Inscreva-se" so via a regra dos menores em /regras. */}
-      <p className="mb-6 text-center text-base text-destaque-claro">
+      <p className="mb-6 text-base text-destaque-claro">
         Tenha em mãos o nome e o e-mail de cada pessoa da equipe e saiba quem estuda
         na Ufes: quem não estuda informa a instituição. Quem tem menos de 18 anos se
         inscreve com o conhecimento de um responsável (veja as{" "}
