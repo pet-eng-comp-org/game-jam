@@ -1,4 +1,5 @@
 import prismaClient from "../../prisma";
+import { mesmoEmail } from "../../utils/participante";
 
 export interface ParticipanteInscricao {
   nome: string;
@@ -27,12 +28,8 @@ class CriaInscricaoService {
         where: { email: { in: participantes.map((p) => p.email) }, equipe: { seasonId } },
         select: { email: true },
       });
-      // Comparacao "base" (sem maiusculas nem acentos), como a collation do MySQL:
-      // com toLowerCase, "josé@x" gravado achava "jose@x" no banco e o indice saia -1.
-      if (ja) {
-        const i = participantes.findIndex((p) => p.email.localeCompare(ja.email, undefined, { sensitivity: "base" }) === 0);
-        return { emailRepetido: Math.max(i, 0) };
-      }
+      // -1 se o banco achou um repetido que mesmoEmail nao reconhece.
+      if (ja) return { emailRepetido: participantes.findIndex((p) => mesmoEmail(p.email, ja.email)) };
 
       const equipe = await tx.equipe.create({
         data: { nome, seasonId, participantes: { create: participantes } },

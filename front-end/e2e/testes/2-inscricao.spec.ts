@@ -47,7 +47,7 @@ test("inscreve a equipe e grava cada participante", async ({ page }, info) => {
     ["Ana Teste", ana, true, null],
     ["Bruno Teste", bruno, false, "IFES"],
   ]);
-  expect(gravada.participantes.every((p: object) => !("cpf" in p)), "sem CPF no banco").toBe(true);
+  expect(gravada.participantes.every((p: { cpf?: string | null }) => p.cpf == null), "sem CPF no banco").toBe(true);
 });
 
 test("participante preenchido pela metade avisa em vez de sumir", async ({ page }, info) => {

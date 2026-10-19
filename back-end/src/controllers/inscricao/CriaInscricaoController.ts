@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prismaClient from "../../prisma";
 import { CriaInscricaoService, ParticipanteInscricao } from "../../services/inscricao/CriaInscricaoService";
+import { mesmoEmail } from "../../utils/participante";
 import { inscricoesAbertas } from "../../utils/season";
 import { enviaConfirmacao } from "../../utils/email";
 
@@ -54,7 +55,7 @@ class CriaInscricaoController {
     for (const [i, bruto] of brutos.entries()) {
       const p = participanteDe(bruto);
       if (typeof p === "string") return res.status(400).json({ error: `Participante ${i + 1}: ${p}` });
-      if (participantes.some((outro) => outro.email.toLowerCase() === p.email.toLowerCase())) {
+      if (participantes.some((outro) => mesmoEmail(outro.email, p.email))) {
         return res.status(400).json({ error: `Participante ${i + 1}: e-mail repetido na equipe.`, campo: `email${i + 1}` });
       }
       participantes.push(p);
@@ -62,9 +63,11 @@ class CriaInscricaoController {
 
     const inscricao = await new CriaInscricaoService().execute(nome, season.id, participantes);
     if ("emailRepetido" in inscricao) {
-      // O campo deixa o formulario marcar o e-mail certo.
-      const i = inscricao.emailRepetido + 1;
-      return res.status(409).json({ error: `Participante ${i}: este e-mail já está inscrito nesta season.`, campo: `email${i}` });
+      // O campo deixa o formulario marcar o e-mail certo. Sem saber qual (o banco
+      // e o JavaScript discordaram), melhor nao marcar nenhum que marcar o errado.
+      const i = inscricao.emailRepetido;
+      if (i < 0) return res.status(409).json({ error: "Um dos e-mails já está inscrito nesta season." });
+      return res.status(409).json({ error: `Participante ${i + 1}: este e-mail já está inscrito nesta season.`, campo: `email${i + 1}` });
     }
     // Sem esperar: o e-mail nao segura a resposta nem desfaz a inscricao.
     void enviaConfirmacao({ equipe: nome, season, participantes });

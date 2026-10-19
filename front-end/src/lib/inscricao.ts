@@ -36,7 +36,7 @@ export function montaInscricao(
   if (!equipe) erros.equipe = "Informe o nome da equipe.";
 
   const participantes: ParticipanteInscricao[] = [];
-  const emails = new Set<string>();
+  const emails: string[] = [];
 
   for (let i = 1; i <= numParticipantes; i++) {
     const nome = texto(estado, "nome" + i);
@@ -59,10 +59,11 @@ export function montaInscricao(
     if (!nome) erros["nome" + i] = "Informe o nome.";
     if (!email) erros["email" + i] = "Informe o e-mail.";
     else if (!emailValido(email)) erros["email" + i] = "E-mail inválido.";
-    else if (emails.has(email.toLowerCase())) erros["email" + i] = "E-mail repetido na equipe.";
+    // Sem maiusculas e sem acentos, como a API e o banco comparam.
+    else if (emails.some((e) => e.localeCompare(email, undefined, { sensitivity: "base" }) === 0)) erros["email" + i] = "E-mail repetido na equipe.";
     if (ufes === undefined) erros["ufes" + i] = "Informe se estuda na Ufes.";
     else if (!ufes && !instituicao) erros["instituicao" + i] = "Informe a instituição de ensino.";
-    emails.add(email.toLowerCase());
+    if (email) emails.push(email);
 
     participantes.push({
       nome,

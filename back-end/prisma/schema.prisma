@@ -102,6 +102,9 @@ model Participante {
   email String
   genero String
   ufes Boolean
+  // Sem uso desde 19/10/2026 e sempre vazia: sai na migracao seguinte, quando a
+  // imagem anterior da API (que ainda grava cpf) nao for mais volta possivel.
+  cpf String?
   curso String?
   instituicao String?
   createdAt DateTime? @default(now())

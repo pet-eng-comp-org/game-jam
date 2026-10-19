@@ -332,7 +332,7 @@ describe("inscricao", () => {
     const porEmail = Object.fromEntries(equipe.participantes.map((p) => [p.email, p]));
     assert.deepEqual(Object.keys(porEmail).sort(), ["a@exemplo.com", "b@exemplo.com"]);
     assert.equal(porEmail["a@exemplo.com"].nome, a.nome);
-    assert.ok(!("cpf" in porEmail["a@exemplo.com"]), "sem coluna de CPF");
+    assert.equal(porEmail["a@exemplo.com"].cpf, null, "CPF nao gravado");
     assert.equal(porEmail["a@exemplo.com"].instituicao, null);
     assert.equal(porEmail["b@exemplo.com"].instituicao, "IFES");
   });
@@ -348,8 +348,10 @@ describe("inscricao", () => {
   });
 
   it("recusa o mesmo e-mail duas vezes na equipe", async () => {
-    const email = novoEmail();
-    const r = await inscreve("Email Dobrado", [participante({ email }), participante({ email: email.toUpperCase() })]);
+    // Maiuscula e acento contam como o mesmo e-mail, como a collation do banco
+    // compara entre equipes.
+    const email = `maría${proximo++}@exemplo.com`;
+    const r = await inscreve("Email Dobrado", [participante({ email }), participante({ email: email.replace("í", "I").toUpperCase() })]);
     assert.equal(r.status, 400);
     assert.deepEqual(await r.json(), { error: "Participante 2: e-mail repetido na equipe.", campo: "email2" });
     assert.equal(await equipesChamadas("Email Dobrado"), 0);
@@ -402,7 +404,7 @@ describe("inscricao", () => {
     const r = await inscreve("Cliente Antigo", [participante({ email: "antigo@exemplo.com", cpf: "529.982.247-25" })]);
     assert.equal(r.status, 201);
     const gravado = await prisma.participante.findFirst({ where: { email: "antigo@exemplo.com" } });
-    assert.ok(!("cpf" in gravado));
+    assert.equal(gravado.cpf, null);
   });
 
   it("ignora campos que o cliente nao deveria mandar", async () => {

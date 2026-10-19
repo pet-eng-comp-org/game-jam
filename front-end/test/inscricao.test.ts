@@ -45,6 +45,8 @@ test("recusa participante opcional preenchido pela metade", () => {
 test("recusa o mesmo e-mail duas vezes na equipe", () => {
   const r = montaInscricao({ ...valido, nome2: "Bruno", email2: "ANA@exemplo.com" }, todosUfes, 3);
   assert.deepEqual(erros(r), { email2: "E-mail repetido na equipe." });
+  const acento = montaInscricao({ ...valido, nome2: "Bruno", email2: "anã@exemplo.com" }, todosUfes, 3);
+  assert.deepEqual(erros(acento), { email2: "E-mail repetido na equipe." }, "sem acento, como o banco compara");
 });
 
 test("so considera os participantes mostrados", () => {
