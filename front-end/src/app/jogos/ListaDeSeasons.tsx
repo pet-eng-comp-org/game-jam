@@ -33,9 +33,10 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
       <Titulo valor="edições anteriores" />
       <p className={`mt-6 ${TEXTO}`}>
         Nas Seasons 1 a 3, cada equipe tinha algumas semanas para criar um jogo do zero,
-        sobre um tema. Todos rodam no navegador: é só escolher um. A Season 4 muda o
+        sobre um tema. Todos rodam no navegador, mas foram feitos para jogar no computador:
+        vários usam o teclado e não respondem ao toque no celular. A Season 4 muda o
         formato:{" "}
-        <Link href="/" className="text-destaque underline">veja como funciona</Link>.
+        <Link href="/regras#formato" className="text-destaque underline">veja como funciona</Link>.
       </p>
 
       {temporadas.map((t) => (
