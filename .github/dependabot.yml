@@ -13,6 +13,11 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /back-end
+    cooldown:
+      # Versao nova so e proposta depois de 7 dias publicada: pacote
+      # sequestrado costuma ser descoberto e retirado nesse prazo. Correcao
+      # de seguranca nao espera (o cooldown nao vale para ela).
+      default-days: 7
     schedule:
       interval: weekly
       day: monday
@@ -49,6 +54,8 @@ updates:
 
   - package-ecosystem: npm
     directory: /front-end
+    cooldown:
+      default-days: 7
     schedule:
       interval: weekly
       day: monday
@@ -72,6 +79,8 @@ updates:
   # Os testes de ponta a ponta (Playwright) têm o próprio package.json.
   - package-ecosystem: npm
     directory: /front-end/e2e
+    cooldown:
+      default-days: 7
     schedule:
       interval: weekly
       day: monday
@@ -89,6 +98,8 @@ updates:
   # imagem parada.
   - package-ecosystem: docker
     directory: /back-end
+    cooldown:
+      default-days: 7
     schedule:
       interval: weekly
     ignore:
@@ -105,6 +116,8 @@ updates:
   # e o front estava num digest mais velho que o do back.
   - package-ecosystem: docker
     directory: /front-end
+    cooldown:
+      default-days: 7
     schedule:
       interval: weekly
     ignore:
@@ -116,6 +129,8 @@ updates:
   # de fora. Mesclar um PR daqui IMPLANTA, porque o Portainer segue este arquivo.
   - package-ecosystem: docker-compose
     directory: /
+    cooldown:
+      default-days: 7
     schedule:
       interval: weekly
     ignore:
@@ -131,6 +146,8 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
+    cooldown:
+      default-days: 7
     schedule:
       interval: weekly
     groups:
