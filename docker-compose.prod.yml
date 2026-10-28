@@ -18,11 +18,11 @@ x-logging: &logging
 
 services:
   database:
-    # mysql:9.7.2, a LTS da serie 9 (tag "lts" no Docker Hub em 24/09/2026).
+    # mysql:9.7.4, a LTS da serie 9 (tag "lts" no Docker Hub em 24/09/2026).
     # Ate aqui rodava a 9.5.0, trilha Innovation, que deixou de receber correcao
     # quando saiu a 9.6. Subir de versao e automatico: o mysqld atualiza o
     # diretorio de dados ao iniciar. Descer NAO e: voltar exige restaurar o backup.
-    image: mysql:9.7.2@sha256:c7cb87a9822f499375287930cbff71d6d3b201e346b45108b1115b435ee2df13
+    image: mysql:9.7.4@sha256:8fb11c38b3551e22d50adbb688f027f8ff4ea2d2445aa277c1cc97b4af85ec54
     container_name: game-jam_database
     restart: unless-stopped
     logging: *logging
@@ -132,7 +132,7 @@ services:
     # 1.30 e a serie estavel do nginx; a 1.29 parou de receber correcao em
     # abril de 2026. Tag e digest: a tag diz a versao (e e o que o Dependabot
     # compara), o digest fixa a imagem.
-    image: nginx:1.30.5-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+    image: nginx:1.30.6-alpine@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
     container_name: game-jam_archive
     restart: unless-stopped
     logging: *logging
