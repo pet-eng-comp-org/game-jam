@@ -22,7 +22,7 @@ services:
     # Ate aqui rodava a 9.5.0, trilha Innovation, que deixou de receber correcao
     # quando saiu a 9.6. Subir de versao e automatico: o mysqld atualiza o
     # diretorio de dados ao iniciar. Descer NAO e: voltar exige restaurar o backup.
-    image: mysql:9.7.2@sha256:c7cb87a9822f499375287930cbff71d6d3b201e346b45108b1115b435ee2df13
+    image: mysql:9.7.4@sha256:8fb11c38b3551e22d50adbb688f027f8ff4ea2d2445aa277c1cc97b4af85ec54
     container_name: game-jam_database
     restart: unless-stopped
     logging: *logging
