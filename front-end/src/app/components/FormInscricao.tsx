@@ -180,7 +180,7 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
 
         {etapa === 0 && (
           <div className="mt-6 flex flex-col gap-7">
-            <Campo id="equipe" rotulo="Nome da equipe" dica="Cada equipe precisa de um nome, então escolham um bom!" erro={erros.equipe}>
+            <Campo id="equipe" rotulo="Nome da equipe" erro={erros.equipe}>
               <input {...marca("equipe")} type="text" value={valor("equipe")} maxLength={80}
                 onChange={e => handleInputChange("equipe", e.target.value)} />
             </Campo>
@@ -190,8 +190,7 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
               escolhida={String(quantos)} muda={v => mudaQuantos(Number(v))} />
 
             <p className="text-[15px] leading-relaxed text-white/70">
-              Na próxima etapa vamos pedir o nome e o e-mail de cada pessoa e se ela estuda na Ufes. Quem tem
-              menos de 18 anos se inscreve com o conhecimento de um responsável (veja as{" "}
+              Quem tem menos de 18 anos se inscreve com o conhecimento de um responsável (veja as{" "}
               <Link href="/regras" className="text-destaque underline underline-offset-2">regras</Link>).
             </p>
           </div>
@@ -287,11 +286,11 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
               </ul>
             </Resumo>
 
-            {/* A LGPD pede que a finalidade do dado seja dita na hora da coleta. */}
-            <p className="text-sm leading-relaxed text-white/60">
-              Nome e e-mail servem para organizar o evento e falar com a equipe. Só a organização do Game Jam vê
-              esses dados, e eles não aparecem em nenhuma página do site.{" "}
-              <Link href="/privacidade" className="text-destaque-claro underline underline-offset-2">Como tratamos seus dados</Link>.
+            {/* Aviso em camadas: a LGPD (art. 9) pede a finalidade na hora da coleta; o
+                resto (quem acessa, por quanto tempo, como apagar) fica na pagina. */}
+            <p className="text-sm text-white/60">
+              Usamos estes dados só para organizar o evento e falar com a equipe.{" "}
+              <Link href="/privacidade" className="text-destaque-claro underline underline-offset-2">Privacidade</Link>
             </p>
           </div>
         )}

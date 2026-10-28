@@ -44,7 +44,7 @@ export default async function Inscricao() {
             <>
               {abertas && (
                 <p className="mt-4 max-w-[52ch] text-lg text-white/85">
-                  É gratuita e leva uns três minutos. Equipes de 1 a {season.numParticipantesPorEquipe} pessoas.
+                  É gratuita e leva uns três minutos.
                 </p>
               )}
               <ul className="mt-6 flex flex-col gap-3 text-base text-white/85 sm:flex-row sm:flex-wrap sm:gap-x-8">
