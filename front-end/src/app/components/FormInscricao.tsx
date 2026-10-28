@@ -133,13 +133,27 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
   };
 
   const valor = (campo: string) => (formDataState[campo] as string) || "";
+
+  // Validacao ao sair do campo, e nao a cada tecla: avisar "e-mail invalido"
+  // enquanto a pessoa ainda digita o @ so atrapalha. Campo vazio fica para o
+  // Continuar, para quem so passou por ele com o Tab nao levar bronca.
+  const confereCampo = (campo: string) => {
+    if (!valor(campo).trim()) return;
+    const e = errosDaEtapa(etapa)[campo];
+    setErros(prev => (e ? { ...prev, [campo]: e } : semCampos(prev, k => k === campo)));
+  };
+
   // Liga o campo à mensagem de erro dele, para o leitor de tela ler junto.
   const marca = (campo: string) => ({
     id: campo,
     "aria-invalid": erros[campo] ? true : undefined,
     "aria-describedby": erros[campo] ? `${campo}-erro` : undefined,
+    onBlur: () => confereCampo(campo),
     className: `${CAMPO} ${erros[campo] ? "border-[#FF8A7A] ring-2 ring-[#FF8A7A]/40" : ""}`,
   });
+
+  // E-mail com cara de certo ganha o visto verde, como nos cadastros grandes.
+  const emailOk = (campo: string) => !erros[campo] && EMAIL.test(valor(campo).trim());
 
   const mudaQuantos = (n: number) => {
     // Quem diminui a equipe perde o que digitou nos participantes que sairam:
@@ -197,8 +211,15 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
                   </Campo>
 
                   <Campo id={`email${i}`} rotulo="E-mail" leitor={`E-mail do participante ${i}`} erro={erros["email" + i]}>
-                    <input {...marca("email" + i)} type="email" inputMode="email" autoComplete={i === 1 ? "email" : "off"}
-                      value={valor("email" + i)} onChange={e => handleInputChange("email" + i, e.target.value)} />
+                    <div className="relative">
+                      <input {...marca("email" + i)} type="email" inputMode="email" autoComplete={i === 1 ? "email" : "off"}
+                        value={valor("email" + i)} onChange={e => handleInputChange("email" + i, e.target.value)} />
+                      {emailOk("email" + i) && (
+                        <svg aria-hidden viewBox="0 0 16 16" className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5BE37D]">
+                          <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
                   </Campo>
 
                   <div className="sm:col-span-2">
@@ -359,6 +380,9 @@ function semCampos<T>(objeto: { [campo: string]: T }, tira: (campo: string) => b
 const CAMPO = "h-12 w-full rounded-lg border border-white/20 bg-fundo px-4 text-base text-white outline-none transition-colors placeholder:text-white/40 hover:border-white/35 focus:border-destaque focus:ring-2 focus:ring-destaque/30";
 
 const ROTULO = "text-[15px] font-bold text-white";
+
+// O mesmo teste do montaInscricao (lib/inscricao.ts).
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function Campo({ id, rotulo, leitor, dica, opcional, erro, children }: {
   id: string; rotulo: string; leitor?: string; dica?: string; opcional?: boolean; erro?: string; children: React.ReactNode;
