@@ -4,17 +4,32 @@ import { banco, emailNovo, semErroDePagina, unico } from "./ajuda";
 // A inscricao e o unico fluxo publico que grava dado. Ficou quebrada de
 // 10/09/2026 ate 24/09/2026 sem ninguem notar: a declaracao (que depois saiu)
 // virou um campo so e a validacao continuou exigindo um por participante.
+//
+// Desde 10/2026 o formulario tem tres etapas: a equipe (nome e tamanho), os
+// participantes e a revisao antes de enviar.
 
-async function preenche(page: Page, i: number, dados: { nome?: string; email?: string }) {
-  // O formulario comeca com um participante; os outros entram pelo botao.
-  while (!(await page.getByRole("textbox", { name: `Nome do participante ${i}`, exact: true }).isVisible())) {
-    await page.getByRole("button", { name: /adicionar participante/i }).click();
-  }
+const TAMANHO = ["Só eu", "2 pessoas", "3 pessoas"];
+
+// Etapa 1: nome e tamanho da equipe, e segue para os participantes.
+async function equipe(page: Page, nome: string, quantos = 1) {
+  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(nome);
+  await page.getByRole("radio", { name: TAMANHO[quantos - 1] }).check();
+  await continua(page);
+  await expect(page.getByRole("textbox", { name: "Nome do participante 1", exact: true })).toBeVisible();
+}
+
+async function preenche(page: Page, i: number, dados: { nome?: string; email?: string; ufes?: boolean; instituicao?: string }) {
   if (dados.nome) await page.getByRole("textbox", { name: `Nome do participante ${i}`, exact: true }).fill(dados.nome);
   if (dados.email) await page.getByRole("textbox", { name: `E-mail do participante ${i}`, exact: true }).fill(dados.email);
-  // "Estuda na Ufes" comeca sem resposta: quem preenche o participante responde.
-  if (dados.nome) await page.getByRole("combobox", { name: `O participante ${i} estuda na Ufes?` }).selectOption("sim");
+  if (dados.ufes !== undefined) {
+    await ufes(page, i).getByRole("radio", { name: dados.ufes ? "Sim" : "Não" }).check();
+  }
+  if (dados.instituicao) await page.getByRole("textbox", { name: `Instituição de ensino do participante ${i}` }).fill(dados.instituicao);
 }
+
+const ufes = (page: Page, i: number) => page.getByRole("group", { name: `O participante ${i} estuda na Ufes?` });
+const continua = (page: Page) => page.getByRole("button", { name: "Continuar" }).click();
+const envia = (page: Page) => page.getByRole("button", { name: "Enviar inscrição" });
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/inscricao");
@@ -23,21 +38,24 @@ test.beforeEach(async ({ page }) => {
 
 test("inscreve a equipe e grava cada participante", async ({ page }, info) => {
   const confere = semErroDePagina(page);
-  const equipe = unico("Equipe", info.project.name);
-
-  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
+  const nome = unico("Equipe", info.project.name);
   const [ana, bruno] = [emailNovo("ana"), emailNovo("bruno")];
-  await preenche(page, 1, { nome: "Ana Teste", email: ana });
-  await preenche(page, 2, { nome: "Bruno Teste", email: bruno });
-  await page.getByRole("combobox", { name: "O participante 2 estuda na Ufes?" }).selectOption("nao");
-  await page.getByRole("textbox", { name: "Instituição de ensino do participante 2" }).fill("IFES");
-  await page.getByRole("button", { name: "inscrever-se" }).click();
+
+  await equipe(page, nome, 2);
+  await preenche(page, 1, { nome: "Ana Teste", email: ana, ufes: true });
+  await preenche(page, 2, { nome: "Bruno Teste", email: bruno, ufes: false, instituicao: "IFES" });
+  await continua(page);
+
+  // A revisao mostra o que vai ser gravado antes de enviar.
+  await expect(page.getByText(nome, { exact: true })).toBeVisible();
+  await expect(page.getByText(bruno, { exact: true })).toBeVisible();
+  await envia(page).click();
 
   await expect(page.getByRole("heading", { name: "Inscrição recebida!" })).toBeVisible();
   confere();
 
   const gravada = await banco.equipe.findFirst({
-    where: { nome: equipe },
+    where: { nome },
     include: { participantes: { orderBy: { nome: "asc" } }, season: true },
   });
   expect(gravada).not.toBeNull();
@@ -50,68 +68,88 @@ test("inscreve a equipe e grava cada participante", async ({ page }, info) => {
   expect(gravada.participantes.every((p: object) => !("cpf" in p)), "sem coluna de CPF").toBe(true);
 });
 
-test("participante preenchido pela metade avisa em vez de sumir", async ({ page }, info) => {
-  const equipe = unico("Metade", info.project.name);
-  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
-  await preenche(page, 1, { nome: "Ana Teste", email: emailNovo("ana") });
-  await preenche(page, 3, { nome: "Caio Sem Email" });
-  await page.getByRole("button", { name: "inscrever-se" }).click();
+test("sem nome da equipe nao sai da primeira etapa", async ({ page }) => {
+  await continua(page);
+  await expect(page.getByRole("textbox", { name: "Nome da equipe" })).toBeFocused();
+  await expect(page.getByRole("textbox", { name: "Nome da equipe" })).toHaveAccessibleDescription("Informe o nome da equipe.");
+});
+
+test("participante escolhido e deixado em branco avisa em vez de sumir", async ({ page }, info) => {
+  const nome = unico("Metade", info.project.name);
+  await equipe(page, nome, 3);
+  await preenche(page, 1, { nome: "Ana Teste", email: emailNovo("ana"), ufes: true });
+  await preenche(page, 3, { nome: "Caio Sem Email", ufes: true });
+  await continua(page);
 
   // O erro aparece embaixo de cada campo que falta, e o foco vai para o primeiro.
-  await expect(page.getByRole("textbox", { name: "E-mail do participante 3", exact: true })).toBeFocused();
+  await expect(page.getByRole("textbox", { name: "Nome do participante 2", exact: true })).toBeFocused();
   await expect(page.getByRole("textbox", { name: "E-mail do participante 3", exact: true })).toHaveAccessibleDescription("Informe o e-mail.");
-  expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(0);
+  await expect(envia(page)).toHaveCount(0);
+  expect(await banco.equipe.count({ where: { nome } })).toBe(0);
 });
 
 test("toque duplo no botao grava a equipe uma vez so", async ({ page }, info) => {
-  const equipe = unico("Duplo", info.project.name);
-  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
-  await preenche(page, 1, { nome: "Ana Teste", email: emailNovo("ana") });
-  await page.getByRole("button", { name: "inscrever-se" }).dblclick();
+  const nome = unico("Duplo", info.project.name);
+  await equipe(page, nome);
+  await preenche(page, 1, { nome: "Ana Teste", email: emailNovo("ana"), ufes: true });
+  await continua(page);
+  await envia(page).dblclick();
 
   await expect(page.getByRole("heading", { name: "Inscrição recebida!" })).toBeVisible();
-  expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(1);
+  expect(await banco.equipe.count({ where: { nome } })).toBe(1);
 });
 
 test("o formulario nao pede CPF", async ({ page }) => {
   await expect(page.getByText("CPF")).toHaveCount(0);
+  await equipe(page, "Qualquer", 3);
+  await expect(page.getByText("CPF")).toHaveCount(0);
 });
 
-test("e-mail ja inscrito na season fica marcado no campo", async ({ page }, info) => {
+test("e-mail ja inscrito na season volta ao campo dele", async ({ page }, info) => {
   const email = emailNovo("bia");
-  for (const [n, equipe] of [unico("Primeira", info.project.name), unico("Segunda", info.project.name)].entries()) {
+  for (const [n, nome] of [unico("Primeira", info.project.name), unico("Segunda", info.project.name)].entries()) {
     await page.goto("/inscricao");
-    await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
-    await preenche(page, 1, { nome: "Ana Teste", email: emailNovo("ana") });
-    await preenche(page, 2, { nome: "Bia Teste", email });
-    await page.getByRole("button", { name: "inscrever-se" }).click();
+    await equipe(page, nome, 2);
+    await preenche(page, 1, { nome: "Ana Teste", email: emailNovo("ana"), ufes: true });
+    await preenche(page, 2, { nome: "Bia Teste", email, ufes: true });
+    await continua(page);
+    await envia(page).click();
     if (n === 0) await expect(page.getByRole("heading", { name: "Inscrição recebida!" })).toBeVisible();
   }
+  // A API recusa e o formulario volta para a etapa dos participantes, no campo.
   await expect(page.getByRole("textbox", { name: "E-mail do participante 2", exact: true }))
     .toHaveAccessibleDescription("este e-mail já está inscrito nesta season.");
   expect(await banco.participante.count({ where: { email } })).toBe(1);
 });
 
-test("adiciona e remove participante, ate o limite da season", async ({ page }) => {
-  const adiciona = page.getByRole("button", { name: /adicionar participante/i });
-  await expect(page.getByRole("textbox", { name: "Nome do participante 2", exact: true })).toHaveCount(0);
-  await adiciona.click();
-  await adiciona.click();
-  await expect(page.getByRole("textbox", { name: "Nome do participante 3", exact: true })).toBeVisible();
-  await expect(adiciona, "a season 4 aceita 3 por equipe").toHaveCount(0);
-  await page.getByRole("button", { name: "Remover participante 3" }).click();
-  await expect(page.getByRole("textbox", { name: "Nome do participante 3", exact: true })).toHaveCount(0);
-  await expect(adiciona).toBeVisible();
+test("o tamanho da equipe vai ate o limite da season e diminuir apaga os que sairam", async ({ page }) => {
+  await expect(page.getByRole("radio"), "a season 4 aceita 3 por equipe").toHaveCount(3);
+  await equipe(page, "Tamanho", 3);
+  await preenche(page, 3, { nome: "Caio Teste" });
+  await page.getByRole("button", { name: "Voltar" }).click();
+  await page.getByRole("radio", { name: "Só eu" }).check();
+  await page.getByRole("radio", { name: "3 pessoas" }).check();
+  await continua(page);
+  // Continuar valida: o participante 2 esta em branco. O 3 voltou vazio.
+  await expect(page.getByRole("textbox", { name: "Nome do participante 3", exact: true })).toHaveValue("");
 });
 
 test("estuda na Ufes comeca sem resposta e e exigido", async ({ page }, info) => {
-  const equipe = unico("Sem Ufes", info.project.name);
-  const ufes = page.getByRole("combobox", { name: "O participante 1 estuda na Ufes?" });
-  await expect(ufes).toHaveValue("");
-  await page.getByRole("textbox", { name: "Nome da equipe" }).fill(equipe);
-  await page.getByRole("textbox", { name: "Nome do participante 1", exact: true }).fill("Ana Teste");
-  await page.getByRole("textbox", { name: "E-mail do participante 1", exact: true }).fill("ana@exemplo.com");
-  await page.getByRole("button", { name: "inscrever-se" }).click();
-  await expect(ufes).toHaveAccessibleDescription("Informe se estuda na Ufes.");
-  expect(await banco.equipe.count({ where: { nome: equipe } })).toBe(0);
+  const nome = unico("Sem Ufes", info.project.name);
+  await equipe(page, nome);
+  await expect(ufes(page, 1).getByRole("radio", { checked: true })).toHaveCount(0);
+  await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com" });
+  await continua(page);
+  await expect(ufes(page, 1)).toHaveAccessibleDescription("Informe se estuda na Ufes.");
+  expect(await banco.equipe.count({ where: { nome } })).toBe(0);
+});
+
+test("a revisao deixa voltar e corrigir", async ({ page }) => {
+  await equipe(page, "Revisao");
+  await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", ufes: true });
+  await continua(page);
+  await page.getByRole("button", { name: "Editar você" }).click();
+  await preenche(page, 1, { email: "ana.certo@exemplo.com" });
+  await continua(page);
+  await expect(page.getByText("ana.certo@exemplo.com", { exact: true })).toBeVisible();
 });
