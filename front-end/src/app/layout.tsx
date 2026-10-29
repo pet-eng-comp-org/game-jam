@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Jomhuria } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -50,6 +50,10 @@ const versao =
 const descricao =
   "Competição de programação em equipes, em um único dia, organizada pelo PET Engenharia de Computação da Ufes, em Vitória (ES).";
 
+// A cor da barra do navegador (Safari, Chrome no Android) continua a da barra
+// do site; sem isto, cada navegador escolhia uma.
+export const viewport: Viewport = { themeColor: "#001A3C" };
+
 export const metadata: Metadata = {
   other: { versao },
   // Sem metadataBase o Next resolve as URLs de imagem contra localhost, e a
@@ -88,8 +92,8 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jomhuria.variable} font-sans antialiased`}
       >
-        {/* Os avisos (sonner) ficam so no painel e na inscricao, onde ha aviso
-            para mostrar: aqui ele carregava em toda pagina. */}
+        {/* Os avisos (sonner) ficam so no painel, onde ha aviso para mostrar:
+            aqui ele carregava em toda pagina. */}
         {children}
       </body>
     </html>

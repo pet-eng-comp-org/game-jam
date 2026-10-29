@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link";
-import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
 import { isAxiosError } from "axios";
 import { api } from "@/services/api";
@@ -33,6 +32,11 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
   // Trava o botão enquanto a inscrição vai: um toque duplo no celular criava
   // a equipe duas vezes.
   const [enviando, setEnviando] = useState(false);
+
+  // Erro do envio que não é de um campo (inscrições fechadas, sem conexão,
+  // limite de tentativas). Fica parado ao lado do botão: antes era um aviso
+  // que sumia em segundos, e quem não viu não sabia por que nada aconteceu.
+  const [falha, setFalha] = useState<string | null>(null);
 
   // Nome da equipe que acabou de se inscrever: troca o formulario pela tela
   // de inscricao recebida.
@@ -84,8 +88,6 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
     const e = errosDaEtapa(etapa);
     if (Object.keys(e).length > 0) {
       mostraErros(e);
-      const n = Object.keys(e).length;
-      toast.warning(n === 1 ? Object.values(e)[0] : `Confira os ${n} campos marcados.`);
       return;
     }
     setErros({});
@@ -106,6 +108,7 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
     }
 
     setEnviando(true);
+    setFalha(null);
     try {
       // Uma requisição só: a API grava a equipe e os participantes juntos, ou nada.
       await api.post("/inscricao", { equipe: inscricao.equipe, participantes: inscricao.participantes });
@@ -125,8 +128,14 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
       if (dados?.campo && motivo) {
         setEtapa(dados.campo === "equipe" ? 0 : 1);
         mostraErros({ [dados.campo]: motivo.replace(/^Participante \d+: /, "") });
+        return;
       }
-      toast.error(motivo ?? "Não foi possível enviar a inscrição. Tente de novo.");
+      setFalha(
+        motivo ??
+          (isAxiosError(err) && !err.response
+            ? "Sem conexão com o site. Confira a internet e envie de novo."
+            : "Não foi possível enviar a inscrição. Envie de novo em alguns minutos."),
+      );
     } finally {
       setEnviando(false);
     }
@@ -137,10 +146,13 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
   // Validacao ao sair do campo, e nao a cada tecla: avisar "e-mail invalido"
   // enquanto a pessoa ainda digita o @ so atrapalha. Campo vazio fica para o
   // Continuar, para quem so passou por ele com o Tab nao levar bronca.
+  // So acrescenta erro, nunca tira: o erro sai quando a pessoa muda o valor
+  // (handleInputChange). Tirar aqui apagava o erro que veio da API ("e-mail ja
+  // inscrito"), que a validacao local nao conhece, assim que o foco saia do campo.
   const confereCampo = (campo: string) => {
     if (!valor(campo).trim()) return;
     const e = errosDaEtapa(etapa)[campo];
-    setErros(prev => (e ? { ...prev, [campo]: e } : semCampos(prev, k => k === campo)));
+    if (e) setErros(prev => ({ ...prev, [campo]: e }));
   };
 
   // Liga o campo à mensagem de erro dele, para o leitor de tela ler junto.
@@ -293,6 +305,10 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
               <Link href="/privacidade" className="text-destaque-claro underline underline-offset-2">Privacidade</Link>
             </p>
           </div>
+        )}
+
+        {etapa === ETAPAS.length - 1 && falha && (
+          <p role="alert" className={`mt-6 rounded-lg border border-[#FF8A7A]/50 bg-[#FF8A7A]/10 px-4 py-3 ${ERRO}`}>{falha}</p>
         )}
 
         <div className="mt-8 flex flex-col-reverse gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">

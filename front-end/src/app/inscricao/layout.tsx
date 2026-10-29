@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Toaster } from "sonner";
 import Layout from "../components/Layout";
 
 // A pagina e de cliente (formulario); o titulo e a barra e o rodape do site
@@ -10,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function LayoutInscricao({ children }: { children: React.ReactNode }) {
-  return <Layout>{children}<Toaster position="bottom-right" /></Layout>;
+  return <Layout>{children}</Layout>;
 }
