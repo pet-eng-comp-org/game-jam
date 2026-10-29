@@ -146,10 +146,13 @@ export default function FormInscricao({ numParticipantesPorEquipe, season }: For
   // Validacao ao sair do campo, e nao a cada tecla: avisar "e-mail invalido"
   // enquanto a pessoa ainda digita o @ so atrapalha. Campo vazio fica para o
   // Continuar, para quem so passou por ele com o Tab nao levar bronca.
+  // So acrescenta erro, nunca tira: o erro sai quando a pessoa muda o valor
+  // (handleInputChange). Tirar aqui apagava o erro que veio da API ("e-mail ja
+  // inscrito"), que a validacao local nao conhece, assim que o foco saia do campo.
   const confereCampo = (campo: string) => {
     if (!valor(campo).trim()) return;
     const e = errosDaEtapa(etapa)[campo];
-    setErros(prev => (e ? { ...prev, [campo]: e } : semCampos(prev, k => k === campo)));
+    if (e) setErros(prev => ({ ...prev, [campo]: e }));
   };
 
   // Liga o campo à mensagem de erro dele, para o leitor de tela ler junto.
