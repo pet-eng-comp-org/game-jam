@@ -153,3 +153,23 @@ test("a revisao deixa voltar e corrigir", async ({ page }) => {
   await continua(page);
   await expect(page.getByText("ana.certo@exemplo.com", { exact: true })).toBeVisible();
 });
+
+test("erro do envio que nao e de um campo fica parado perto do botao", async ({ page }) => {
+  // Antes era um aviso que sumia em segundos: quem nao viu nao sabia por que
+  // a inscricao nao foi.
+  await page.route("**/inscricao", (rota) =>
+    rota.request().method() === "POST"
+      ? rota.fulfill({ status: 403, contentType: "application/json", body: JSON.stringify({ error: "As inscrições não estão abertas." }) })
+      : rota.fallback(),
+  );
+  await equipe(page, "Fechada");
+  await preenche(page, 1, { nome: "Ana Teste", email: "ana@exemplo.com", ufes: true });
+  await continua(page);
+  await envia(page).click();
+
+  // O Next tem o proprio role=alert (o anunciador de rota), vazio.
+  const alerta = page.getByRole("alert").filter({ hasText: "As inscrições não estão abertas." });
+  await expect(alerta).toBeVisible();
+  await page.waitForTimeout(6000);
+  await expect(alerta).toBeVisible();
+});
