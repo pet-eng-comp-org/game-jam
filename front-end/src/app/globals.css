@@ -85,20 +85,3 @@ button { cursor: pointer; }
   0% { opacity: 0; }
   50% { opacity: 1; }
 }
-
-/* Tela de inscricao recebida (InscricaoRecebida.tsx): o Pac-Man atravessa e
-   sai, as bolinhas e o fantasma somem quando ele passa (atraso no
-   componente), o fantasma vira o assustado na pastilha grande e o 200 fica
-   no lugar dele, como o placar da jogada. Com animacao reduzida nada disso roda, e a cena fica parada. */
-@keyframes anda { to { left: calc(100% + 8px); } }
-@keyframes some { to { opacity: 0; } }
-@keyframes aparece { from { opacity: 0; } to { opacity: 1; } }
-@keyframes pontos { from { opacity: 1; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-.fantasma-vira-entra, .pontos { opacity: 0; }
-@media (prefers-reduced-motion: no-preference) {
-  .pacman-anda { animation: anda 2.6s linear forwards; }
-  .bolinha-comida { animation: some 0.01s linear forwards; }
-  .fantasma-vira-entra { animation: aparece 0.01s linear forwards; }
-  .fantasma-vira-sai { animation: some 0.01s linear forwards; }
-  .pontos { animation: pontos 0.3s steps(2, end) forwards; }
-}

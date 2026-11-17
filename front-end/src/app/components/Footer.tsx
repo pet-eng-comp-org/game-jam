@@ -1,10 +1,11 @@
 import Link from "next/link"
+import { EMAILS } from "@/lib/edicao"
 
 // Rodape compacto, no padrao de tres colunas (marca, navegacao, contato) com
 // uma faixa final. O do mockup tinha 400px de altura, com icones de 57px e
 // texto de 24px, para uma logo e tres contatos: quase meia tela de notebook.
 const contatos = [
-  { icone: "/marca/icone-email.svg", texto: "petengcomp@inf.ufes.br", url: "mailto:petengcomp@inf.ufes.br", alt: "E-mail" },
+  ...EMAILS.map((e) => ({ icone: "/marca/icone-email.svg", texto: e, url: `mailto:${e}`, alt: "E-mail" })),
   { icone: "/marca/icone-instagram.svg", texto: "@petengcomp", url: "https://www.instagram.com/petengcomp/", alt: "Instagram" },
   { icone: "/marca/icone-youtube.svg", texto: "PET Eng Comp Ufes", url: "https://www.youtube.com/@PETEngCompUFES", alt: "YouTube" },
 ]
@@ -73,7 +74,7 @@ export default function Footer({ mostraPatrocinadores = true }: { mostraPatrocin
               <li key={c.url}>
                 <a href={c.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-white transition-opacity hover:opacity-70">
                   <img src={c.icone} alt="" aria-hidden className="h-[22px] w-[22px] shrink-0" />
-                  <span>{c.texto}</span>
+                  <span className="min-w-0 [overflow-wrap:anywhere]">{c.texto}</span>
                   <span className="sr-only">{c.alt}</span>
                 </a>
               </li>

@@ -76,23 +76,19 @@ test("organizador ve os inscritos, baixa a planilha e apaga uma equipe", async (
   expect(await banco.equipe.count({ where: { id: equipe.id } })).toBe(0);
 });
 
-test("organizador edita a season e o site mostra na hora", async ({ page }, info) => {
+// No Game Jam 26 o site nao mostra os campos da season (src/lib/edicao.ts);
+// o painel continua gravando, e avisa isso.
+test("organizador edita a season, e o painel avisa que o site nao usa os campos", async ({ page }, info) => {
   const linguagem = `Linguagem${info.project.name}${Date.now() % 100000}`;
   await entra(page);
   await page.goto("/admin/seasons");
   await page.getByRole("row", { name: /^4 / }).getByRole("button", { name: "Editar" }).click();
+  await expect(page.getByRole("note")).toContainText("src/lib/edicao.ts");
 
   await page.getByLabel("Linguagens permitidas (uma por linha)").fill(`Rust\n${linguagem}`);
-  await page.getByLabel(/^Regulamento/).fill("## Premiação\n\n1. Medalhas para o pódio.");
   await page.getByRole("button", { name: "Salvar" }).click();
   await expect(page.getByText("Season atualizada!")).toBeVisible();
-
-  // As paginas publicas sao geradas no servidor e ficam em cache; salvar no
-  // painel precisa refaze-las sem esperar os 5 minutos.
-  await page.goto("/regras");
-  await expect(page.getByText(`Linguagens permitidas: Rust, ${linguagem}.`)).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Premiação" })).toBeVisible();
-  await expect(page.getByText("Medalhas para o pódio.")).toBeVisible();
+  expect((await banco.season.findFirst({ where: { atual: true } })).linguagens).toBe(`Rust\n${linguagem}`);
 });
 
 test("organizador edita e cadastra jogo, e a pagina de jogos mostra", async ({ page }, info) => {

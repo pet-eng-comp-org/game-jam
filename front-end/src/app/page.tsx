@@ -9,98 +9,81 @@ import SalvarNaAgenda from "./components/SalvarNaAgenda";
 import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
 import FaixaPatrocinadores from "./components/Patrocinadores";
-import { patrocinadores, seasonAtual } from "@/lib/conteudo";
-import { dia, diaEHora, jaPassou } from "@/lib/datas";
+import { patrocinadores } from "@/lib/conteudo";
+import { hora, jaPassou } from "@/lib/datas";
+import { DIAS, EMAILS, FIM, INICIO, linguagensPorExtenso, LOCAL, NOME, periodo, quando, salasPorDia } from "@/lib/edicao";
 
 export default async function Home() {
 
-  const [season, apoio] = await Promise.all([seasonAtual(), patrocinadores()]);
-  const pessoas = season ? Number(season.numParticipantesPorEquipe) || 3 : 3;
-  const extenso = ["", "uma", "duas", "três", "quatro", "cinco", "seis"][pessoas] ?? String(pessoas);
-  // "sábado, 28 de novembro, às 12h": dia e hora do inicio.
-  const inicioDoEvento = season?.dataEvento ? diaEHora(season.dataEvento, true) : null;
-
-  // A frase acompanha a situacao das inscricoes: antes dizia "quando as
-  // inscricoes abrirem" mesmo com elas abertas.
-  const equipe = `Monte uma equipe de até ${extenso} ${pessoas === 1 ? "pessoa" : "pessoas"}`;
-  const inscricao = (() => {
-    switch (season?.situacaoInscricoes) {
-      case "abertas": return `${equipe} e faça a inscrição aqui no site até ${diaEHora(season.inscricoesFecham!)}.`;
-      case "antes": return `${equipe} e faça a inscrição aqui no site a partir de ${dia(season.inscricoesAbrem!)}.`;
-      case "encerradas": return `As inscrições da Season ${season.numero} foram encerradas.`;
-      default: return `${equipe} e faça a inscrição aqui no site quando as inscrições abrirem.`;
-    }
-  })();
+  const apoio = await patrocinadores();
+  const comecou = jaPassou(INICIO);
 
   return (
 
     <Layout>
-      <EventoParaBusca season={season} />
+      <EventoParaBusca acabou={jaPassou(FIM)} />
 
       <div className={PAGINA}>
 
-        {/* Abertura: quem chega sabe na hora que e a Season 4 e quanto falta para
-            a competicao. A data e a hora vem do painel; sem elas, so o formato.
-            A inscricao fica no botao da barra, sempre visivel. */}
+        {/* Abertura: quem chega sabe na hora que e o Game Jam 26, quanto falta,
+            quando e onde. A inscricao fica no botao da barra, sempre visivel. */}
         <section className="text-center">
           <h1 className="text-balance font-secao text-5xl uppercase leading-none text-destaque md:text-7xl">
-            {inicioDoEvento && !jaPassou(season!.dataEvento!) ? `A Season ${season?.numero ?? "4"} começa em` : `Season ${season?.numero ?? "4"}`}
+            {comecou ? NOME : `O ${NOME} começa em`}
           </h1>
-          {season?.dataEvento && inicioDoEvento ? (
-            <>
-              <div className="mt-8">
-                {/* No dia, a porta abre e os fantasmas saem. A pagina e gerada de
-                    novo a cada poucos minutos, entao a abertura acompanha. */}
-                <CasaDosFantasmas aberta={jaPassou(season.dataEvento)}>
-                  <Contagem inicio={season.dataEvento} rotuloData={inicioDoEvento} />
-                </CasaDosFantasmas>
-              </div>
-              {/* Quando e onde numa linha, como informacao do evento. Tocar no
-                  local abre o mapa: quem vem de fora nao sabe onde fica o CT. */}
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-lg">
-                <span className="flex items-center gap-2">
-                  <IconePixel qual="calendario" className="h-4 w-4 text-destaque" />
-                  {inicioDoEvento.charAt(0).toUpperCase() + inicioDoEvento.slice(1)}
-                </span>
-                {season.local && (
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${season.local}, Vitória - ES`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 underline decoration-destaque/50 underline-offset-4 hover:text-destaque"
-                  >
-                    <IconePixel qual="local" className="h-[18px] w-[14px] text-destaque" />
-                    {season.local}
-                  </a>
-                )}
-              </div>
-              {!jaPassou(season.dataEvento) && (
-                <SalvarNaAgenda evento={{ numero: season.numero, dataEvento: season.dataEvento, local: season.local }} className="mt-4 text-sm md:text-base" />
-              )}
-            </>
-          ) : (
-            <p className="mt-4 text-xl text-destaque-claro">Competição de programação em equipes, em um único dia. Data em breve.</p>
-          )}
+          {/* O que e, antes de rolar: sem esta linha, a primeira tela do celular
+              so tinha o titulo, a contagem e a data. */}
+          <p className="mt-4 text-balance text-xl text-destaque-claro">
+            Campeonato de Mortal Kombat e workshop de programação de tanques
+          </p>
+          <div className="mt-8">
+            {/* No primeiro dia, a porta abre e os fantasmas saem. A pagina e
+                gerada de novo a cada poucos minutos, entao a abertura acompanha. */}
+            <CasaDosFantasmas aberta={comecou}>
+              <Contagem dias={DIAS.map(({ numero, inicio, fim }) => ({ numero, inicio, fim }))} nome={NOME} aviso={`O ${NOME} começa na ${quando(DIAS[0])}, às ${hora(INICIO)}.`} />
+            </CasaDosFantasmas>
+          </div>
+          {/* Quando e onde, como informacao do evento. Tocar no local abre o
+              mapa: quem vem de fora nao sabe onde fica o CT. A sala muda de um
+              dia para o outro, entao vai logo abaixo. */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-lg">
+            <span className="flex items-center gap-2">
+              <IconePixel qual="calendario" className="h-4 w-4 text-destaque" />
+              {periodo()}
+            </span>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${LOCAL}, Vitória - ES`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 underline decoration-destaque/50 underline-offset-4 hover:text-destaque"
+            >
+              <IconePixel qual="local" className="h-[18px] w-[14px] text-destaque" />
+              {LOCAL}
+            </a>
+          </div>
+          <p className="mt-2 text-base text-destaque-claro">
+            {salasPorDia()}.
+          </p>
+          {!jaPassou(FIM) && <SalvarNaAgenda className="mt-4 text-sm md:text-base" />}
         </section>
 
-        {/* Aqui fica o convite; o regulamento (formato, equipes, linguagens) e
-            da pagina Regras. Antes as duas repetiam o formato e a lista de
-            data, local e linguagens, que a abertura ja mostra. */}
+        {/* Aqui fica o convite; a programacao de cada dia, com horario e sala,
+            e da pagina Regras. */}
         <section className={SECAO}>
           <TituloSecao valor="O que é o Game Jam" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
-            É uma competição de programação em equipes do PET Engenharia de Computação da
-            Ufes. Em um único dia, cada equipe recebe um jogo preparado especialmente para o
-            evento e usa programação para implementar parte da lógica dele. O desafio só é
-            revelado no dia, então a equipe precisa entender o problema e se organizar na
-            hora, além de programar.
+            São três dias de evento do PET Engenharia de Computação da Ufes. No Dia 1 tem
+            campeonato de Mortal Kombat, com chaveamento decidido na hora. Nos Dias 2 e 3 tem
+            o workshop de programação: cada pessoa programa um tanque para cumprir os desafios
+            das fases de treino e vê na tela como ele reage a cada envio. A participação é
+            voluntária e não há premiação.
           </p>
-          {/* A Season 4 e a primeira neste formato: sem este aviso, os jogos das
-              outras edicoes (em /jogos) pareciam o que se faz na competicao. */}
+          {/* Sem este aviso, os jogos das outras edicoes (em /jogos) pareciam o
+              que se faz no evento. */}
           <p className={`mt-4 ${TEXTO}`}>
-            A Season 4 estreia esse formato. Nas três primeiras edições, o Game Jam era uma
-            maratona de algumas semanas em que cada equipe criava um jogo do zero, sobre
-            um tema. Os jogos criados nessas edições estão em{" "}
+            Nas três primeiras edições, o Game Jam era uma maratona de algumas semanas em que
+            cada equipe criava um jogo do zero, sobre um tema. Os jogos criados nessas edições
+            estão em{" "}
             <Link href="/jogos" className="text-destaque underline">Jogos</Link>.
           </p>
         </section>
@@ -108,20 +91,32 @@ export default async function Home() {
         <section className={SECAO}>
           <TituloSecao valor="Como participar" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
-            {inscricao}
-            {season?.situacaoInscricoes !== "encerradas" && " A participação é gratuita e aberta ao público. Cada equipe precisa de um nome, então escolham um bom!"}
+            Não precisa levar nada: usamos os computadores das salas. A inscrição é por
+            pessoa: para garantir seu lugar, escreva para {EMAILS[0]} ou {EMAILS[1]} até a
+            véspera do dia em que você vai, com seu nome e os dias. Quem aparecer no dia sem
+            avisar participa se houver computador livre.
           </p>
           <p className={`mt-4 ${TEXTO}`}>
-            Formato, equipes e linguagens permitidas estão nas{" "}
+            No workshop, basta saber o básico de programação em {linguagensPorExtenso()}. O
+            evento é gratuito e aberto ao público, de dentro ou de fora da Ufes.
+          </p>
+          <p className={`mt-4 ${TEXTO}`}>
+            A programação de cada dia e as linguagens estão nas{" "}
             <Link href="/regras" className="text-destaque underline">Regras</Link>.
           </p>
+          {/* A acao da secao: a pagina de inscricao abre o e-mail pronto e mostra
+              os enderecos para copiar. */}
+          <Link href="/inscricao"
+            className="mt-8 inline-block rounded-full bg-destaque px-7 py-4 text-lg font-bold text-barra transition-opacity hover:opacity-90">
+            Inscreva-se
+          </Link>
         </section>
 
         {/* O labirinto com GAME JAM nas paredes, como o Google fez com o nome
             dele no Doodle dos 30 anos do Pac-Man. Fica depois do que importa
             (data, inscricao), para nao disputar com isso. */}
         <section className={SECAO}>
-          <TituloSecao valor="Enquanto a Season não começa" />
+          <TituloSecao valor={`Enquanto o ${NOME} não começa`} />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
             Uma partida de Pac-Man no labirinto do Game Jam. No computador, use as setas ou
             WASD; no celular, deslize o dedo ou toque para onde quer ir.

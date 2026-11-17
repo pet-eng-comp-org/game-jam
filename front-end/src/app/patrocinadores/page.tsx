@@ -7,7 +7,7 @@ import FaixaPatrocinadores from "../components/Patrocinadores";
 
 export const metadata: Metadata = {
   title: "Patrocinadores",
-  description: "Quem apoia o Game Jam, a competição de programação do PET Engenharia de Computação da Ufes.",
+  description: "Quem apoia o Game Jam, o evento de programação do PET Engenharia de Computação da Ufes.",
 };
 
 export default async function Patrocinadores() {

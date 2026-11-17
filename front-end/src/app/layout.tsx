@@ -48,7 +48,7 @@ const versao =
 // "Ufes" e "Vitória" no texto: quem procura o evento busca por eles, e "pet game
 // jam" sozinho tambem traz o PET Jam, do PET Computacao da UFRGS.
 const descricao =
-  "Competição de programação em equipes, em um único dia, organizada pelo PET Engenharia de Computação da Ufes, em Vitória (ES).";
+  "Game Jam 26, três dias de evento do PET Engenharia de Computação da Ufes: campeonato de Mortal Kombat e workshop de programação de tanques, de 1 a 3 de dezembro de 2026, em Vitória (ES).";
 
 // A cor da barra do navegador (Safari, Chrome no Android) continua a da barra
 // do site; sem isto, cada navegador escolhia uma.
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://gamejam.pet.inf.ufes.br"),
   // Cada pagina tem o proprio titulo ("Regras · PET Game Jam"); antes todas
   // se chamavam "PET Game Jam", e o Google nao tinha como distinguir.
-  title: { default: "PET Game Jam · Competição de programação da Ufes", template: "%s · PET Game Jam" },
+  title: { default: "PET Game Jam · Campeonato e workshop de programação da Ufes", template: "%s · PET Game Jam" },
   description: descricao,
   // Sem isto, o link colado no WhatsApp ou no Instagram aparece sem imagem e
   // sem texto nenhum — e divulgação é metade do evento.

@@ -6,11 +6,11 @@ import { semErroDePagina } from "./ajuda";
 // patrocinadores ficavam vazios para quem nao estava logado no painel (o front
 // exigia o cookie numa rota publica); o teste abre sem login, como o visitante.
 const paginas: { caminho: string; mostra: (p: import("@playwright/test").Page) => import("@playwright/test").Locator }[] = [
-  { caminho: "/", mostra: (p) => p.getByText("cada equipe recebe um jogo preparado especialmente", { exact: false }).first() },
+  { caminho: "/", mostra: (p) => p.getByText("cada pessoa programa um tanque", { exact: false }).first() },
   { caminho: "/regras", mostra: (p) => p.getByRole("heading", { name: "REGRAS" }) },
   { caminho: "/materiais", mostra: (p) => p.getByText("Material E2E").first() },
   { caminho: "/patrocinadores", mostra: (p) => p.getByAltText("Patrocinador E2E").first() },
-  { caminho: "/inscricao", mostra: (p) => p.getByRole("textbox", { name: "Nome da equipe" }) },
+  { caminho: "/inscricao", mostra: (p) => p.getByRole("link", { name: "Escrever o e-mail de inscrição" }) },
   { caminho: "/privacidade", mostra: (p) => p.getByRole("heading", { name: "O que pedimos" }) },
 ];
 
@@ -58,22 +58,27 @@ test("o site manda os cabecalhos de seguranca", async ({ page }) => {
   }
 });
 
-test("o inicio mostra a contagem ate a competicao", async ({ page }) => {
-  // Data e hora vem do painel (no banco de teste, 15/11/2026, 09:00 em Vitoria).
+test("o inicio mostra a edicao, quando e onde", async ({ page }) => {
+  // Antes do evento o titulo e "O Game Jam 26 começa em"; durante e depois,
+  // so o nome. O teste vale nos dois casos.
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: "A Season 4 começa em" })).toBeVisible();
-  await expect(page.getByText("dias", { exact: true })).toBeVisible();
-  await expect(page.getByText("Domingo, 15 de novembro, às 9h", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Game Jam 26/ })).toBeVisible();
+  await expect(page.getByText("1 a 3 de dezembro, a partir das 14h", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "CT 9, Ufes Goiabeiras" })).toBeVisible();
+  await expect(page.getByText("Sala do PET no Dia 1, Lab 4 no Dia 2 e Lab 2 no Dia 3.")).toBeVisible();
 });
 
-test("o inicio marca a competicao como evento para o Google", async ({ page }) => {
+test("o inicio marca o evento para o Google, com os tres dias", async ({ page }) => {
   await page.goto("/");
   const json = await page.locator('script[type="application/ld+json"]').textContent();
   const evento = JSON.parse(json ?? "{}");
   expect(evento["@type"]).toBe("Event");
-  expect(evento.name).toBe("PET Game Jam · Season 4");
-  expect(evento.startDate).toBe("2026-11-15T12:00:00.000Z");
+  expect(evento.name).toBe("PET Game Jam 26");
+  expect(evento.startDate).toBe("2026-12-01T14:00:00-03:00");
+  expect(evento.endDate).toBe("2026-12-03T17:00:00-03:00");
+  expect(evento.subEvent.map((d: { location: { name: string } }) => d.location.name)).toEqual([
+    "Sala do PET, CT 9, Ufes Goiabeiras", "Lab 4, CT 9, Ufes Goiabeiras", "Lab 2, CT 9, Ufes Goiabeiras",
+  ]);
   expect(evento.location.name).toBe("CT 9, Ufes Goiabeiras");
   expect(evento.location.address.addressLocality).toBe("Vitória");
   expect(evento.offers.price).toBe("0");
@@ -149,7 +154,7 @@ test("o jogo do Inicio comeca sozinho ao aparecer, anda e conta pontos, e as set
   await page.goto("/");
   // O jogo so carrega quando a pessoa rola ate perto dele.
   await expect(page.getByRole("img", { name: /labirinto do Pac-Man/ })).toHaveCount(0);
-  await page.getByRole("heading", { name: "Enquanto a Season não começa" }).scrollIntoViewIfNeeded();
+  await page.getByRole("heading", { name: "Enquanto o Game Jam 26 não começa" }).scrollIntoViewIfNeeded();
   const jogo = page.getByRole("img", { name: /labirinto do Pac-Man/ });
   await jogo.scrollIntoViewIfNeeded();
   // Como o Doodle do Google: sem botao, a abertura ("PRONTO!") e a partida.
@@ -174,7 +179,7 @@ test.describe("com animacao reduzida", () => {
   test.use({ reducedMotion: "reduce" });
   test("o jogo nao comeca sozinho: espera o Jogar", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("heading", { name: "Enquanto a Season não começa" }).scrollIntoViewIfNeeded();
+    await page.getByRole("heading", { name: "Enquanto o Game Jam 26 não começa" }).scrollIntoViewIfNeeded();
     const jogo = page.getByRole("img", { name: /labirinto do Pac-Man/ });
     await jogo.scrollIntoViewIfNeeded();
     await page.waitForTimeout(1000);
@@ -196,21 +201,22 @@ test("nenhuma pagina publica tem problema de acessibilidade que o axe acha", asy
   }
 });
 
-test("salvar na agenda: link do Google Agenda e arquivo .ics do evento", async ({ page, request }) => {
+test("salvar na agenda: um link do Google Agenda por dia e o .ics com os tres", async ({ page, request }) => {
   await page.goto("/");
-  const google = page.getByRole("link", { name: "Google Agenda" });
-  await expect(google).toHaveAttribute("href", /^https:\/\/calendar\.google\.com\/calendar\/render\?action=TEMPLATE/);
+  for (const dia of ["Dia 1", "Dia 2", "Dia 3"]) {
+    await expect(page.getByRole("link", { name: dia, exact: true })).toHaveAttribute("href", /^https:\/\/calendar\.google\.com\/calendar\/render\?action=TEMPLATE/);
+  }
   await expect(page.getByRole("link", { name: "outros calendários" })).toHaveAttribute("href", "/agenda.ics");
   const ics = await request.get("/agenda.ics");
   expect(ics.status()).toBe(200);
   expect(ics.headers()["content-type"]).toContain("text/calendar");
-  expect(await ics.text()).toMatch(/BEGIN:VEVENT[\s\S]*DTSTART:\d{8}T\d{6}Z/);
+  expect((await ics.text()).match(/BEGIN:VEVENT/g)).toHaveLength(3);
 });
 
 test("no celular, deitar o aparelho com o jogo na tela abre a tela cheia, e Sair volta", async ({ page }, info) => {
   test.skip(info.project.name !== "celular", "so em aparelho de toque");
   await page.goto("/");
-  await page.getByRole("heading", { name: "Enquanto a Season não começa" }).scrollIntoViewIfNeeded();
+  await page.getByRole("heading", { name: "Enquanto o Game Jam 26 não começa" }).scrollIntoViewIfNeeded();
   await page.getByRole("img", { name: /labirinto do Pac-Man/ }).scrollIntoViewIfNeeded();
   // Em pe: a dica de virar o celular.
   await expect(page.getByText("Vire o celular para jogar em tela cheia")).toBeVisible();

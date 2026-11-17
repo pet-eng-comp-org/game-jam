@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-// Contagem regressiva ate o inicio da competicao, na abertura do Inicio: um
+// Contagem regressiva ate o inicio do evento, na abertura do Inicio: um
 // placar de fliperama em digitos de pixel. A conta roda no navegador: a
 // pagina vem do cache do servidor e o relogio dela ficaria parado.
 
@@ -54,23 +54,29 @@ function useAgora() {
 }
 
 interface Props {
-  inicio: string // ISO do inicio da competicao
-  rotuloData: string // "sábado, 28 de novembro, às 12:00", ja formatado no servidor
+  // Os dias do evento, em ISO: a contagem vai ate o proximo que comeca.
+  dias: { numero: number; inicio: string; fim: string }[]
+  nome: string // "Game Jam 26"
+  aviso: string // "O Game Jam 26 começa na terça, 1 de dezembro, às 14h.", para leitor de tela
 }
 
-export default function Contagem({ inicio, rotuloData }: Props) {
+export default function Contagem({ dias, nome, aviso }: Props) {
   const agora = useAgora()
-  const alvo = new Date(inicio).getTime()
+  const t = (iso: string) => new Date(iso).getTime()
 
-  // Sem hora de fim cadastrada: 12 horas depois do inicio a competicao ja
-  // acabou, e a mensagem para de dizer que esta acontecendo (senao ficaria
-  // assim ate alguem trocar a season no painel).
-  if (agora !== null && agora >= alvo + 12 * 3600 * 1000) {
-    return <p className="text-2xl font-bold text-destaque md:text-3xl">A competição terminou. Obrigado a todas as equipes!</p>
+  // Durante um dia, avisa qual; entre um dia e o outro, conta ate o proximo
+  // (sem isto, a manha do Dia 2 dizia "esta acontecendo" e mandava gente ao
+  // CT horas antes).
+  const hoje = agora === null ? undefined : dias.find((d) => agora >= t(d.inicio) && agora < t(d.fim))
+  const proximo = agora === null ? dias[0] : dias.find((d) => t(d.inicio) > agora)
+  if (hoje) {
+    return <p className="text-2xl font-bold text-destaque md:text-3xl">O Dia {hoje.numero} do {nome} está acontecendo!</p>
   }
-  if (agora !== null && agora >= alvo) {
-    return <p className="text-2xl font-bold text-destaque md:text-3xl">A competição está acontecendo!</p>
+  if (!proximo) {
+    return <p className="text-2xl font-bold text-destaque md:text-3xl">O {nome} terminou. Obrigado a todos que participaram!</p>
   }
+  const alvo = t(proximo.inicio)
+  const depoisDoPrimeiro = proximo.numero !== dias[0].numero
 
   const s = agora === null ? null : Math.floor((alvo - agora) / 1000)
   const dois = (n: number) => String(n).padStart(2, "0")
@@ -83,7 +89,10 @@ export default function Contagem({ inicio, rotuloData }: Props) {
 
   return (
     <div>
-      <p className="sr-only">A competição começa em {rotuloData}.</p>
+      <p className="sr-only">{depoisDoPrimeiro ? `O Dia ${proximo.numero} do ${nome} começa em breve.` : aviso}</p>
+      {depoisDoPrimeiro && (
+        <p className="mb-3 text-base font-bold text-destaque md:text-lg">Até o Dia {proximo.numero}</p>
+      )}
       {/* No celular os digitos encolhem para as quatro casas caberem numa linha,
           ate em tela de 280px. */}
       <div className="flex justify-center gap-1.5 min-[360px]:gap-2 md:gap-6">

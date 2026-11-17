@@ -1,12 +1,10 @@
-import type { SeasonJson } from "@/models/api"
+import { DIAS, FIM, INICIO, LOCAL, NOME } from "@/lib/edicao"
 
-// Marcacao de evento (schema.org) que o Google le para mostrar a competicao
-// em destaque na busca, com data e local. So existe com data definida.
+// Marcacao de evento (schema.org) que o Google le para mostrar o Game Jam em
+// destaque na busca, com data e local.
 const BASE = "https://gamejam.pet.inf.ufes.br"
 
-// Endereco do campus de Goiabeiras, onde fica o CT. So entra quando o local
-// cita a Ufes: se um dia o evento for em outro lugar, melhor sem endereco do
-// que com o errado.
+// Endereco do campus de Goiabeiras, onde fica o CT.
 const UFES = {
   "@type": "PostalAddress",
   streetAddress: "Av. Fernando Ferrari, 514, Goiabeiras",
@@ -16,45 +14,43 @@ const UFES = {
   addressCountry: "BR",
 }
 
-export default function EventoParaBusca({ season }: { season: SeasonJson | null }) {
-  if (!season?.dataEvento) return null
+const LUGAR = { "@type": "Place", name: LOCAL, address: UFES }
+const ORGANIZADOR = { "@type": "Organization", name: "PET Engenharia de Computação da Ufes", url: "https://pet.inf.ufes.br" }
 
+// Depois do evento, a inscricao aparece como encerrada.
+export default function EventoParaBusca({ acabou }: { acabou: boolean }) {
   const dados = {
     "@context": "https://schema.org",
     "@type": "Event",
-    name: `PET Game Jam · Season ${season.numero}`,
-    description: "Competição de programação em equipes, em um único dia, organizada pelo PET Engenharia de Computação da Ufes.",
-    startDate: season.dataEvento,
+    name: `PET ${NOME}`,
+    description: "Três dias de evento do PET Engenharia de Computação da Ufes: campeonato de Mortal Kombat e workshop de programação de tanques.",
+    startDate: INICIO,
+    endDate: FIM,
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     isAccessibleForFree: true,
-    ...(season.local && {
-      location: {
-        "@type": "Place",
-        name: season.local,
-        ...(/ufes/i.test(season.local) && { address: UFES }),
-      },
-    }),
+    location: LUGAR,
     image: [`${BASE}/og.png`],
     url: BASE,
-    organizer: { "@type": "Organization", name: "PET Engenharia de Computação da Ufes", url: "https://pet.inf.ufes.br" },
+    organizer: ORGANIZADOR,
+    // Cada dia tambem como evento, com a sala dele.
+    subEvent: DIAS.map((d) => ({
+      "@type": "Event",
+      name: `${NOME} · Dia ${d.numero}: ${d.atividade}`,
+      startDate: d.inicio,
+      ...(!d.fimEstimado && { endDate: d.fim }),
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      location: { ...LUGAR, name: `${d.sala}, ${LOCAL}` },
+      organizer: ORGANIZADOR,
+    })),
     offers: {
       "@type": "Offer",
       price: "0",
       priceCurrency: "BRL",
       url: `${BASE}/inscricao`,
-      // Antes de abrir e "em pre-venda", nao "esgotado".
-      availability: {
-        abertas: "https://schema.org/InStock",
-        antes: "https://schema.org/PreOrder",
-        encerradas: "https://schema.org/SoldOut",
-        "sem-data": "https://schema.org/PreOrder",
-      }[season.situacaoInscricoes],
-      ...(season.inscricoesAbrem && { validFrom: season.inscricoesAbrem }),
+      availability: acabou ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
     },
   }
 
-  // O local vem do painel: "<" escapado para o texto nunca fechar o script.
-  const json = JSON.stringify(dados).replace(/</g, "\\u003c")
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(dados).replace(/</g, "\\u003c") }} />
 }
