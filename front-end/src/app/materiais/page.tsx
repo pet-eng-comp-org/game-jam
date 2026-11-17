@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import Layout from "../components/Layout";
-import { listaDeLinguagens, materiais, miniaturaDoYoutube, seasonAtual } from "@/lib/conteudo";
+import { materiais, miniaturaDoYoutube } from "@/lib/conteudo";
+import { linguagensPorExtenso } from "@/lib/edicao";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 import { APOS_TITULO, LISTA, PAGINA, SECAO, TEXTO } from "../components/estilo";
 
 export const metadata: Metadata = {
   title: "Materiais",
-  description: "Como se preparar para o Game Jam da Ufes: lógica, a linguagem da competição e materiais das edições anteriores.",
+  description: "Como se preparar para o workshop do Game Jam: lógica, a sua linguagem e materiais das edições anteriores.",
 };
 
 export default async function Materiais() {
 
-  const [todos, season] = await Promise.all([materiais(), seasonAtual()]);
-  const linguagens = listaDeLinguagens(season?.linguagens);
+  const todos = await materiais();
   const comMiniatura = await Promise.all(todos.map(async (m) => ({ ...m, miniatura: await miniaturaDoYoutube(m.link) })));
   const videos = comMiniatura.filter((m) => m.miniatura);
   const links = comMiniatura.filter((m) => !m.miniatura);
@@ -26,37 +26,32 @@ export default async function Materiais() {
 
         <Titulo valor="materiais" />
 
-        {/* A Season 4 nao pede um jogo feito do zero: a equipe recebe um pronto e
-            implementa parte da logica. O que ajuda a se preparar vem primeiro;
-            os materiais de Phaser das edicoes anteriores ficam depois, como extra. */}
+        {/* No workshop o jogo vem pronto e cada pessoa escreve a logica do proprio
+            tanque. O que ajuda a se preparar vem primeiro; os materiais de Phaser
+            das edicoes anteriores ficam depois, como extra. */}
         <p className={`mt-6 ${TEXTO}`}>
-          Como o jogo já vem pronto e a equipe implementa parte da lógica dele, a melhor
-          preparação é de programação, não de desenvolvimento de jogos.
+          No workshop, o jogo já vem pronto e você escreve a lógica do seu tanque, então a
+          melhor preparação é de programação, não de desenvolvimento de jogos.
         </p>
 
         <section className={SECAO}>
           <TituloSecao valor="Como se preparar" />
           <ul className={`${APOS_TITULO} ${LISTA} space-y-4`}>
             <li>
-              <strong>Pratique lógica e a linguagem da competição.</strong>{" "}
-              {/* Sem lista definida, nao repete o "em breve" das Regras. */}
-              {linguagens && <>As linguagens permitidas são: {linguagens}.{" "}</>}
-              Resolver exercícios curtos, com tempo contado, é o treino mais parecido com o dia.
+              <strong>Pratique lógica e a sua linguagem ({linguagensPorExtenso()}).</strong>{" "}
+              Condicionais e laços são a base, e um pouco de geometria ajuda: ângulo e
+              distância, para mirar e desviar.
             </li>
             <li>
               <strong>Entenda como um jogo funciona por dentro.</strong> Quase todo jogo repete
               o mesmo ciclo várias vezes por segundo: lê o que o jogador fez, atualiza o estado
-              (posição, pontos, vidas) e desenha a tela. Colisão, pontuação e fim de jogo são
-              regras aplicadas nesse ciclo, e é esse tipo de lógica que a equipe vai escrever.
+              (posição, pontos, vidas) e desenha a tela. No workshop é assim também: a cada
+              quadro, o seu tanque recebe o estado do jogo e devolve a ação (andar, virar,
+              mirar, atirar, ligar o escudo).
             </li>
             <li>
-              <strong>Treine ler código que não é seu.</strong> No dia, a equipe parte do
-              código do jogo preparado: entender rápido o que já existe vale tanto quanto
-              escrever código novo.
-            </li>
-            <li>
-              <strong>Combinem a divisão do trabalho.</strong> O tempo é curto: vale decidir
-              antes quem lê o código, quem escreve e quem testa.
+              <strong>Treine ler código que não é seu.</strong> No workshop, cada fase vem com
+              um modelo pronto na sua linguagem; você completa a parte que falta.
             </li>
           </ul>
         </section>
@@ -68,7 +63,7 @@ export default async function Materiais() {
           <p className={`${APOS_TITULO} ${TEXTO}`}>
             Nas edições anteriores, as equipes criavam o jogo do zero com o framework Phaser3,
             em JavaScript. Os materiais daquela época continuam aqui para quem quer entender
-            como se faz um jogo inteiro.
+            como se faz um jogo inteiro, mas não são usados no workshop.
           </p>
 
           <TituloSecao subsecao valor="Super PETs" className="mt-12" />

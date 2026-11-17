@@ -1,25 +1,31 @@
-// "Salvar na agenda": o evento da season atual para o calendario do celular.
+// "Salvar na agenda": os tres dias do Game Jam 26 no calendario do celular.
 // Dois caminhos, porque nenhum serve para todo mundo: o link do Google Agenda
-// (o app do Android nao importa arquivo .ics) e o arquivo .ics (iPhone,
-// Outlook e o resto). Sem hora de fim definida, o evento marca so o inicio.
-
-export interface EventoAgenda {
-  numero: string;
-  dataEvento: string; // ISO
-  local: string | null;
-}
+// (o app do Android nao importa arquivo .ics), um por dia, porque o link so
+// leva um evento; e o arquivo .ics com os tres (iPhone, Outlook e o resto).
+import { DIAS, horario, LOCAL, NOME, type Dia } from "./edicao.ts";
 
 const SITE = "https://gamejam.pet.inf.ufes.br";
-const titulo = (e: EventoAgenda) => `PET Game Jam · Season ${e.numero}`;
-const descricao = `Competição de programação em equipes, organizada pelo PET Engenharia de Computação da Ufes. Presencial, num laboratório com computadores. Regras: ${SITE}/regras`;
 
-// 2026-11-28T15:00:00.000Z -> 20261128T150000Z
+const titulo = (d: Dia) => `${NOME} · Dia ${d.numero}: ${d.atividade}`;
+
+function descricao(d: Dia) {
+  const h = horario(d);
+  return `${h.charAt(0).toUpperCase() + h.slice(1)}. ${d.sala}, ${LOCAL}. Organizado pelo PET Engenharia de Computação da Ufes. Programação: ${SITE}/regras`;
+}
+
+const ondeFica = (d: Dia) => `${d.sala}, ${LOCAL}`;
+
+// 2026-12-01T14:00:00-03:00 -> 20261201T170000Z
 const utc = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
-export function linkGoogleAgenda(e: EventoAgenda) {
-  const quando = utc(e.dataEvento);
-  const q = new URLSearchParams({ action: "TEMPLATE", text: titulo(e), dates: `${quando}/${quando}`, details: descricao });
-  if (e.local) q.set("location", e.local);
+export function linkGoogleAgenda(d: Dia) {
+  const q = new URLSearchParams({
+    action: "TEMPLATE",
+    text: titulo(d),
+    dates: `${utc(d.inicio)}/${utc(d.fim)}`,
+    details: descricao(d),
+    location: ondeFica(d),
+  });
   return `https://calendar.google.com/calendar/render?${q}`;
 }
 
@@ -41,22 +47,25 @@ function dobra(linha: string) {
   return partes.join("\r\n ");
 }
 
-export function icsDoEvento(e: EventoAgenda, agora = new Date()) {
+export function icsDaEdicao(agora = new Date()) {
   const linhas = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//PET Engenharia de Computacao Ufes//Game Jam//PT",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "BEGIN:VEVENT",
-    `UID:game-jam-season-${e.numero}@gamejam.pet.inf.ufes.br`,
-    `DTSTAMP:${utc(agora.toISOString())}`,
-    `DTSTART:${utc(e.dataEvento)}`,
-    `SUMMARY:${escapa(titulo(e))}`,
-    ...(e.local ? [`LOCATION:${escapa(e.local)}`] : []),
-    `DESCRIPTION:${escapa(descricao)}`,
-    `URL:${SITE}`,
-    "END:VEVENT",
+    ...DIAS.flatMap((d) => [
+      "BEGIN:VEVENT",
+      `UID:game-jam-26-dia-${d.numero}@gamejam.pet.inf.ufes.br`,
+      `DTSTAMP:${utc(agora.toISOString())}`,
+      `DTSTART:${utc(d.inicio)}`,
+      `DTEND:${utc(d.fim)}`,
+      `SUMMARY:${escapa(titulo(d))}`,
+      `LOCATION:${escapa(ondeFica(d))}`,
+      `DESCRIPTION:${escapa(descricao(d))}`,
+      `URL:${SITE}`,
+      "END:VEVENT",
+    ]),
     "END:VCALENDAR",
   ];
   return linhas.map(dobra).join("\r\n") + "\r\n";

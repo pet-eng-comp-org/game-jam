@@ -34,7 +34,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
       <p className={`mt-6 ${TEXTO}`}>
         Nas Seasons 1 a 3, cada equipe tinha algumas semanas para criar um jogo do zero,
         sobre um tema. Todos rodam no navegador, mas foram feitos para jogar no computador:
-        vários usam o teclado e não respondem ao toque no celular. A Season 4 muda o
+        vários usam o teclado e não respondem ao toque no celular. O Game Jam 26 muda o
         formato:{" "}
         <Link href="/regras#formato" className="text-destaque underline">veja como funciona</Link>.
       </p>

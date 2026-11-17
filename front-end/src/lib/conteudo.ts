@@ -8,7 +8,7 @@
 // API) a falha vira null, e a pagina sai com o "em breve" ate a primeira visita.
 import "server-only";
 import { PHASE_PRODUCTION_BUILD } from "next/constants";
-import type { JogoJson, MaterialJson, PatrocinadorJson, SeasonComJogosJson, SeasonJson } from "@/models/api";
+import type { JogoJson, MaterialJson, PatrocinadorJson, SeasonComJogosJson } from "@/models/api";
 
 export const TAG_CONTEUDO = "conteudo";
 
@@ -27,7 +27,6 @@ async function busca<T>(caminho: string): Promise<T | null> {
   }
 }
 
-export const seasonAtual = () => busca<SeasonJson | null>("/seasons/atual");
 export const materiais = async () => (await busca<MaterialJson[]>("/material")) ?? [];
 // A API monta o endereco do logo com o host que recebeu a requisicao. Buscado
 // pela rede interna, ele sairia "http://game-jam-api:3333/...", que o navegador
@@ -40,11 +39,6 @@ export const patrocinadores = async () =>
   });
 export const seasonsComJogos = async () => (await busca<SeasonComJogosJson[]>("/seasonsComJogos")) ?? [];
 export type { JogoJson };
-
-export function listaDeLinguagens(texto: string | null | undefined) {
-  const lista = (texto ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
-  return lista.length ? lista.join(", ") : null;
-}
 
 // Miniatura de um link do YouTube, ou null se nao for video. Video comum sai
 // direto do endereco; playlist (DINO, PONG) nao tem miniatura por endereco,

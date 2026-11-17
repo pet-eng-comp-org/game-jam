@@ -1,71 +1,37 @@
-import { connection } from "next/server"
-import FormInscricao from "../components/FormInscricao"
+import Link from "next/link"
 import IconePixel from "../components/IconePixel"
 import Personagem from "../components/Personagem"
-import { seasonAtual } from "@/lib/conteudo"
-import { diaEHora } from "@/lib/datas"
-import type { SeasonJson } from "@/models/api"
+import { jaPassou } from "@/lib/datas"
+import { DIAS, EMAIL_DE_INSCRICAO, EMAILS, FIM, horario, LOCAL, NOME, quando } from "@/lib/edicao"
 
-// Tela de inscricao. Antes seguia o mockup da Season 4 (logo com os fantasmas
-// a esquerda, formulario solto a direita, campos creme sem borda); o redesenho
-// de 10/2026 segue o que funciona nas inscricoes que o PET e o IntroComp ja usam
-// e nas de evento conhecidas (Luma, Sympla): o essencial do evento no topo,
-// antes de pedir qualquer dado, e o formulario em etapas num cartao.
+// Inscricao do Game Jam 26: por pessoa e so por e-mail (decisao da organizacao,
+// 12/11/2026). A pagina diz o que escrever e para quem, e o botao abre o e-mail
+// ja preenchido. Os enderecos ficam a vista, para quem nao tem aplicativo de
+// e-mail no computador e precisa copiar.
 //
-// A season vem do servidor, como nas outras paginas: o formulario chega pronto
-// no HTML, sem "Carregando..." enquanto o navegador busca a API. A situacao
-// das inscricoes sai das datas, calculada a cada acesso (connection), para a
-// tela mudar na hora em que abrem ou fecham; a API confere de novo ao gravar.
-type Situacao = "antes" | "abertas" | "encerradas" | "sem-data"
+// Gerada de novo a cada 5 minutos, para mudar sozinha quando o evento acabar.
+export const revalidate = 300
 
-function situacao(s: SeasonJson): Situacao {
-  if (!s.inscricoesAbrem || !s.inscricoesFecham) return "sem-data"
-  const agora = Date.now()
-  if (agora < new Date(s.inscricoesAbrem).getTime()) return "antes"
-  return agora < new Date(s.inscricoesFecham).getTime() ? "abertas" : "encerradas"
-}
-
-export default async function Inscricao() {
-  await connection()
-  const season = await seasonAtual().catch(() => undefined)
-  const sit = season ? situacao(season) : null
-  const abertas = sit === "abertas"
+export default function Inscricao() {
+  const acabou = jaPassou(FIM)
 
   return (
     <>
       <section className="relative overflow-hidden bg-barra">
         <div className="mx-auto max-w-[960px] px-6 pb-12 pt-12 md:pb-16 md:pt-16">
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-destaque-claro/80">
-            {season ? `Season ${season.numero}` : "PET Game Jam"}
-          </p>
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-destaque-claro/80">{NOME}</p>
           <h1 className="font-secao text-7xl uppercase leading-[0.8] text-destaque md:text-8xl">Inscrição</h1>
 
-          {season && (
-            <>
-              {abertas && (
-                <p className="mt-4 max-w-[52ch] text-lg text-white/85">
-                  É gratuita e leva uns três minutos.
-                </p>
-              )}
-              <ul className="mt-6 flex flex-col gap-3 text-base text-white/85 sm:flex-row sm:flex-wrap sm:gap-x-8">
-                {season.dataEvento && (
-                  <li className="flex items-center gap-2.5">
-                    <IconePixel qual="calendario" className="h-5 w-5 shrink-0 text-destaque" />
-                    <span className="first-letter:uppercase">{diaEHora(season.dataEvento, true)}</span>
-                  </li>
-                )}
-                {season.local && (
-                  <li className="flex items-center gap-2.5">
-                    <IconePixel qual="local" className="h-5 w-5 shrink-0 text-destaque" />
-                    {season.local}
-                  </li>
-                )}
-              </ul>
-              {abertas && season.inscricoesFecham && (
-                <p className="mt-5 font-bold text-destaque">Inscrições até {diaEHora(season.inscricoesFecham)}</p>
-              )}
-            </>
-          )}
+          <ul className="mt-6 flex flex-col gap-3 text-base text-white/85 sm:flex-row sm:flex-wrap sm:gap-x-8">
+            <li className="flex items-center gap-2.5">
+              <IconePixel qual="calendario" className="h-5 w-5 shrink-0 text-destaque" />
+              1 a 3 de dezembro, a partir das 14h
+            </li>
+            <li className="flex items-center gap-2.5">
+              <IconePixel qual="local" className="h-5 w-5 shrink-0 text-destaque" />
+              {LOCAL}
+            </li>
+          </ul>
         </div>
 
         {/* Os fantasmas do jogo, so de enfeite, no canto do cabecalho. */}
@@ -77,46 +43,59 @@ export default async function Inscricao() {
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-[680px] px-6 pb-24 pt-10 md:pt-14">
-        {season === undefined && (
-          <Aviso titulo="Não foi possível carregar a inscrição." texto="Tente de novo em alguns minutos." />
-        )}
+      {/* Mesma coluna do cabecalho (960px), com o texto em ate 680px, alinhado
+          a esquerda: antes o corpo centralizado ficava 140px dentro do titulo. */}
+      <div className="mx-auto w-full max-w-[960px] px-6 pb-24 pt-10 md:pt-14">
+      <div className="max-w-[680px]">
+        {acabou ? (
+          <div role="status" className="rounded-2xl border border-white/10 bg-barra p-8 text-center">
+            <p className="text-2xl font-bold text-destaque">O {NOME} terminou.</p>
+            <p className="mt-2 text-lg text-destaque-claro">Acompanhe o Instagram @petengcomp para saber da próxima edição.</p>
+          </div>
+        ) : (
+          <>
+            <p className="text-lg text-destaque-claro">
+              A inscrição é por pessoa e por e-mail. Para garantir seu lugar, escreva até a
+              véspera do dia em que você vai, com o seu nome e os dias.
+            </p>
 
-        {season === null && (
-          <Aviso titulo="As inscrições ainda não estão abertas." texto="Acompanhe o Instagram @petengcomp para saber quando abrem." />
-        )}
+            <a href={EMAIL_DE_INSCRICAO}
+              className="mt-8 inline-block rounded-full bg-destaque px-7 py-4 text-lg font-bold text-barra transition-opacity hover:opacity-90">
+              Escrever o e-mail de inscrição
+            </a>
 
-        {season && (
-          abertas ? (
-            <FormInscricao
-              numParticipantesPorEquipe={Number(season.numParticipantesPorEquipe) || 3}
-              season={{ numero: season.numero, dataEvento: season.dataEvento, local: season.local }}
-            />
-          ) : (
-            <Aviso {...avisoFechada(season, sit!)} />
-          )
+            <p className="mt-6 text-base text-destaque-claro">
+              Ou escreva direto para{" "}
+              <span className="font-bold text-white [overflow-wrap:anywhere]">{EMAILS[0]}</span> ou{" "}
+              <span className="font-bold text-white [overflow-wrap:anywhere]">{EMAILS[1]}</span>.
+            </p>
+
+            <h2 className="mt-12 text-xl font-bold text-destaque">Os dias</h2>
+            <ul className="mt-4 space-y-3">
+              {DIAS.map((d) => (
+                <li key={d.numero} className="rounded-2xl border border-white/10 bg-barra px-5 py-4">
+                  <p className="font-bold">
+                    Dia {d.numero}: {d.atividade}
+                  </p>
+                  <p className="mt-1 text-base text-destaque-claro">
+                    <span className="first-letter:uppercase inline-block">{quando(d)}</span>, {horario(d)}, {d.sala}
+                  </p>
+                </li>
+              ))}
+            </ul>
+
+            <p className="mt-8 text-base text-destaque-claro">
+              Quem aparecer no dia sem avisar participa se houver computador livre. Não precisa
+              levar nada. Quem tem menos de 18 anos se inscreve com o conhecimento de um
+              responsável. Mais detalhes nas{" "}
+              <Link href="/regras" className="text-destaque underline">Regras</Link>; o que fazemos
+              com os seus dados está em{" "}
+              <Link href="/privacidade" className="text-destaque underline">Privacidade</Link>.
+            </p>
+          </>
         )}
       </div>
+      </div>
     </>
-  )
-}
-
-// Fechada por que? Ainda nao abriu, ja encerrou, ou sem periodo definido.
-function avisoFechada(season: SeasonJson, sit: Situacao) {
-  if (sit === "antes") {
-    return { titulo: `As inscrições abrem em ${diaEHora(season.inscricoesAbrem!)}.`, texto: "Monte sua equipe e volte aqui nesse dia!" }
-  }
-  if (sit === "encerradas") {
-    return { titulo: "As inscrições desta edição foram encerradas.", texto: "Acompanhe o Instagram @petengcomp para saber da próxima." }
-  }
-  return { titulo: "As inscrições ainda não estão abertas.", texto: "Acompanhe o Instagram @petengcomp para saber quando abrem." }
-}
-
-function Aviso({ titulo, texto }: { titulo: string; texto?: string }) {
-  return (
-    <div role="status" className="rounded-2xl border border-white/10 bg-barra p-8 text-center">
-      <p className="text-2xl font-bold text-destaque">{titulo}</p>
-      {texto && <p className="mt-2 text-lg text-destaque-claro">{texto}</p>}
-    </div>
   )
 }

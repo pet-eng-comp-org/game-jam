@@ -11,9 +11,10 @@ import Botao from "./components/Botao";
 import FormAlterarSenha from "./components/FormAlterarSenha";
 import { toast } from "sonner";
 import Layout from "./components/Layout";
+import { EMAILS, NOME } from "@/lib/edicao";
 
 // Inicio do painel: a season atual num relance (inscricoes, numeros) e o que
-// ainda falta preencher antes do evento. Antes era so um "Fique atento nas
+// saber antes do evento. Antes era so um "Fique atento nas
 // orientacoes abaixo" sem nada abaixo.
 export default function Admin() {
 
@@ -59,15 +60,6 @@ export default function Admin() {
         d.situacaoInscricoes === "encerradas" ? `Encerradas em ${diaEHora(d.inscricoesFecham!)}.` :
         "Sem período definido: ninguém consegue se inscrever."
 
-    // O que o site mostra como "em breve" enquanto nao for preenchido.
-    const faltando = !d ? [] : [
-        !d.dataEvento && "data e hora do evento",
-        !d.local && "local",
-        (!d.inscricoesAbrem || !d.inscricoesFecham) && "período de inscrição",
-        !d.linguagens && "linguagens permitidas",
-        !d.regulamento && "regulamento",
-    ].filter(Boolean) as string[]
-
     return (
 
         <Layout titulo={`Olá, ${usuario ? usuario.getUsername : ''}!`}
@@ -100,19 +92,18 @@ export default function Admin() {
                         <Link href="/admin/equipes" className="mt-4 inline-block font-bold underline">Ver as equipes e baixar a planilha</Link>
                     </section>
 
+                    {/* O Game Jam 26 (tres dias, salas diferentes, inscricao por
+                        e-mail) nao cabe nos campos da season: o site le de
+                        src/lib/edicao.ts. Sem este aviso, o painel pedia para
+                        preencher campos que o site nao mostra. */}
                     <section className="rounded-xl bg-white p-5 shadow-sm md:col-span-2">
                         <h2 className="text-xl font-bold">Antes do evento</h2>
-                        {faltando.length ? (
-                            <>
-                                <p className="mt-3">Ainda aparece como &quot;em breve&quot; no site:</p>
-                                <ul className="mt-2 list-disc pl-6">
-                                    {faltando.map((f) => <li key={f}>{f}</li>)}
-                                </ul>
-                                <p className="mt-3">Tudo isso se preenche em <Link href="/admin/seasons" className="font-bold underline">Season → Editar</Link>.</p>
-                            </>
-                        ) : (
-                            <p className="mt-3">Data, local, inscrições, linguagens e regulamento estão preenchidos.</p>
-                        )}
+                        <p className="mt-3">
+                            No {NOME}, a inscrição é por e-mail ({EMAILS.join(" ou ")}), e a programação, as salas e as
+                            linguagens ficam no código do site (<code>front-end/src/lib/edicao.ts</code>). Data, local,
+                            linguagens, regulamento e período de inscrição da season não aparecem nas páginas públicas.
+                        </p>
+                        <p className="mt-3">As equipes acima se inscreveram pelo formulário, antes da mudança.</p>
                     </section>
                 </div>
             )}

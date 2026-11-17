@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-// Contagem regressiva ate o inicio da competicao, na abertura do Inicio: um
+// Contagem regressiva ate o inicio do evento, na abertura do Inicio: um
 // placar de fliperama em digitos de pixel. A conta roda no navegador: a
 // pagina vem do cache do servidor e o relogio dela ficaria parado.
 
@@ -54,22 +54,21 @@ function useAgora() {
 }
 
 interface Props {
-  inicio: string // ISO do inicio da competicao
-  rotuloData: string // "sábado, 28 de novembro, às 12:00", ja formatado no servidor
+  inicio: string // ISO do inicio do evento
+  fim: string // ISO do fim do ultimo dia
+  nome: string // "Game Jam 26"
+  aviso: string // "O Game Jam 26 começa na terça, 1 de dezembro, às 14h.", para leitor de tela
 }
 
-export default function Contagem({ inicio, rotuloData }: Props) {
+export default function Contagem({ inicio, fim, nome, aviso }: Props) {
   const agora = useAgora()
   const alvo = new Date(inicio).getTime()
 
-  // Sem hora de fim cadastrada: 12 horas depois do inicio a competicao ja
-  // acabou, e a mensagem para de dizer que esta acontecendo (senao ficaria
-  // assim ate alguem trocar a season no painel).
-  if (agora !== null && agora >= alvo + 12 * 3600 * 1000) {
-    return <p className="text-2xl font-bold text-destaque md:text-3xl">A competição terminou. Obrigado a todas as equipes!</p>
+  if (agora !== null && agora >= new Date(fim).getTime()) {
+    return <p className="text-2xl font-bold text-destaque md:text-3xl">O {nome} terminou. Obrigado a todos que participaram!</p>
   }
   if (agora !== null && agora >= alvo) {
-    return <p className="text-2xl font-bold text-destaque md:text-3xl">A competição está acontecendo!</p>
+    return <p className="text-2xl font-bold text-destaque md:text-3xl">O {nome} está acontecendo!</p>
   }
 
   const s = agora === null ? null : Math.floor((alvo - agora) / 1000)
@@ -83,7 +82,7 @@ export default function Contagem({ inicio, rotuloData }: Props) {
 
   return (
     <div>
-      <p className="sr-only">A competição começa em {rotuloData}.</p>
+      <p className="sr-only">{aviso}</p>
       {/* No celular os digitos encolhem para as quatro casas caberem numa linha,
           ate em tela de 280px. */}
       <div className="flex justify-center gap-1.5 min-[360px]:gap-2 md:gap-6">

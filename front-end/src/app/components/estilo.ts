@@ -7,7 +7,9 @@ export const PAGINA = "mx-auto w-full max-w-[1154px] px-6 pb-24 pt-14 md:w-[80%]
 // Texto corrido: 18px, entrelinha 1,625 e no maximo ~70 caracteres por linha
 // (a faixa confortavel de leitura e 60 a 80). Antes a linha chegava a 130
 // caracteres no desktop, e a entrelinha variava de 1,2 a 2,0 entre paginas.
-export const TEXTO = "max-w-[68ch] text-lg leading-relaxed"
+// break-words: e-mail e endereco longos quebram em vez de passar da tela
+// (petgamejamufes@gmail.com nao cabe numa linha de 280px).
+export const TEXTO = "max-w-[68ch] text-lg leading-relaxed break-words"
 
 // Distancia entre secoes, uma so (antes: 97, 100, 106, 130 e 139px).
 export const SECAO = "mt-20 md:mt-24"

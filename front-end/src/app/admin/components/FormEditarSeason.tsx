@@ -66,6 +66,12 @@ export default function FormEditarSeason({ season, fechar, salvo }: Props) {
 
         <Titulo valor={`Season ${season.getNumero}`} nivel={2} />
 
+        {/* Ver src/lib/edicao.ts: o Game Jam 26 nao usa estes campos no site. */}
+        <p role="note" className="mb-4 rounded-md bg-yellow-100 p-3 text-sm">
+          No Game Jam 26, o site não mostra estes campos: a programação, as salas, as linguagens e a
+          inscrição por e-mail estão no código (<code>front-end/src/lib/edicao.ts</code>).
+        </p>
+
         <form onSubmit={salvar} className="flex flex-col gap-4">
 
           <label className="flex flex-col gap-1">

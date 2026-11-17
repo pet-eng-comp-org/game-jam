@@ -1,39 +1,22 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Layout from "../components/Layout";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 import { LISTA, PAGINA, SECAO, TEXTO } from "../components/estilo";
-import Markdown, { type Components } from "react-markdown";
-import { listaDeLinguagens, seasonAtual } from "@/lib/conteudo";
-import { dia, diaEHora } from "@/lib/datas";
+import { DIAS, EMAILS, horario, linguagensPorExtenso, LOCAL, NOME, quando } from "@/lib/edicao";
 
 export const metadata: Metadata = {
   title: "Regras",
-  description: "Formato, equipes, inscrição e linguagens do Game Jam, a competição de programação do PET Engenharia de Computação da Ufes.",
+  description: "A programação dos três dias do Game Jam 26, com horário e sala, a inscrição por e-mail e as linguagens do workshop.",
 };
 
-// Numerada so onde a ordem importa (o regulamento escrito no painel decide);
-// o resto e topico.
-const NUMERADA = `${TEXTO} list-decimal space-y-2 pl-6 marker:text-destaque`;
 const SECAO_REGRAS = `${SECAO} mb-5`;
+const LINK = "text-destaque underline";
 
-// Estilos do regulamento escrito no painel: "## Titulo" vira titulo de secao,
-// "### Titulo" de subsecao; listas e paragrafos seguem o texto do site.
-const markdown: Components = {
-  h1: ({ children }) => <TituloSecao valor={String(children)} className={`${SECAO_REGRAS} first:mt-0`} />,
-  h2: ({ children }) => <TituloSecao valor={String(children)} className={`${SECAO_REGRAS} first:mt-0`} />,
-  h3: ({ children }) => <TituloSecao subsecao valor={String(children)} className="mb-4 mt-10 first:mt-0" />,
-  p: ({ children }) => <p className={`mt-4 first:mt-0 ${TEXTO}`}>{children}</p>,
-  ol: ({ children }) => <ol className={NUMERADA}>{children}</ol>,
-  ul: ({ children }) => <ul className={LISTA}>{children}</ul>,
-  a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-destaque underline">{children}</a>,
-  img: () => null,
-};
-
-export default async function Regras() {
-
-  const season = await seasonAtual();
-
+// A programacao e as regras do Game Jam 26 vem de src/lib/edicao.ts (dias,
+// salas, e-mails) e do documento do Bernardo de 12/11/2026 (o resto do texto).
+export default function Regras() {
   return (
     <Layout>
 
@@ -41,70 +24,60 @@ export default async function Regras() {
 
         <Titulo valor="regras" />
 
-        {season?.regulamento ? (
-          // O regulamento vem do painel, em markdown. O react-markdown nao executa
-          // HTML do texto; os elementos recebem os estilos medidos no mockup.
-          <div className="mt-10">
-            <Markdown components={markdown}>{season.regulamento}</Markdown>
-          </div>
-        ) : (
-          <>
-            <p className={`mt-10 ${TEXTO}`}>
-              O regulamento completo da Season {season?.numero ?? "4"}, com horários e premiação,
-              será divulgado aqui em breve. Por enquanto, o que já está definido:
-            </p>
-
-            <TituloSecao id="formato" valor="O formato" className={`${SECAO_REGRAS} scroll-mt-24`} />
-            <ul className={LISTA}>
-              <li>A competição acontece em um único dia e é disputada em equipes.</li>
-              <li>Cada equipe recebe um jogo preparado especialmente para o evento e precisa implementar parte da lógica dele.</li>
-              <li>O desafio só é revelado no dia: no início da competição são apresentadas as regras completas, o ambiente utilizado e as informações necessárias para começar.</li>
-              <li>As equipes têm um tempo limitado para analisar o desafio, discutir a estratégia e desenvolver a solução.</li>
-            </ul>
-          </>
-        )}
-
-        <TituloSecao valor="Equipes e inscrição" className={SECAO_REGRAS} />
-        <ul className={LISTA}>
-          <li>
-            Pode participar qualquer pessoa, de dentro ou de fora da Ufes. Quem tem menos de
-            18 anos se inscreve com o conhecimento de um responsável.
-          </li>
-          <li>Cada equipe tem de 1 a {season?.numParticipantesPorEquipe ?? "3"} pessoas.</li>
-          <li>
-            A inscrição é feita aqui no site,{" "}
-            {season?.inscricoesAbrem && season?.inscricoesFecham
-              ? <>de {dia(season.inscricoesAbrem)} até {diaEHora(season.inscricoesFecham)},</>
-              : "durante o período de inscrições,"}{" "}
-            e cada equipe precisa de um nome.
-          </li>
-        </ul>
-
-        {/* O que a pessoa precisa saber para ir: fica fora do regulamento do
-            painel, que substitui so "O formato". */}
-        <TituloSecao valor="No dia" className={SECAO_REGRAS} />
-        <p className={TEXTO}>
-          A competição é presencial, num laboratório de informática da Ufes, e usa os
-          computadores de lá: não precisa levar notebook.
+        <p className={`mt-10 ${TEXTO}`}>
+          O {NOME} tem três dias, todos no {LOCAL}. A participação é voluntária e não há
+          premiação.
         </p>
 
-        {/* A linguagem e regra, entao mora aqui, e so aqui: data e local ficam
-            na abertura do Inicio. */}
-        <TituloSecao valor="Linguagens" className={SECAO_REGRAS} />
+        {/* "formato" e o endereco que a pagina Jogos usa ("veja como funciona"). */}
+        <TituloSecao id="formato" valor="Programação" className={`${SECAO_REGRAS} scroll-mt-24`} />
+        <ul className="grid gap-4 sm:grid-cols-3">
+          {DIAS.map((d) => (
+            <li key={d.numero} className="rounded-2xl border border-white/10 bg-barra p-5">
+              <p className="text-sm font-bold uppercase tracking-[0.12em] text-destaque-claro/80">Dia {d.numero}</p>
+              <p className="mt-1 text-lg font-bold text-destaque first-letter:uppercase">{quando(d)}</p>
+              <p className="mt-3 text-lg font-bold">{d.atividade}</p>
+              <p className="mt-2 text-base text-destaque-claro first-letter:uppercase">{horario(d)}</p>
+              <p className="text-base text-destaque-claro">{d.sala}</p>
+              {d.detalhe && <p className="mt-2 text-base text-destaque-claro">{d.detalhe}</p>}
+            </li>
+          ))}
+        </ul>
+
+        <TituloSecao valor="O workshop de programação de tanques" className={SECAO_REGRAS} />
+        <ul className={LISTA}>
+          <li>Cada pessoa programa o próprio tanque para cumprir os desafios das fases de treino, em blocos de movimento, mira e sobrevivência.</li>
+          <li>Você ganha um balão por fase cumprida e recebe uma dica em cada tentativa.</li>
+          <li>Depois de cada envio, a tela mostra como o seu tanque reagiu.</li>
+          <li>Você programa em {linguagensPorExtenso()}; basta saber o básico.</li>
+          <li>Não precisa levar nada: o workshop usa os computadores do laboratório, que muda de um dia para o outro (Lab 4 no Dia 2, Lab 2 no Dia 3).</li>
+        </ul>
+
+        <TituloSecao valor="Inscrição" className={SECAO_REGRAS} />
+        <ul className={LISTA}>
+          <li>
+            A inscrição é por pessoa e só por e-mail, até a véspera do dia em que você vai,
+            com o seu nome e os dias.{" "}
+            <Link href="/inscricao" className={LINK}>Como se inscrever</Link>.
+          </li>
+          <li>Quem aparecer sem avisar participa se houver computador livre.</li>
+        </ul>
+
+        <TituloSecao valor="Quem pode participar" className={SECAO_REGRAS} />
         <p className={TEXTO}>
-          {listaDeLinguagens(season?.linguagens)
-            ? <>Linguagens permitidas: {listaDeLinguagens(season?.linguagens)}.</>
-            : "As linguagens permitidas serão divulgadas junto com o regulamento."}
+          Pode participar qualquer pessoa, de dentro ou de fora da Ufes. Quem tem menos de 18
+          anos se inscreve com o conhecimento de um responsável.
         </p>
 
         <TituloSecao valor="Dúvidas" className={SECAO_REGRAS} />
         <p className={TEXTO}>
-            Qualquer dúvida pode ser tirada com o PET Engenharia de Computação pelo Instagram{" "}
-            <a href="https://www.instagram.com/petengcomp/" target="_blank" rel="noopener noreferrer" className="text-destaque underline">
-              @petengcomp
-            </a>{" "}
-            ou pelo e-mail{" "}
-            <a href="mailto:petengcomp@inf.ufes.br" className="text-destaque underline">petengcomp@inf.ufes.br</a>.
+          Escreva para{" "}
+          <a href={`mailto:${EMAILS[0]}`} className={LINK}>{EMAILS[0]}</a> ou{" "}
+          <a href={`mailto:${EMAILS[1]}`} className={LINK}>{EMAILS[1]}</a>, ou fale com o PET
+          pelo Instagram{" "}
+          <a href="https://www.instagram.com/petengcomp/" target="_blank" rel="noopener noreferrer" className={LINK}>
+            @petengcomp
+          </a>.
         </p>
       </div>
     </Layout>
