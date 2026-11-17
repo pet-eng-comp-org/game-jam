@@ -2,7 +2,7 @@ import Link from "next/link"
 import IconePixel from "../components/IconePixel"
 import Personagem from "../components/Personagem"
 import { jaPassou } from "@/lib/datas"
-import { DIAS, EMAIL_DE_INSCRICAO, EMAILS, FIM, horario, LOCAL, NOME, quando } from "@/lib/edicao"
+import { DIAS, EMAIL_DE_INSCRICAO, EMAILS, FIM, horario, LOCAL, NOME, periodo, quando } from "@/lib/edicao"
 
 // Inscricao do Game Jam 26: por pessoa e so por e-mail (decisao da organizacao,
 // 12/11/2026). A pagina diz o que escrever e para quem, e o botao abre o e-mail
@@ -25,7 +25,7 @@ export default function Inscricao() {
           <ul className="mt-6 flex flex-col gap-3 text-base text-white/85 sm:flex-row sm:flex-wrap sm:gap-x-8">
             <li className="flex items-center gap-2.5">
               <IconePixel qual="calendario" className="h-5 w-5 shrink-0 text-destaque" />
-              1 a 3 de dezembro, a partir das 14h
+              {periodo()}
             </li>
             <li className="flex items-center gap-2.5">
               <IconePixel qual="local" className="h-5 w-5 shrink-0 text-destaque" />

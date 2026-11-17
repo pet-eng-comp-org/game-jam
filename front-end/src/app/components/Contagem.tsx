@@ -54,22 +54,29 @@ function useAgora() {
 }
 
 interface Props {
-  inicio: string // ISO do inicio do evento
-  fim: string // ISO do fim do ultimo dia
+  // Os dias do evento, em ISO: a contagem vai ate o proximo que comeca.
+  dias: { numero: number; inicio: string; fim: string }[]
   nome: string // "Game Jam 26"
   aviso: string // "O Game Jam 26 começa na terça, 1 de dezembro, às 14h.", para leitor de tela
 }
 
-export default function Contagem({ inicio, fim, nome, aviso }: Props) {
+export default function Contagem({ dias, nome, aviso }: Props) {
   const agora = useAgora()
-  const alvo = new Date(inicio).getTime()
+  const t = (iso: string) => new Date(iso).getTime()
 
-  if (agora !== null && agora >= new Date(fim).getTime()) {
+  // Durante um dia, avisa qual; entre um dia e o outro, conta ate o proximo
+  // (sem isto, a manha do Dia 2 dizia "esta acontecendo" e mandava gente ao
+  // CT horas antes).
+  const hoje = agora === null ? undefined : dias.find((d) => agora >= t(d.inicio) && agora < t(d.fim))
+  const proximo = agora === null ? dias[0] : dias.find((d) => t(d.inicio) > agora)
+  if (hoje) {
+    return <p className="text-2xl font-bold text-destaque md:text-3xl">O Dia {hoje.numero} do {nome} está acontecendo!</p>
+  }
+  if (!proximo) {
     return <p className="text-2xl font-bold text-destaque md:text-3xl">O {nome} terminou. Obrigado a todos que participaram!</p>
   }
-  if (agora !== null && agora >= alvo) {
-    return <p className="text-2xl font-bold text-destaque md:text-3xl">O {nome} está acontecendo!</p>
-  }
+  const alvo = t(proximo.inicio)
+  const depoisDoPrimeiro = proximo.numero !== dias[0].numero
 
   const s = agora === null ? null : Math.floor((alvo - agora) / 1000)
   const dois = (n: number) => String(n).padStart(2, "0")
@@ -82,7 +89,10 @@ export default function Contagem({ inicio, fim, nome, aviso }: Props) {
 
   return (
     <div>
-      <p className="sr-only">{aviso}</p>
+      <p className="sr-only">{depoisDoPrimeiro ? `O Dia ${proximo.numero} do ${nome} começa em breve.` : aviso}</p>
+      {depoisDoPrimeiro && (
+        <p className="mb-3 text-base font-bold text-destaque md:text-lg">Até o Dia {proximo.numero}</p>
+      )}
       {/* No celular os digitos encolhem para as quatro casas caberem numa linha,
           ate em tela de 280px. */}
       <div className="flex justify-center gap-1.5 min-[360px]:gap-2 md:gap-6">

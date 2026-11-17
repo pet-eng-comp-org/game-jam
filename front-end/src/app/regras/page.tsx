@@ -4,7 +4,7 @@ import Layout from "../components/Layout";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 import { LISTA, PAGINA, SECAO, TEXTO } from "../components/estilo";
-import { DIAS, EMAILS, horario, linguagensPorExtenso, LOCAL, NOME, quando } from "@/lib/edicao";
+import { DIAS, EMAILS, horario, linguagensPorExtenso, LOCAL, NOME, quando, salasPorDia } from "@/lib/edicao";
 
 export const metadata: Metadata = {
   title: "Regras",
@@ -50,7 +50,7 @@ export default function Regras() {
           <li>Você ganha um balão por fase cumprida e recebe uma dica em cada tentativa.</li>
           <li>Depois de cada envio, a tela mostra como o seu tanque reagiu.</li>
           <li>Você programa em {linguagensPorExtenso()}; basta saber o básico.</li>
-          <li>Não precisa levar nada: o workshop usa os computadores do laboratório, que muda de um dia para o outro (Lab 4 no Dia 2, Lab 2 no Dia 3).</li>
+          <li>Não precisa levar nada: o workshop usa os computadores do laboratório, que muda de um dia para o outro ({salasPorDia(DIAS.filter((d) => d.sala.startsWith("Lab")))}).</li>
         </ul>
 
         <TituloSecao valor="Inscrição" className={SECAO_REGRAS} />

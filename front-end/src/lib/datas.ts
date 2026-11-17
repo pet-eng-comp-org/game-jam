@@ -17,11 +17,16 @@ export function dia(iso: string, comSemana = false) {
 
 // "26 de outubro, às 23h" ou "às 9h30". O espaco inseparavel antes da hora
 // impede que ela quebre sozinha para a linha de baixo.
-export function diaEHora(iso: string, comSemana = false) {
+// "14h" ou "9h30".
+export function hora(iso: string) {
   const [h, m] = new Date(iso)
     .toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso })
     .split(":");
-  return `${dia(iso, comSemana)}, às\u00a0${Number(h)}h${m === "00" ? "" : m}`;
+  return `${Number(h)}h${m === "00" ? "" : m}`;
+}
+
+export function diaEHora(iso: string, comSemana = false) {
+  return `${dia(iso, comSemana)}, às\u00a0${hora(iso)}`;
 }
 
 // Se o momento ja passou (no relogio do servidor, na hora de gerar a pagina).

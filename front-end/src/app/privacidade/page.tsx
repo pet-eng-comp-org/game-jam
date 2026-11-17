@@ -36,8 +36,15 @@ export default function Privacidade() {
         <TituloSecao valor="Quem vê" className="mb-4 mt-14" />
         <p className={TEXTO}>
           Só a organização do Game Jam, que lê os e-mails de inscrição nas caixas{" "}
-          {EMAILS[0]} e {EMAILS[1]}. Nenhum dado de participante aparece nas páginas
-          públicas. Os dados não são vendidos nem entregues a mais ninguém.
+          {EMAILS[0]} (uma conta do Gmail) e {EMAILS[1]} (o e-mail do PET na Ufes). Nenhum
+          dado de participante aparece nas páginas públicas. Os dados não são vendidos nem
+          entregues a mais ninguém.
+        </p>
+
+        <TituloSecao valor="Por quanto tempo" className="mb-4 mt-14" />
+        <p className={TEXTO}>
+          Os e-mails de inscrição ficam nessas caixas, como histórico da edição, até que você
+          peça a exclusão.
         </p>
 
         <TituloSecao valor="Quem se inscreveu pelo formulário" className="mb-4 mt-14" />

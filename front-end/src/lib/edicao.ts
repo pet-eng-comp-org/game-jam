@@ -7,7 +7,7 @@
 // documento "Correcoes do site gamejam.pet.inf.ufes.br" do Bernardo, lider do
 // Game Jam (12/11/2026), que segue o Cronograma de Conteudo da Comissao Pulga.
 
-import { dia } from "./datas.ts";
+import { dia, hora } from "./datas.ts";
 
 export const NOME = "Game Jam 26";
 export const LOCAL = "CT 9, Ufes Goiabeiras";
@@ -44,15 +44,22 @@ export const linguagensPorExtenso = () => `${LINGUAGENS.slice(0, -1).join(", ")}
 // O e-mail de inscricao ja aberto e preenchido: quem le so completa nome e dias.
 export const EMAIL_DE_INSCRICAO =
   `mailto:${EMAILS[0]}?` +
-  new URLSearchParams({ cc: EMAILS[1], subject: `Inscrição ${NOME}`, body: "Nome:\nDias:\n" }).toString().replace(/\+/g, "%20");
+  new URLSearchParams({ cc: EMAILS[1], subject: `Inscrição ${NOME}`, body: "Nome:\r\nDias:\r\n" }).toString().replace(/\+/g, "%20");
 
 // "terça, 1 de dezembro": o "-feira" sobra quando a data vem com o horario.
 export const quando = (d: Dia) => dia(d.inicio, true).replace("-feira", "");
 
-// "14h"
-const hora = (iso: string) =>
-  `${Number(new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", timeZone: "America/Sao_Paulo" }).slice(0, 2))}h`;
-
 // "das 14h às 17h", ou "a partir das 14h, sem hora fixa para acabar".
 export const horario = (d: Dia) =>
   d.fimEstimado ? `a partir das ${hora(d.inicio)}, sem hora fixa para acabar` : `das ${hora(d.inicio)} às ${hora(d.fim)}`;
+
+// "1 a 3 de dezembro, a partir das 14h" (o mes do primeiro dia; a edicao cabe
+// num mes so).
+export const periodo = () =>
+  `${Number(dia(INICIO).split(" ")[0])} a ${dia(FIM)}, a partir das ${hora(INICIO)}`;
+
+// "Sala do PET no Dia 1, Lab 4 no Dia 2 e Lab 2 no Dia 3"
+export const salasPorDia = (dias: Dia[] = DIAS) => {
+  const partes = dias.map((d) => `${d.sala} no Dia ${d.numero}`);
+  return partes.length > 1 ? `${partes.slice(0, -1).join(", ")} e ${partes[partes.length - 1]}` : partes.join("");
+};

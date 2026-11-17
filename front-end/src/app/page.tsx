@@ -10,8 +10,8 @@ import EventoParaBusca from "./components/EventoParaBusca";
 import IconePixel from "./components/IconePixel";
 import FaixaPatrocinadores from "./components/Patrocinadores";
 import { patrocinadores } from "@/lib/conteudo";
-import { jaPassou } from "@/lib/datas";
-import { DIAS, EMAILS, FIM, INICIO, linguagensPorExtenso, LOCAL, NOME, quando } from "@/lib/edicao";
+import { hora, jaPassou } from "@/lib/datas";
+import { DIAS, EMAILS, FIM, INICIO, linguagensPorExtenso, LOCAL, NOME, periodo, quando, salasPorDia } from "@/lib/edicao";
 
 export default async function Home() {
 
@@ -21,7 +21,7 @@ export default async function Home() {
   return (
 
     <Layout>
-      <EventoParaBusca />
+      <EventoParaBusca acabou={jaPassou(FIM)} />
 
       <div className={PAGINA}>
 
@@ -40,7 +40,7 @@ export default async function Home() {
             {/* No primeiro dia, a porta abre e os fantasmas saem. A pagina e
                 gerada de novo a cada poucos minutos, entao a abertura acompanha. */}
             <CasaDosFantasmas aberta={comecou}>
-              <Contagem inicio={INICIO} fim={FIM} nome={NOME} aviso={`O ${NOME} começa na ${quando(DIAS[0])}, às 14h.`} />
+              <Contagem dias={DIAS.map(({ numero, inicio, fim }) => ({ numero, inicio, fim }))} nome={NOME} aviso={`O ${NOME} começa na ${quando(DIAS[0])}, às ${hora(INICIO)}.`} />
             </CasaDosFantasmas>
           </div>
           {/* Quando e onde, como informacao do evento. Tocar no local abre o
@@ -49,7 +49,7 @@ export default async function Home() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-lg">
             <span className="flex items-center gap-2">
               <IconePixel qual="calendario" className="h-4 w-4 text-destaque" />
-              1 a 3 de dezembro, a partir das 14h
+              {periodo()}
             </span>
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${LOCAL}, Vitória - ES`)}`}
@@ -62,7 +62,7 @@ export default async function Home() {
             </a>
           </div>
           <p className="mt-2 text-base text-destaque-claro">
-            Sala do PET no Dia 1, Lab 4 no Dia 2 e Lab 2 no Dia 3.
+            {salasPorDia()}.
           </p>
           {!jaPassou(FIM) && <SalvarNaAgenda className="mt-4 text-sm md:text-base" />}
         </section>

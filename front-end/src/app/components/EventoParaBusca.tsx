@@ -17,7 +17,8 @@ const UFES = {
 const LUGAR = { "@type": "Place", name: LOCAL, address: UFES }
 const ORGANIZADOR = { "@type": "Organization", name: "PET Engenharia de Computação da Ufes", url: "https://pet.inf.ufes.br" }
 
-export default function EventoParaBusca() {
+// Depois do evento, a inscricao aparece como encerrada.
+export default function EventoParaBusca({ acabou }: { acabou: boolean }) {
   const dados = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -47,7 +48,7 @@ export default function EventoParaBusca() {
       price: "0",
       priceCurrency: "BRL",
       url: `${BASE}/inscricao`,
-      availability: "https://schema.org/InStock",
+      availability: acabou ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
     },
   }
 
