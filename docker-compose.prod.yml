@@ -100,7 +100,7 @@ services:
   # a API pelo dominio publico.
   front-end:
     # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-8f5e9819477b833ed9c618acd784af50e412d7d0)
-    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:e8c77acd7f66f39e5d0cdd42935f8eaeecc42c653148b36fed62520c32499925
+    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:94f1f20b6f69debcfaba16a34b9969859b0c4fbbe369ea0b9026fe1b11736b73
     container_name: game-jam_front-end
     environment:
       # Lida em execucao (a NEXT_PUBLIC_API_URL e assada no build): e por onde o
