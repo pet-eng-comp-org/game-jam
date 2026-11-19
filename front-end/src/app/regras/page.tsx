@@ -4,7 +4,7 @@ import Layout from "../components/Layout";
 import Titulo from "../components/Titulo";
 import TituloSecao from "../components/TituloSecao";
 import { LISTA, PAGINA, SECAO, TEXTO } from "../components/estilo";
-import { DIAS, EMAILS, horario, linguagensPorExtenso, LOCAL, NOME, quando, salasPorDia } from "@/lib/edicao";
+import { BOCA, DIAS, EMAILS, horario, linguagensPorExtenso, LOCAL, NOME, quando, salasPorDia } from "@/lib/edicao";
 
 export const metadata: Metadata = {
   title: "Regras",
@@ -48,7 +48,11 @@ export default function Regras() {
         <ul className={LISTA}>
           <li>Cada pessoa programa o próprio tanque para cumprir os desafios das fases de treino, em blocos de movimento, mira e sobrevivência.</li>
           <li>Você ganha um balão por fase cumprida e recebe uma dica em cada tentativa.</li>
-          <li>Depois de cada envio, a tela mostra como o seu tanque reagiu.</li>
+          <li>
+            Você envia o código em{" "}
+            <a href={BOCA} className={LINK}>{BOCA.replace("https://", "")}</a>, com o login
+            que você recebe da organização. Depois de cada envio, a tela mostra como o seu tanque reagiu.
+          </li>
           <li>Você programa em {linguagensPorExtenso()}; basta saber o básico.</li>
           <li>Não precisa levar nada: o workshop usa os computadores do laboratório, que muda de um dia para o outro ({salasPorDia(DIAS.filter((d) => d.sala.startsWith("Lab")))}).</li>
         </ul>

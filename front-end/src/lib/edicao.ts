@@ -7,7 +7,7 @@
 // documento "Correcoes do site gamejam.pet.inf.ufes.br" do Bernardo, lider do
 // Game Jam (12/11/2026), que segue o Cronograma de Conteudo da Comissao Pulga.
 
-import { dia, hora } from "./datas.ts";
+import { dia, ehHoje, hora } from "./datas.ts";
 
 export const NOME = "Game Jam 26";
 export const LOCAL = "CT 9, Ufes Goiabeiras";
@@ -36,6 +36,14 @@ export const DIAS: Dia[] = [
 ];
 
 export const INICIO = DIAS[0].inicio;
+
+// O BOCA do workshop, onde cada pessoa envia o codigo do tanque. A raiz leva
+// para a tela de login (/boca); a organizacao entrega o login de cada um.
+export const BOCA = "https://boca.pet.inf.ufes.br";
+
+// Nos dias de workshop, o botao da barra leva ao BOCA em vez da inscricao:
+// quem esta no laboratorio nao precisa digitar o endereco.
+export const diaDeWorkshop = () => DIAS.some((d) => d.atividade.startsWith("Workshop") && ehHoje(d.inicio));
 export const FIM = DIAS[DIAS.length - 1].fim;
 
 // "Python, C, C++ ou Java"

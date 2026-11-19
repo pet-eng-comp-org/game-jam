@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Personagem from "./Personagem"
+import { BOCA } from "@/lib/edicao"
 
 // A ordem e os rotulos vem do mockup da Season 4 (Figma, pagina Site).
 // "Apoio" virou "Patrocinadores" e Jogos subiu para a segunda posicao.
@@ -19,7 +20,9 @@ const paginas = [
   { label: 'Patrocinadores', url: '/patrocinadores', personagem: 'laranja' },
 ] as const
 
-export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocinadores?: boolean }) {
+// Nos dias de workshop (diaDeWorkshop, em lib/edicao.ts), o botao amarelo leva
+// ao BOCA, onde se envia o codigo; nos outros dias, a inscricao.
+export default function Navbar({ mostraPatrocinadores = true, workshop = false }: { mostraPatrocinadores?: boolean, workshop?: boolean }) {
 
   const caminho = usePathname()
   const naInscricao = caminho === "/inscricao"
@@ -90,7 +93,11 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
 
         {/* Na propria pagina de inscricao o botao so levaria para onde a
             pessoa ja esta. */}
-        {!naInscricao && (
+        {workshop ? (
+          <a href={BOCA} className="absolute right-[17px] top-[13px] block rounded-full bg-destaque px-[25px] py-[14px] text-center text-base font-bold leading-[25px] text-barra transition-opacity hover:opacity-90">
+            Entrar no workshop
+          </a>
+        ) : !naInscricao && (
           <Link href="/inscricao" className="absolute right-[17px] top-[13px]">
             <span className="block rounded-full bg-destaque px-[25px] py-[14px] text-center text-base font-bold leading-[25px] text-barra transition-opacity hover:opacity-90">
               Inscreva-se
@@ -109,7 +116,12 @@ export default function Navbar({ mostraPatrocinadores = true }: { mostraPatrocin
             <img src="/marca/logo-pet-game-jam-horizontal.svg" alt="PET Game Jam" className="h-auto w-full max-w-[178px]" />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
-            {!naInscricao && (
+            {workshop ? (
+              <a href={BOCA}
+                className="rounded-full bg-destaque px-4 py-2 text-sm font-bold text-barra transition-opacity hover:opacity-90">
+                Entrar
+              </a>
+            ) : !naInscricao && (
               <Link href="/inscricao" onClick={() => setMenuAberto(false)}
                 className="rounded-full bg-destaque px-4 py-2 text-sm font-bold text-barra transition-opacity hover:opacity-90">
                 Inscreva-se
