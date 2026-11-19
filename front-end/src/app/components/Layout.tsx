@@ -1,6 +1,7 @@
 import Navbar from "./Navbar"
 import Footer from "./Footer"
 import { patrocinadores } from "@/lib/conteudo"
+import { diaDeWorkshop } from "@/lib/edicao"
 
 interface LayoutProps {
 
@@ -19,7 +20,7 @@ export default async function Layout({ children, className }: LayoutProps) {
 
         <div className="relative flex min-h-screen flex-col bg-fundo">
 
-            <Navbar mostraPatrocinadores={temPatrocinadores} />
+            <Navbar mostraPatrocinadores={temPatrocinadores} workshop={diaDeWorkshop()} />
 
             <main className={`flex-1 ${className ?? ""}`}>
                 {children}

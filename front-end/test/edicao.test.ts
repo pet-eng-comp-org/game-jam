@@ -26,3 +26,14 @@ test("o e-mail de inscricao abre endereçado, com copia, assunto e o que preench
   // Espaco como %20, e nao "+": o Outlook e o Mail do iPhone mostram o "+".
   assert.doesNotMatch(EMAIL_DE_INSCRICAO, /\+/);
 });
+
+test("o botao da barra leva ao BOCA so nos dias de workshop, no dia de Vitoria", async (t) => {
+  const { diaDeWorkshop } = await import("../src/lib/edicao.ts");
+  const em = (iso: string) => { t.mock.timers.enable({ apis: ["Date"], now: new Date(iso) }); const r = diaDeWorkshop(); t.mock.timers.reset(); return r; };
+  assert.equal(em("2026-12-01T20:00:00-03:00"), false); // Dia 1, Mortal Kombat
+  assert.equal(em("2026-12-02T00:00:00-03:00"), true);  // Dia 2 desde a meia-noite
+  assert.equal(em("2026-12-03T23:59:00-03:00"), true);
+  // 22h do Dia 3 em Vitoria ja e dia 4 em UTC: vale o calendario de Vitoria.
+  assert.equal(em("2026-12-04T01:00:00Z"), true);
+  assert.equal(em("2026-12-04T00:00:00-03:00"), false);
+});

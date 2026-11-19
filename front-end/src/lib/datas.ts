@@ -31,3 +31,7 @@ export function diaEHora(iso: string, comSemana = false) {
 
 // Se o momento ja passou (no relogio do servidor, na hora de gerar a pagina).
 export const jaPassou = (iso: string) => Date.now() >= new Date(iso).getTime();
+
+// Se agora e o mesmo dia do calendario de Vitoria que o momento dado.
+export const ehHoje = (iso: string) =>
+  new Date().toLocaleDateString("en-CA", { timeZone: fuso }) === new Date(iso).toLocaleDateString("en-CA", { timeZone: fuso });
