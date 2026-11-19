@@ -1,10 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { usePathname } from "next/navigation"
 import Personagem from "./Personagem"
-import { BOCA } from "@/lib/edicao"
+import { BOCA, diaDeWorkshop } from "@/lib/edicao"
 
 // A ordem e os rotulos vem do mockup da Season 4 (Figma, pagina Site).
 // "Apoio" virou "Patrocinadores" e Jogos subiu para a segunda posicao.
@@ -20,9 +20,17 @@ const paginas = [
   { label: 'Patrocinadores', url: '/patrocinadores', personagem: 'laranja' },
 ] as const
 
-// Nos dias de workshop (diaDeWorkshop, em lib/edicao.ts), o botao amarelo leva
-// ao BOCA, onde se envia o codigo; nos outros dias, a inscricao.
-export default function Navbar({ mostraPatrocinadores = true, workshop = false }: { mostraPatrocinadores?: boolean, workshop?: boolean }) {
+const semAssinatura = () => () => {}
+
+// Nos dias de envio pelo BOCA (diaDeWorkshop, em lib/edicao.ts), o botao
+// amarelo leva a ele; nos outros dias, a inscricao.
+export default function Navbar({ mostraPatrocinadores = true, workshop: doServidor = false }: { mostraPatrocinadores?: boolean, workshop?: boolean }) {
+
+  // O servidor decide ao gerar a pagina, mas a pagina em cache pode ser de
+  // antes da meia-noite (o Next entrega a versao velha e so depois regenera):
+  // o navegador confere de novo com o relogio dele, sem desencontro na
+  // hidratacao (no servidor vale o que veio do Layout).
+  const workshop = useSyncExternalStore(semAssinatura, diaDeWorkshop, () => doServidor)
 
   const caminho = usePathname()
   const naInscricao = caminho === "/inscricao"
@@ -95,7 +103,7 @@ export default function Navbar({ mostraPatrocinadores = true, workshop = false }
             pessoa ja esta. */}
         {workshop ? (
           <a href={BOCA} className="absolute right-[17px] top-[13px] block rounded-full bg-destaque px-[25px] py-[14px] text-center text-base font-bold leading-[25px] text-barra transition-opacity hover:opacity-90">
-            Entrar no workshop
+            Enviar código
           </a>
         ) : !naInscricao && (
           <Link href="/inscricao" className="absolute right-[17px] top-[13px]">
@@ -118,12 +126,12 @@ export default function Navbar({ mostraPatrocinadores = true, workshop = false }
           <div className="flex shrink-0 items-center gap-2">
             {workshop ? (
               <a href={BOCA}
-                className="rounded-full bg-destaque px-4 py-2 text-sm font-bold text-barra transition-opacity hover:opacity-90">
-                Entrar
+                className="flex min-h-11 items-center rounded-full bg-destaque px-4 text-sm font-bold text-barra transition-opacity hover:opacity-90">
+                Enviar
               </a>
             ) : !naInscricao && (
               <Link href="/inscricao" onClick={() => setMenuAberto(false)}
-                className="rounded-full bg-destaque px-4 py-2 text-sm font-bold text-barra transition-opacity hover:opacity-90">
+                className="flex min-h-11 items-center rounded-full bg-destaque px-4 text-sm font-bold text-barra transition-opacity hover:opacity-90">
                 Inscreva-se
               </Link>
             )}

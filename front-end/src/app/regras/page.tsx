@@ -50,7 +50,7 @@ export default function Regras() {
           <li>Você ganha um balão por fase cumprida e recebe uma dica em cada tentativa.</li>
           <li>
             Você envia o código em{" "}
-            <a href={BOCA} className={LINK}>{BOCA.replace("https://", "")}</a>, com o login
+            <a href={BOCA} className={LINK}>boca.pet.inf.ufes.br</a>, com o login
             que você recebe da organização. Depois de cada envio, a tela mostra como o seu tanque reagiu.
           </li>
           <li>Você programa em {linguagensPorExtenso()}; basta saber o básico.</li>

@@ -27,23 +27,28 @@ export interface Dia {
   atividade: string;
   sala: string;
   detalhe?: string;
+  // Dia em que se envia codigo pelo BOCA: o botao da barra leva a ele.
+  boca?: boolean;
 }
 
 export const DIAS: Dia[] = [
   { numero: 1, inicio: "2026-12-01T14:00:00-03:00", fim: "2026-12-01T18:00:00-03:00", fimEstimado: true, atividade: "Campeonato de Mortal Kombat", sala: "Sala do PET", detalhe: "Chaveamento decidido na hora." },
-  { numero: 2, inicio: "2026-12-02T14:00:00-03:00", fim: "2026-12-02T17:00:00-03:00", fimEstimado: false, atividade: "Workshop de programação de tanques", sala: "Lab 4" },
-  { numero: 3, inicio: "2026-12-03T14:00:00-03:00", fim: "2026-12-03T17:00:00-03:00", fimEstimado: false, atividade: "Workshop de programação de tanques", sala: "Lab 2" },
+  { numero: 2, inicio: "2026-12-02T14:00:00-03:00", fim: "2026-12-02T17:00:00-03:00", fimEstimado: false, atividade: "Workshop de programação de tanques", sala: "Lab 4", boca: true },
+  { numero: 3, inicio: "2026-12-03T14:00:00-03:00", fim: "2026-12-03T17:00:00-03:00", fimEstimado: false, atividade: "Workshop de programação de tanques", sala: "Lab 2", boca: true },
 ];
 
 export const INICIO = DIAS[0].inicio;
 
-// O BOCA do workshop, onde cada pessoa envia o codigo do tanque. A raiz leva
-// para a tela de login (/boca); a organizacao entrega o login de cada um.
-export const BOCA = "https://boca.pet.inf.ufes.br";
+// O BOCA do workshop, onde cada pessoa envia o codigo do tanque, direto na
+// tela de login (a raiz so redireciona para ca). A organizacao entrega o login.
+export const BOCA = "https://boca.pet.inf.ufes.br/boca/";
 
-// Nos dias de workshop, o botao da barra leva ao BOCA em vez da inscricao:
-// quem esta no laboratorio nao precisa digitar o endereco.
-export const diaDeWorkshop = () => DIAS.some((d) => d.atividade.startsWith("Workshop") && ehHoje(d.inicio));
+// Nos dias de envio pelo BOCA, o botao da barra leva a ele em vez da
+// inscricao: quem esta no laboratorio nao precisa digitar o endereco. No Dia 2
+// a inscricao para o Dia 3 continua aberta, mas sai da barra de proposito: ali
+// esta quem veio programar, e a inscricao segue no "Como participar" e nas
+// Regras.
+export const diaDeWorkshop = () => DIAS.some((d) => d.boca && ehHoje(d.inicio));
 export const FIM = DIAS[DIAS.length - 1].fim;
 
 // "Python, C, C++ ou Java"
