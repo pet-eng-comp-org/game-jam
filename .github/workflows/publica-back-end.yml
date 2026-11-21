@@ -20,6 +20,11 @@ on:
       - '.github/workflows/testa-site.yml'
   workflow_dispatch:
 
+# Cada job pede o que precisa a mais (o build publica no GHCR, o implanta
+# grava o digest no compose). O resto do token fica so leitura.
+permissions:
+  contents: read
+
 jobs:
   # Testes de cenario (back-end/test/): sobem a API compilada contra um MySQL, com
   # o schema aplicado pelas migrations, e conferem login do painel, o que as rotas

@@ -14,6 +14,10 @@ on:
       - '.github/workflows/confere-versao-no-ar.yml'
   workflow_dispatch:
 
+# So le o site no ar; o token nao precisa de nada alem de leitura.
+permissions:
+  contents: read
+
 jobs:
   confere:
     runs-on: ubuntu-latest
