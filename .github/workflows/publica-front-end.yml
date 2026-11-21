@@ -26,6 +26,11 @@ on:
 env:
   API_URL: https://apigamejam.pet.inf.ufes.br
 
+# Cada job pede o que precisa a mais (o build publica no GHCR, o implanta
+# grava o digest no compose). O resto do token fica so leitura.
+permissions:
+  contents: read
+
 jobs:
   # Testes de unidade (front-end/test/), hoje so a validacao da inscricao. Nao
   # importam nada de node_modules, por isso dispensam o npm ci. Falhou aqui, a
