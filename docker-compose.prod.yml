@@ -99,8 +99,8 @@ services:
   # front, entao aqui nao ha env de execucao nem rede interna: o navegador chama
   # a API pelo dominio publico.
   front-end:
-    # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-b08a926170ca8c04ba5f4fd700cf33fe003c788d)
-    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:ba67f39d1cb3f81fc69434fa8c85bac2bfac737984d3892a5449e639297c6032
+    # ghcr.io/pet-eng-comp-org/game-jam/front-end:latest (sha-abd35887c362e240ee66779c32ade08c17511d18)
+    image: ghcr.io/pet-eng-comp-org/game-jam/front-end@sha256:8d5c5356a24d0486024bd1cc6d0cff7815dc4a0e5059895e39f5b0ef0e30bc64
     container_name: game-jam_front-end
     environment:
       # Lida em execucao (a NEXT_PUBLIC_API_URL e assada no build): e por onde o
