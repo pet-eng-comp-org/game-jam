@@ -59,13 +59,14 @@ test("o site manda os cabecalhos de seguranca", async ({ page }) => {
 });
 
 test("o inicio mostra a edicao, quando e onde", async ({ page }) => {
-  // Antes do evento o titulo e "O Game Jam 26 começa em"; durante e depois,
+  // Antes do evento o titulo e "O Game Jam Season 4 começa em"; durante e depois,
   // so o nome. O teste vale nos dois casos.
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: /Game Jam 26/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Game Jam Season 4/ })).toBeVisible();
+  await expect(page.getByText("Campeonato de Super Smash Bros. Ultimate e workshop de programação de tanques")).toBeVisible();
   await expect(page.getByText("1 a 3 de dezembro, a partir das 14h", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "CT 9, Ufes Goiabeiras" })).toBeVisible();
-  await expect(page.getByText("Sala do PET no Dia 1, Lab 4 no Dia 2 e Lab 2 no Dia 3.")).toBeVisible();
+  await expect(page.getByText("Sala do PET no Dia 1, Lab 4 (laboratório novo) no Dia 2 e Lab 2 no Dia 3.")).toBeVisible();
 });
 
 test("o inicio marca o evento para o Google, com os tres dias", async ({ page }) => {
@@ -73,11 +74,12 @@ test("o inicio marca o evento para o Google, com os tres dias", async ({ page })
   const json = await page.locator('script[type="application/ld+json"]').textContent();
   const evento = JSON.parse(json ?? "{}");
   expect(evento["@type"]).toBe("Event");
-  expect(evento.name).toBe("PET Game Jam 26");
+  expect(evento.name).toBe("PET Game Jam Season 4");
+  expect(evento.description).toContain("Super Smash Bros. Ultimate");
   expect(evento.startDate).toBe("2026-12-01T14:00:00-03:00");
   expect(evento.endDate).toBe("2026-12-03T17:00:00-03:00");
   expect(evento.subEvent.map((d: { location: { name: string } }) => d.location.name)).toEqual([
-    "Sala do PET, CT 9, Ufes Goiabeiras", "Lab 4, CT 9, Ufes Goiabeiras", "Lab 2, CT 9, Ufes Goiabeiras",
+    "Sala do PET, CT 9, Ufes Goiabeiras", "Lab 4 (laboratório novo), CT 9, Ufes Goiabeiras", "Lab 2, CT 9, Ufes Goiabeiras",
   ]);
   expect(evento.location.name).toBe("CT 9, Ufes Goiabeiras");
   expect(evento.location.address.addressLocality).toBe("Vitória");
@@ -154,7 +156,7 @@ test("o jogo do Inicio comeca sozinho ao aparecer, anda e conta pontos, e as set
   await page.goto("/");
   // O jogo so carrega quando a pessoa rola ate perto dele.
   await expect(page.getByRole("img", { name: /labirinto do Pac-Man/ })).toHaveCount(0);
-  await page.getByRole("heading", { name: "Enquanto o Game Jam 26 não começa" }).scrollIntoViewIfNeeded();
+  await page.getByRole("heading", { name: "Enquanto o Game Jam Season 4 não começa" }).scrollIntoViewIfNeeded();
   const jogo = page.getByRole("img", { name: /labirinto do Pac-Man/ });
   await jogo.scrollIntoViewIfNeeded();
   // Como o Doodle do Google: sem botao, a abertura ("PRONTO!") e a partida.
@@ -179,7 +181,7 @@ test.describe("com animacao reduzida", () => {
   test.use({ reducedMotion: "reduce" });
   test("o jogo nao comeca sozinho: espera o Jogar", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("heading", { name: "Enquanto o Game Jam 26 não começa" }).scrollIntoViewIfNeeded();
+    await page.getByRole("heading", { name: "Enquanto o Game Jam Season 4 não começa" }).scrollIntoViewIfNeeded();
     const jogo = page.getByRole("img", { name: /labirinto do Pac-Man/ });
     await jogo.scrollIntoViewIfNeeded();
     await page.waitForTimeout(1000);
@@ -216,7 +218,7 @@ test("salvar na agenda: um link do Google Agenda por dia e o .ics com os tres", 
 test("no celular, deitar o aparelho com o jogo na tela abre a tela cheia, e Sair volta", async ({ page }, info) => {
   test.skip(info.project.name !== "celular", "so em aparelho de toque");
   await page.goto("/");
-  await page.getByRole("heading", { name: "Enquanto o Game Jam 26 não começa" }).scrollIntoViewIfNeeded();
+  await page.getByRole("heading", { name: "Enquanto o Game Jam Season 4 não começa" }).scrollIntoViewIfNeeded();
   await page.getByRole("img", { name: /labirinto do Pac-Man/ }).scrollIntoViewIfNeeded();
   // Em pe: a dica de virar o celular.
   await expect(page.getByText("Vire o celular para jogar em tela cheia")).toBeVisible();

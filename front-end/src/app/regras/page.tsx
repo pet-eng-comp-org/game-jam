@@ -8,14 +8,14 @@ import { BOCA, DIAS, EMAILS, horario, linguagensPorExtenso, LOCAL, NOME, quando,
 
 export const metadata: Metadata = {
   title: "Regras",
-  description: "A programação dos três dias do Game Jam 26, com horário e sala, a inscrição por e-mail e as linguagens do workshop.",
+  description: "A programação dos três dias do Game Jam Season 4, com horário e sala, a inscrição por e-mail e as linguagens do workshop.",
 };
 
 const SECAO_REGRAS = `${SECAO} mb-5`;
 const LINK = "text-destaque underline";
 
-// A programacao e as regras do Game Jam 26 vem de src/lib/edicao.ts (dias,
-// salas, e-mails) e do documento do Bernardo de 12/11/2026 (o resto do texto).
+// A programacao e as regras do Game Jam Season 4 vem de src/lib/edicao.ts (dias,
+// salas, e-mails) e da divulgacao oficial do evento.
 export default function Regras() {
   return (
     <Layout>
@@ -25,8 +25,8 @@ export default function Regras() {
         <Titulo valor="regras" />
 
         <p className={`mt-10 ${TEXTO}`}>
-          O {NOME} tem três dias, todos no {LOCAL}. A participação é voluntária e não há
-          premiação.
+          O {NOME} tem três dias, todos no {LOCAL}. A participação é voluntária, sem
+          premiação, e conta como horas complementares para o seu curso.
         </p>
 
         {/* "formato" e o endereco que a pagina Jogos usa ("veja como funciona"). */}
@@ -54,7 +54,7 @@ export default function Regras() {
             que você recebe da organização. Depois de cada envio, a tela mostra como o seu tanque reagiu.
           </li>
           <li>Você programa em {linguagensPorExtenso()}; basta saber o básico.</li>
-          <li>Não precisa levar nada: o workshop usa os computadores do laboratório, que muda de um dia para o outro ({salasPorDia(DIAS.filter((d) => d.sala.startsWith("Lab")))}).</li>
+          <li>Não precisa levar nada. O workshop usa os computadores do laboratório, que muda de um dia para o outro: {salasPorDia(DIAS.filter((d) => d.sala.startsWith("Lab")))}.</li>
         </ul>
 
         <TituloSecao valor="Inscrição" className={SECAO_REGRAS} />

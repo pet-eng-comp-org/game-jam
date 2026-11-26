@@ -56,8 +56,8 @@ function useAgora() {
 interface Props {
   // Os dias do evento, em ISO: a contagem vai ate o proximo que comeca.
   dias: { numero: number; inicio: string; fim: string }[]
-  nome: string // "Game Jam 26"
-  aviso: string // "O Game Jam 26 começa na terça, 1 de dezembro, às 14h.", para leitor de tela
+  nome: string // "Game Jam Season 4"
+  aviso: string // "O Game Jam Season 4 começa na terça, 1 de dezembro, às 14h.", para leitor de tela
 }
 
 export default function Contagem({ dias, nome, aviso }: Props) {

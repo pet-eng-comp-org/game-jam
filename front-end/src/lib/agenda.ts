@@ -1,4 +1,4 @@
-// "Salvar na agenda": os tres dias do Game Jam 26 no calendario do celular.
+// "Salvar na agenda": os tres dias do Game Jam Season 4 no calendario do celular.
 // Dois caminhos, porque nenhum serve para todo mundo: o link do Google Agenda
 // (o app do Android nao importa arquivo .ics), um por dia, porque o link so
 // leva um evento; e o arquivo .ics com os tres (iPhone, Outlook e o resto).

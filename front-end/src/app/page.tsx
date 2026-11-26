@@ -25,7 +25,7 @@ export default async function Home() {
 
       <div className={PAGINA}>
 
-        {/* Abertura: quem chega sabe na hora que e o Game Jam 26, quanto falta,
+        {/* Abertura: quem chega sabe na hora que e o Game Jam Season 4, quanto falta,
             quando e onde. A inscricao fica no botao da barra, sempre visivel. */}
         <section className="text-center">
           <h1 className="text-balance font-secao text-5xl uppercase leading-none text-destaque md:text-7xl">
@@ -34,7 +34,7 @@ export default async function Home() {
           {/* O que e, antes de rolar: sem esta linha, a primeira tela do celular
               so tinha o titulo, a contagem e a data. */}
           <p className="mt-4 text-balance text-xl text-destaque-claro">
-            Campeonato de Mortal Kombat e workshop de programação de tanques
+            Campeonato de Super Smash Bros. Ultimate e workshop de programação de tanques
           </p>
           <div className="mt-8">
             {/* No primeiro dia, a porta abre e os fantasmas saem. A pagina e
@@ -73,10 +73,11 @@ export default async function Home() {
           <TituloSecao valor="O que é o Game Jam" />
           <p className={`${APOS_TITULO} ${TEXTO}`}>
             São três dias de evento do PET Engenharia de Computação da Ufes. No Dia 1 tem
-            campeonato de Mortal Kombat, com chaveamento decidido na hora. Nos Dias 2 e 3 tem
-            o workshop de programação: cada pessoa programa um tanque para cumprir os desafios
-            das fases de treino e vê na tela como ele reage a cada envio. A participação é
-            voluntária e não há premiação.
+            campeonato de Super Smash Bros. Ultimate, com chaveamento decidido na hora. Nos
+            Dias 2 e 3 tem o workshop de programação: cada pessoa programa um tanque para
+            cumprir os desafios das fases de treino e vê na tela como ele reage a cada envio.
+            A participação é voluntária, sem premiação, e conta como horas complementares
+            para o seu curso.
           </p>
           {/* Sem este aviso, os jogos das outras edicoes (em /jogos) pareciam o
               que se faz no evento. */}

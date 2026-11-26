@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { semErroDePagina } from "./ajuda";
 
-// Desde o Game Jam 26 a inscricao e por e-mail (o formulario saiu): a pagina
+// Desde o Game Jam Season 4 a inscricao e por e-mail (o formulario saiu): a pagina
 // diz para quem escrever e o botao abre o e-mail ja preenchido.
 
 test("a inscricao abre o e-mail pronto, com os dois enderecos a vista", async ({ page }) => {
@@ -13,10 +13,10 @@ test("a inscricao abre o e-mail pronto, com os dois enderecos a vista", async ({
   expect(u.protocol).toBe("mailto:");
   expect(u.pathname).toBe("petgamejamufes@gmail.com");
   expect(u.searchParams.get("cc")).toBe("petengcomp@inf.ufes.br");
-  expect(u.searchParams.get("subject")).toBe("Inscrição Game Jam 26");
+  expect(u.searchParams.get("subject")).toBe("Inscrição Game Jam Season 4");
   await expect(page.getByText("petgamejamufes@gmail.com", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("petengcomp@inf.ufes.br", { exact: true }).first()).toBeVisible();
-  for (const sala of ["Sala do PET", "Lab 4", "Lab 2"]) await expect(page.getByText(sala, { exact: false }).first()).toBeVisible();
+  for (const sala of ["Sala do PET", "Lab 4 (laboratório novo)", "Lab 2"]) await expect(page.getByText(sala, { exact: false }).first()).toBeVisible();
   confere();
 });
 

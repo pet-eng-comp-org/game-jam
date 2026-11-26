@@ -4,7 +4,7 @@ import Personagem from "../components/Personagem"
 import { jaPassou } from "@/lib/datas"
 import { DIAS, EMAIL_DE_INSCRICAO, EMAILS, FIM, horario, LOCAL, NOME, periodo, quando } from "@/lib/edicao"
 
-// Inscricao do Game Jam 26: por pessoa e so por e-mail (decisao da organizacao,
+// Inscricao do Game Jam Season 4: por pessoa e so por e-mail (decisao da organizacao,
 // 12/11/2026). A pagina diz o que escrever e para quem, e o botao abre o e-mail
 // ja preenchido. Os enderecos ficam a vista, para quem nao tem aplicativo de
 // e-mail no computador e precisa copiar.

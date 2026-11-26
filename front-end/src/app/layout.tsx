@@ -48,7 +48,7 @@ const versao =
 // "Ufes" e "Vitória" no texto: quem procura o evento busca por eles, e "pet game
 // jam" sozinho tambem traz o PET Jam, do PET Computacao da UFRGS.
 const descricao =
-  "Game Jam 26, três dias de evento do PET Engenharia de Computação da Ufes: campeonato de Mortal Kombat e workshop de programação de tanques, de 1 a 3 de dezembro de 2026, em Vitória (ES).";
+  "Game Jam Season 4, três dias de evento do PET Engenharia de Computação da Ufes: campeonato de Super Smash Bros. Ultimate e workshop de programação de tanques, de 1 a 3 de dezembro de 2026, em Vitória (ES).";
 
 // A cor da barra do navegador (Safari, Chrome no Android) continua a da barra
 // do site; sem isto, cada navegador escolhia uma.
