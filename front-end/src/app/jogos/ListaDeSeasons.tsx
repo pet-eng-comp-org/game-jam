@@ -8,6 +8,7 @@ import TituloSecao from "../components/TituloSecao"
 import Personagem from "../components/Personagem"
 import { PAGINA, SECAO, TEXTO } from "../components/estilo"
 import { capaDoJogo, listaDeIntegrantes } from "@/lib/capa"
+import { NOME } from "@/lib/edicao"
 import type { SeasonComJogosJson } from "@/models/api"
 
 // "Ana, Bia e Caio": a lista de integrantes escrita como frase.
@@ -34,7 +35,7 @@ export default function ListaDeSeasons({ temporadas }: { temporadas: SeasonComJo
       <p className={`mt-6 ${TEXTO}`}>
         Nas Seasons 1 a 3, cada equipe tinha algumas semanas para criar um jogo do zero,
         sobre um tema. Todos rodam no navegador, mas foram feitos para jogar no computador:
-        vários usam o teclado e não respondem ao toque no celular. O Game Jam 26 muda o
+        vários usam o teclado e não respondem ao toque no celular. O {NOME} muda o
         formato:{" "}
         <Link href="/regras#formato" className="text-destaque underline">veja como funciona</Link>.
       </p>

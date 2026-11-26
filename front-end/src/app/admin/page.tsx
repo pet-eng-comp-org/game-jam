@@ -92,7 +92,7 @@ export default function Admin() {
                         <Link href="/admin/equipes" className="mt-4 inline-block font-bold underline">Ver as equipes e baixar a planilha</Link>
                     </section>
 
-                    {/* O Game Jam 26 (tres dias, salas diferentes, inscricao por
+                    {/* O Game Jam Season 4 (tres dias, salas diferentes, inscricao por
                         e-mail) nao cabe nos campos da season: o site le de
                         src/lib/edicao.ts. Sem este aviso, o painel pedia para
                         preencher campos que o site nao mostra. */}

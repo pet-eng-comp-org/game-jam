@@ -5,7 +5,7 @@ import Layout from "../components/Layout";
 // (componentes de servidor) ficam aqui.
 export const metadata: Metadata = {
   title: "Inscrição",
-  description: "Como se inscrever no Game Jam 26: por e-mail, até a véspera do dia em que você vai.",
+  description: "Como se inscrever no Game Jam Season 4: por e-mail, até a véspera do dia em que você vai.",
 };
 
 export default function LayoutInscricao({ children }: { children: React.ReactNode }) {

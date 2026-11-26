@@ -76,7 +76,7 @@ test("organizador ve os inscritos, baixa a planilha e apaga uma equipe", async (
   expect(await banco.equipe.count({ where: { id: equipe.id } })).toBe(0);
 });
 
-// No Game Jam 26 o site nao mostra os campos da season (src/lib/edicao.ts);
+// No Game Jam Season 4 o site nao mostra os campos da season (src/lib/edicao.ts);
 // o painel continua gravando, e avisa isso.
 test("organizador edita a season, e o painel avisa que o site nao usa os campos", async ({ page }, info) => {
   const linguagem = `Linguagem${info.project.name}${Date.now() % 100000}`;

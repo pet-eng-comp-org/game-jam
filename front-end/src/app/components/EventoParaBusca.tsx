@@ -23,7 +23,7 @@ export default function EventoParaBusca({ acabou }: { acabou: boolean }) {
     "@context": "https://schema.org",
     "@type": "Event",
     name: `PET ${NOME}`,
-    description: "Três dias de evento do PET Engenharia de Computação da Ufes: campeonato de Mortal Kombat e workshop de programação de tanques.",
+    description: "Três dias de evento do PET Engenharia de Computação da Ufes: campeonato de Super Smash Bros. Ultimate e workshop de programação de tanques.",
     startDate: INICIO,
     endDate: FIM,
     eventStatus: "https://schema.org/EventScheduled",
